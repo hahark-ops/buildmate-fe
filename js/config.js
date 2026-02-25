@@ -2,4 +2,4 @@
 // EC2 FE 프록시 경유 배포에서는 빈 문자열("")을 유지해 상대경로(/v1)를 사용합니다.
 window.RUNTIME_CONFIG = window.RUNTIME_CONFIG || {};
 window.RUNTIME_CONFIG.API_BASE_URL = "";
-window.RUNTIME_CONFIG.UPLOAD_API_BASE_URL = "https://s9rds3haxl.execute-api.ap-northeast-2.amazonaws.com";
+window.RUNTIME_CONFIG.UPLOAD_API_BASE_URL = "";

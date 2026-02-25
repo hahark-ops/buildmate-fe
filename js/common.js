@@ -27,46 +27,88 @@ async function uploadFileViaPresigned(file, type = 'post') {
     if (!file) {
         throw new Error('업로드할 파일이 없습니다.');
     }
-    if (!UPLOAD_API_BASE_URL) {
-        throw new Error('업로드 API 주소가 설정되지 않았습니다.');
-    }
 
     const uploadType = type === 'profile' ? 'profile' : 'post';
-    const requestBody = {
-        type: uploadType,
-        filename: file.name || `${uploadType}.png`,
-        contentType: file.type || 'application/octet-stream'
+
+    const uploadViaBackend = async () => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', uploadType);
+
+        const directResponse = await fetch(`${API_BASE_URL}/v1/files/upload`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+
+        const directData = await parseApiResponseSafe(directResponse);
+        if (!directResponse.ok) {
+            throw new Error(directData.message || directData.detail || `파일 업로드에 실패했습니다. (HTTP ${directResponse.status})`);
+        }
+
+        const directFileUrl =
+            directData?.fileUrl ||
+            directData?.url ||
+            directData?.data?.fileUrl ||
+            directData?.data?.filePath ||
+            directData?.filePath;
+
+        if (!directFileUrl) {
+            throw new Error('파일 업로드 응답 형식이 올바르지 않습니다.');
+        }
+
+        return directFileUrl;
     };
 
-    const presignResponse = await fetch(`${UPLOAD_API_BASE_URL}/v1/files/upload-url`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-    });
+    if (UPLOAD_API_BASE_URL) {
+        try {
+            const requestBody = {
+                type: uploadType,
+                filename: file.name || `${uploadType}.png`,
+                contentType: file.type || 'application/octet-stream'
+            };
 
-    const presignData = await parseApiResponseSafe(presignResponse);
-    if (!presignResponse.ok) {
-        throw new Error(presignData.message || '업로드 URL 발급에 실패했습니다.');
+            const presignResponse = await fetch(`${UPLOAD_API_BASE_URL}/v1/files/upload-url`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(requestBody)
+            });
+
+            const presignData = await parseApiResponseSafe(presignResponse);
+            if (!presignResponse.ok) {
+                throw new Error(presignData.message || presignData.detail || '업로드 URL 발급에 실패했습니다.');
+            }
+
+            const uploadUrl = presignData?.data?.uploadUrl || presignData?.uploadUrl;
+            const fileUrl =
+                presignData?.data?.fileUrl ||
+                presignData?.data?.filePath ||
+                presignData?.fileUrl ||
+                presignData?.filePath;
+
+            if (!uploadUrl || !fileUrl) {
+                throw new Error('업로드 URL 응답 형식이 올바르지 않습니다.');
+            }
+
+            const uploadResponse = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': file.type || 'application/octet-stream' },
+                body: file
+            });
+
+            if (!uploadResponse.ok) {
+                const uploadErrorText = await uploadResponse.text();
+                throw new Error(uploadErrorText || `S3 업로드에 실패했습니다. (HTTP ${uploadResponse.status})`);
+            }
+
+            return fileUrl;
+        } catch (e) {
+            console.warn('Presigned upload failed. Falling back to backend upload.', e);
+        }
     }
 
-    const uploadUrl = presignData?.data?.uploadUrl || presignData?.uploadUrl;
-    const fileUrl = presignData?.data?.fileUrl || presignData?.data?.filePath || presignData?.fileUrl || presignData?.filePath;
-    if (!uploadUrl || !fileUrl) {
-        throw new Error('업로드 URL 응답 형식이 올바르지 않습니다.');
-    }
-
-    const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type || 'application/octet-stream' },
-        body: file
-    });
-
-    if (!uploadResponse.ok) {
-        const uploadErrorText = await uploadResponse.text();
-        throw new Error(uploadErrorText || `S3 업로드에 실패했습니다. (HTTP ${uploadResponse.status})`);
-    }
-
-    return fileUrl;
+    return await uploadViaBackend();
 }
 
 window.parseApiResponseSafe = parseApiResponseSafe;

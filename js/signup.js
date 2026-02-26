@@ -24,10 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 유효성 검사 플래그
     let isEmailValid = false;
+    let isEmailAvailabilityChecked = false;
     let isPasswordValid = false;
     let isPasswordConfirmValid = false;
     let isNicknameValid = false;
+    let isNicknameAvailabilityChecked = false;
     const PROFILE_IMAGE_MAX_BYTES = 15 * 1024 * 1024;
+    const DUPLICATE_CHECK_FAILURE_MESSAGE = '* 중복 확인에 실패했습니다. 네트워크 확인 후 새로고침 해주세요.';
 
 
     // 헬퍼 함수
@@ -42,7 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkFormValidity() {
-        if (isEmailValid && isPasswordValid && isPasswordConfirmValid && isNicknameValid) {
+        if (
+            isEmailValid &&
+            isEmailAvailabilityChecked &&
+            isPasswordValid &&
+            isPasswordConfirmValid &&
+            isNicknameValid &&
+            isNicknameAvailabilityChecked
+        ) {
             signupBtn.disabled = false;
             signupBtn.classList.add('active');
         } else {
@@ -173,28 +183,45 @@ document.addEventListener('DOMContentLoaded', () => {
         if (value === '') {
             showHelper(emailHelper, '* 이메일을 입력해주세요.');
             isEmailValid = false;
+            isEmailAvailabilityChecked = false;
         } else if (!emailPattern.test(value)) {
             showHelper(emailHelper, '* 올바른 이메일 주소 형식을 입력해주세요. (예: example@example.com)');
             isEmailValid = false;
+            isEmailAvailabilityChecked = false;
         } else {
+            const checkedValue = value;
             try {
                 const response = await fetch(`${API_BASE_URL}/v1/auth/emails/availability?email=${encodeURIComponent(value)}`);
                 const data = await parseApiResponse(response);
 
+                if (emailInput.value.trim() !== checkedValue) {
+                    return;
+                }
+
                 if (response.ok) {
                     hideHelper(emailHelper);
                     isEmailValid = true;
+                    isEmailAvailabilityChecked = true;
                 } else if (response.status === 409) {
                     showHelper(emailHelper, '* 이미 사용 중인 이메일입니다.');
                     isEmailValid = false;
+                    isEmailAvailabilityChecked = false;
+                } else if (response.status >= 500) {
+                    showHelper(emailHelper, DUPLICATE_CHECK_FAILURE_MESSAGE);
+                    isEmailValid = false;
+                    isEmailAvailabilityChecked = false;
                 } else {
                     showHelper(emailHelper, data.message || '* 이메일 확인 중 오류가 발생했습니다.');
                     isEmailValid = false;
+                    isEmailAvailabilityChecked = false;
                 }
             } catch (error) {
                 console.error('Email check error:', error);
-                hideHelper(emailHelper);
-                isEmailValid = true;
+                if (emailInput.value.trim() === checkedValue) {
+                    showHelper(emailHelper, DUPLICATE_CHECK_FAILURE_MESSAGE);
+                    isEmailValid = false;
+                    isEmailAvailabilityChecked = false;
+                }
             }
         }
         checkFormValidity();
@@ -202,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     emailInput.addEventListener('input', () => {
         const value = emailInput.value.trim();
+        isEmailAvailabilityChecked = false;
         if (emailPattern.test(value)) {
             isEmailValid = true;
             hideHelper(emailHelper);
@@ -287,34 +315,53 @@ document.addEventListener('DOMContentLoaded', () => {
         if (value === '') {
             showHelper(nicknameHelper, '* 닉네임을 입력해주세요.');
             isNicknameValid = false;
+            isNicknameAvailabilityChecked = false;
         } else if (/\s/.test(value)) {
             showHelper(nicknameHelper, '* 띄어쓰기를 없애주세요.');
             isNicknameValid = false;
+            isNicknameAvailabilityChecked = false;
         } else if (value.length > 10) {
             showHelper(nicknameHelper, '* 닉네임은 최대 10자까지 작성 가능합니다.');
             isNicknameValid = false;
+            isNicknameAvailabilityChecked = false;
         } else if (!nicknamePattern.test(value)) {
             showHelper(nicknameHelper, '* 닉네임 형식이 올바르지 않습니다. (공백/특수문자 불가)');
             isNicknameValid = false;
+            isNicknameAvailabilityChecked = false;
         } else {
+            const checkedValue = value;
             try {
                 const response = await fetch(`${API_BASE_URL}/v1/auth/nicknames/availability?nickname=${encodeURIComponent(value)}`);
                 const data = await parseApiResponse(response);
 
+                if (nicknameInput.value !== checkedValue) {
+                    return;
+                }
+
                 if (response.ok) {
                     hideHelper(nicknameHelper);
                     isNicknameValid = true;
+                    isNicknameAvailabilityChecked = true;
                 } else if (response.status === 409) {
                     showHelper(nicknameHelper, '* 이미 사용 중인 닉네임입니다.');
                     isNicknameValid = false;
+                    isNicknameAvailabilityChecked = false;
+                } else if (response.status >= 500) {
+                    showHelper(nicknameHelper, DUPLICATE_CHECK_FAILURE_MESSAGE);
+                    isNicknameValid = false;
+                    isNicknameAvailabilityChecked = false;
                 } else {
                     showHelper(nicknameHelper, data.message || '* 닉네임 확인 중 오류가 발생했습니다.');
                     isNicknameValid = false;
+                    isNicknameAvailabilityChecked = false;
                 }
             } catch (error) {
                 console.error('Nickname check error:', error);
-                hideHelper(nicknameHelper);
-                isNicknameValid = true;
+                if (nicknameInput.value === checkedValue) {
+                    showHelper(nicknameHelper, DUPLICATE_CHECK_FAILURE_MESSAGE);
+                    isNicknameValid = false;
+                    isNicknameAvailabilityChecked = false;
+                }
             }
         }
         checkFormValidity();
@@ -322,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     nicknameInput.addEventListener('input', () => {
         const value = nicknameInput.value;
+        isNicknameAvailabilityChecked = false;
         if (value.length > 10) {
             showHelper(nicknameHelper, '* 닉네임은 최대 10자까지 작성 가능합니다.');
             isNicknameValid = false;
@@ -338,6 +386,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. 회원가입 제출
     signupBtn.addEventListener('click', async () => {
         if (signupBtn.disabled) return;
+        if (
+            !isEmailValid ||
+            !isEmailAvailabilityChecked ||
+            !isPasswordValid ||
+            !isPasswordConfirmValid ||
+            !isNicknameValid ||
+            !isNicknameAvailabilityChecked
+        ) {
+            showCustomModal('중복 확인이 완료되지 않았습니다. 이메일/닉네임 입력 후 중복 확인을 다시 진행해주세요.');
+            checkFormValidity();
+            return;
+        }
 
         const email = emailInput.value.trim();
         const password = passwordInput.value;

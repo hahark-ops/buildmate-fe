@@ -416,9 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
             commentEl.dataset.id = comment.commentId;
 
             // 현재 사용자가 댓글 작성자인지 확인
-            // 보안: authorId를 우선 확인, 없으면 이메일 비교로 대체
+            // 보안: authorId/userId만 사용하여 판별
             const currentUserId = currentUser ? String(currentUser.userId) : null;
-            const currentEmail = currentUser ? currentUser.email : null;
 
             // 백엔드가 authorId, userId, 또는 중첩된 author.userId를 반환해야 함
             let commentAuthorId = null;
@@ -430,21 +429,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 commentAuthorId = String(comment.author.userId);
             }
 
-            // 댓글 작성자 이메일 가져오기 (백엔드에서 writerEmail)
-            const commentEmail = comment.writerEmail || comment.authorEmail ||
-                (comment.author && comment.author.email);
-
-            // ID로 소유권 확인, 없으면 이메일로 확인 (안전한 대체 방법)
-            let isOwner = false;
-            if (currentUserId && commentAuthorId) {
-                isOwner = currentUserId === commentAuthorId;
-            } else if (currentEmail && commentEmail) {
-                // 이메일은 사용자보다 고유하므로 안전한 비교 가능
-                isOwner = currentEmail === commentEmail;
-
-            } else {
-
-            }
+            // ID 기반 소유권 확인만 허용
+            const isOwner = Boolean(currentUserId && commentAuthorId && currentUserId === commentAuthorId);
 
 
 

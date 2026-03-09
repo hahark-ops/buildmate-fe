@@ -173,6 +173,8 @@ h2 {
     background: #F4F0FF;
     border: 1px solid #DDD6FE;
     transition: background-color 0.2s ease, transform 0.2s ease;
+    position: relative;
+    overflow: visible;
 }
 
 .header-icon-btn:hover {
@@ -262,4 +264,24 @@ h2 {
 .inline-status-message {
     font-size: 12px;
     color: #7F6AEE;
+}
+
+
+.dm-unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #EF4444;
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.28);
 }

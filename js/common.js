@@ -346,6 +346,72 @@ function buildAuthorProfileCard(options) {
     return card;
 }
 
+
+function ensureDmUnreadBadge() {
+    const dmButtons = document.querySelectorAll('.dm-icon-btn');
+    dmButtons.forEach((button) => {
+        if (button.querySelector('.dm-unread-badge')) {
+            return;
+        }
+        const badge = document.createElement('span');
+        badge.className = 'dm-unread-badge';
+        badge.hidden = true;
+        button.appendChild(badge);
+    });
+}
+
+function setDmUnreadBadgeCount(count) {
+    const normalizedCount = Math.max(0, Number(count) || 0);
+    document.querySelectorAll('.dm-unread-badge').forEach((badge) => {
+        if (normalizedCount <= 0) {
+            badge.hidden = true;
+            badge.textContent = '';
+            return;
+        }
+        badge.hidden = false;
+        badge.textContent = normalizedCount > 99 ? '99+' : String(normalizedCount);
+    });
+}
+
+async function refreshDmUnreadBadge() {
+    if (!document.querySelector('.dm-icon-btn')) {
+        return;
+    }
+
+    ensureDmUnreadBadge();
+    const response = await fetch(`${API_BASE_URL}/v1/dm/rooms`, { credentials: 'include' });
+    const result = await parseApiResponseSafe(response);
+    if (response.status === 401) {
+        setDmUnreadBadgeCount(0);
+        return;
+    }
+    if (!response.ok) {
+        throw new Error(result.message || 'DM 미읽음 수를 불러오지 못했습니다.');
+    }
+    const totalUnreadCount = Number(result?.data?.totalUnreadCount || 0);
+    setDmUnreadBadgeCount(totalUnreadCount);
+}
+
 window.getStoredCurrentUser = getStoredCurrentUser;
 window.startDirectMessage = startDirectMessage;
 window.buildAuthorProfileCard = buildAuthorProfileCard;
+
+window.setDmUnreadBadgeCount = setDmUnreadBadgeCount;
+window.refreshDmUnreadBadge = refreshDmUnreadBadge;
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.querySelector('.dm-icon-btn')) {
+        return;
+    }
+    ensureDmUnreadBadge();
+    refreshDmUnreadBadge().catch((error) => {
+        console.warn('failed to refresh dm unread badge', error);
+    });
+});
+
+window.addEventListener('focus', () => {
+    if (!document.querySelector('.dm-icon-btn')) {
+        return;
+    }
+    refreshDmUnreadBadge().catch(() => {});
+});

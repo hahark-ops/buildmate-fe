@@ -20,6 +20,64 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket = null;
     let reconnectAttempts = 0;
     let reconnectTimer = null;
+    let messageState = new Map();
+    let isComposing = false;
+
+
+    function sortRooms() {
+        rooms.sort((a, b) => {
+            const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+            const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+            if (aTime !== bTime) {
+                return bTime - aTime;
+            }
+            return Number(b.roomId) - Number(a.roomId);
+        });
+    }
+
+    function syncUnreadBadge() {
+        const totalUnreadCount = rooms.reduce((sum, room) => sum + Number(room.unreadCount || 0), 0);
+        if (window.setDmUnreadBadgeCount) {
+            window.setDmUnreadBadgeCount(totalUnreadCount);
+        }
+    }
+
+    function updateRoomSummary(roomId, updater) {
+        const room = rooms.find((item) => Number(item.roomId) === Number(roomId));
+        if (!room) {
+            return;
+        }
+        updater(room);
+        sortRooms();
+        renderRooms();
+        syncUnreadBadge();
+    }
+
+    function applyReadReceipt(lastReadMessageId, readerUserId) {
+        if (!lastReadMessageId) {
+            return;
+        }
+
+        const normalizedReaderId = String(readerUserId || '');
+        const isCurrentUserReader = currentUser && String(currentUser.userId) === normalizedReaderId;
+        if (isCurrentUserReader) {
+            updateRoomSummary(currentRoomId, (room) => {
+                room.unreadCount = 0;
+            });
+            return;
+        }
+
+        messageState.forEach((message, messageId) => {
+            if (!message.isMine || Number(messageId) > Number(lastReadMessageId)) {
+                return;
+            }
+            message.readByOther = true;
+            const receipt = messageListEl.querySelector(`.dm-message-row[data-message-id="${messageId}"] .dm-bubble-read`);
+            if (receipt) {
+                receipt.textContent = '읽음';
+            }
+        });
+    }
 
     function formatMessageTime(value) {
         if (!value) return '';
@@ -68,8 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) {
             throw new Error(result.message || '채팅방 목록을 불러오지 못했습니다.');
         }
-        rooms = result.data && Array.isArray(result.data.rooms) ? result.data.rooms : [];
+        const data = result.data || {};
+        rooms = Array.isArray(data.rooms) ? data.rooms : [];
+        sortRooms();
         renderRooms();
+        if (window.setDmUnreadBadgeCount) {
+            window.setDmUnreadBadgeCount(Number(data.totalUnreadCount || 0));
+        }
 
         if (!currentRoomId && rooms.length > 0) {
             currentRoomId = rooms[0].roomId;
@@ -103,6 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const top = document.createElement('div');
             top.className = 'dm-room-top';
 
+            const topLeft = document.createElement('div');
+            topLeft.className = 'dm-room-top-left';
+
+            const topRight = document.createElement('div');
+            topRight.className = 'dm-room-top-right';
+
             const avatar = document.createElement('div');
             avatar.className = 'dm-room-avatar';
             if (room.partner && room.partner.profileImage) {
@@ -116,8 +185,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const time = document.createElement('div');
             time.className = 'dm-room-time';
             time.textContent = formatDate(room.lastMessageAt || '');
-            meta.append(name, time);
-            top.append(avatar, meta);
+            meta.append(name);
+            topLeft.append(avatar, meta);
+            topRight.append(time);
+
+            if (Number(room.unreadCount || 0) > 0) {
+                const unreadBadge = document.createElement('span');
+                unreadBadge.className = 'dm-room-unread-badge';
+                unreadBadge.textContent = Number(room.unreadCount) > 99 ? '99+' : String(room.unreadCount);
+                topRight.append(unreadBadge);
+            }
+
+            top.append(topLeft, topRight);
 
             const last = document.createElement('div');
             last.className = 'dm-room-last';
@@ -143,19 +222,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMessages(messages) {
         messageListEl.innerHTML = '';
+        messageState = new Map();
         emptyStateEl.style.display = messages.length ? 'none' : 'block';
         messages.forEach((message) => appendMessage(message));
         scrollToBottom();
     }
 
     function appendMessage(message) {
+        const normalizedMessage = {
+            ...message,
+            messageId: Number(message.messageId),
+            readByOther: Boolean(message.readByOther),
+        };
+        messageState.set(normalizedMessage.messageId, normalizedMessage);
+
+        const existing = messageListEl.querySelector(`.dm-message-row[data-message-id="${normalizedMessage.messageId}"]`);
+        if (existing) {
+            existing.remove();
+        }
+
         const row = document.createElement('div');
-        row.className = `dm-message-row${message.isMine ? ' mine' : ''}`;
+        row.className = `dm-message-row${normalizedMessage.isMine ? ' mine' : ''}`;
+        row.dataset.messageId = String(normalizedMessage.messageId);
 
         const avatar = document.createElement('div');
         avatar.className = 'dm-bubble-avatar';
-        if (message.senderProfileImage) {
-            avatar.style.backgroundImage = `url(${message.senderProfileImage})`;
+        if (normalizedMessage.senderProfileImage) {
+            avatar.style.backgroundImage = `url(${normalizedMessage.senderProfileImage})`;
         }
 
         const body = document.createElement('div');
@@ -163,17 +256,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const name = document.createElement('div');
         name.className = 'dm-bubble-name';
-        name.textContent = message.isMine ? '나' : (message.senderNickname || '익명');
+        name.textContent = normalizedMessage.isMine ? '나' : (normalizedMessage.senderNickname || '익명');
 
         const bubble = document.createElement('div');
         bubble.className = 'dm-bubble';
-        bubble.textContent = message.content || '';
+        bubble.textContent = normalizedMessage.content || '';
+
+        const meta = document.createElement('div');
+        meta.className = 'dm-bubble-meta';
 
         const time = document.createElement('div');
         time.className = 'dm-bubble-time';
-        time.textContent = formatMessageTime(message.createdAt);
+        time.textContent = formatMessageTime(normalizedMessage.createdAt);
+        meta.append(time);
 
-        body.append(name, bubble, time);
+        if (normalizedMessage.isMine) {
+            const read = document.createElement('span');
+            read.className = 'dm-bubble-read';
+            read.textContent = normalizedMessage.readByOther ? '읽음' : '';
+            meta.append(read);
+        }
+
+        body.append(name, bubble, meta);
         row.append(avatar, body);
         messageListEl.appendChild(row);
     }
@@ -213,6 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
         sendBtn.disabled = false;
 
         await fetchMessages(currentRoomId);
+        updateRoomSummary(currentRoomId, (activeRoom) => {
+            activeRoom.unreadCount = 0;
+        });
         connectSocket();
     }
 
@@ -241,12 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     appendMessage(payload.data);
                     emptyStateEl.style.display = 'none';
                     scrollToBottom();
-                    const room = rooms.find((item) => Number(item.roomId) === roomIdAtConnect);
-                    if (room) {
+                    updateRoomSummary(roomIdAtConnect, (room) => {
                         room.lastMessage = payload.data.content;
                         room.lastMessageAt = payload.data.createdAt;
-                        renderRooms();
-                    }
+                        if (!payload.data.isMine) {
+                            room.unreadCount = 0;
+                        }
+                    });
+                } else if (payload.type === 'messages_read' && payload.data) {
+                    applyReadReceipt(payload.data.lastReadMessageId, payload.data.readerUserId);
                 } else if (payload.type === 'error') {
                     showCustomModal(payload.message || '채팅 연결에 실패했습니다.');
                 }
@@ -281,6 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function sendMessage(event) {
         event.preventDefault();
+        if (isComposing) {
+            return;
+        }
+
         const content = inputEl.value.trim();
         if (!content || !socket || socket.readyState !== WebSocket.OPEN) {
             return;
@@ -290,6 +404,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleComposerKeydown(event) {
+        if (event.isComposing || isComposing || event.keyCode === 229) {
+            return;
+        }
+
         if (event.key !== 'Enter' || event.shiftKey) {
             return;
         }
@@ -330,6 +448,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     composerEl.addEventListener('submit', sendMessage);
     inputEl.addEventListener('keydown', handleComposerKeydown);
+    inputEl.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+    inputEl.addEventListener('compositionend', () => {
+        isComposing = false;
+    });
 
     (async () => {
         try {

@@ -231,3 +231,121 @@ function showCustomModal(message, onConfirm) {
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 }
+
+
+function getStoredCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+        try {
+            return JSON.parse(userStr);
+        } catch (e) {
+            console.warn('stored user parse failed', e);
+        }
+    }
+
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        return null;
+    }
+
+    return {
+        userId,
+        nickname: localStorage.getItem('nickname') || '',
+        email: localStorage.getItem('email') || '',
+        profileImage: localStorage.getItem('profileImage') || ''
+    };
+}
+
+async function startDirectMessage(targetUserId) {
+    if (!targetUserId) {
+        showCustomModal('채팅할 사용자를 찾을 수 없습니다.');
+        return null;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/v1/dm/rooms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ targetUserId: Number(targetUserId) })
+    });
+
+    const result = await parseApiResponseSafe(response);
+    if (!response.ok) {
+        if (response.status === 401) {
+            showCustomModal('로그인이 필요합니다.', () => {
+                window.location.href = 'login.html';
+            });
+            return null;
+        }
+        throw new Error(result.message || '채팅방 생성에 실패했습니다.');
+    }
+
+    const roomId = result?.data?.roomId;
+    if (!roomId) {
+        throw new Error('채팅방 정보를 불러오지 못했습니다.');
+    }
+
+    window.location.href = `dm.html?roomId=${roomId}`;
+    return roomId;
+}
+
+function buildAuthorProfileCard(options) {
+    const currentUser = getStoredCurrentUser();
+    const currentUserId = currentUser ? String(currentUser.userId) : null;
+    const targetUserId = options && options.userId ? String(options.userId) : null;
+
+    const card = document.createElement('div');
+    card.className = 'author-profile-card';
+
+    const left = document.createElement('div');
+    left.className = 'author-profile-card-left';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'author-profile-card-avatar';
+    if (options && options.profileImage) {
+        avatar.style.backgroundImage = `url(${options.profileImage})`;
+    }
+
+    const textWrap = document.createElement('div');
+    textWrap.className = 'author-profile-card-text';
+
+    const name = document.createElement('strong');
+    name.className = 'author-profile-card-name';
+    name.textContent = (options && options.nickname) || '익명';
+
+    const caption = document.createElement('span');
+    caption.className = 'author-profile-card-caption';
+    caption.textContent = '실시간 1:1 대화를 시작할 수 있습니다.';
+
+    textWrap.append(name, caption);
+    left.append(avatar, textWrap);
+
+    const action = document.createElement('button');
+    action.type = 'button';
+    action.className = 'author-profile-card-action';
+
+    if (!targetUserId || (currentUserId && currentUserId === targetUserId)) {
+        action.textContent = '대화 불가';
+        action.disabled = true;
+    } else {
+        action.textContent = '채팅하기';
+        action.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            try {
+                await startDirectMessage(targetUserId);
+            } catch (error) {
+                console.error('failed to start dm', error);
+                showCustomModal(error.message || '채팅방을 여는 데 실패했습니다.');
+            }
+        });
+    }
+
+    card.append(left, action);
+    card.addEventListener('click', (event) => event.stopPropagation());
+    return card;
+}
+
+window.getStoredCurrentUser = getStoredCurrentUser;
+window.startDirectMessage = startDirectMessage;
+window.buildAuthorProfileCard = buildAuthorProfileCard;

@@ -15,10 +15,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastReloadAt = 0;
     const RELOAD_COOLDOWN_MS = 800;
     let feedVersion = 0;
+    let currentUser = null;
 
     // 로컬 스토리지에서 사용자 정보 즉시 로드 (깜박임 방지)
     function loadUserFromStorage() {
         const profileImage = localStorage.getItem('profileImage');
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            try {
+                currentUser = JSON.parse(userStr);
+            } catch (error) {
+                console.warn('failed to parse stored user', error);
+            }
+        }
+        if (!currentUser && localStorage.getItem('userId')) {
+            currentUser = {
+                userId: localStorage.getItem('userId'),
+                nickname: localStorage.getItem('nickname'),
+                email: localStorage.getItem('email'),
+                profileImage: localStorage.getItem('profileImage')
+            };
+        }
         if (profileImage) {
             updateProfileIcon(profileImage);
         }
@@ -120,6 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 // 최신 정보로 업데이트 및 스토리지 갱신
                 const user = result.data || result;
+                currentUser = user;
+                localStorage.setItem('user', JSON.stringify(user));
+                if (user.userId) localStorage.setItem('userId', user.userId);
+                if (user.nickname) localStorage.setItem('nickname', user.nickname);
+                if (user.email) localStorage.setItem('email', user.email);
                 if (user.profileImage) {
                     localStorage.setItem('profileImage', user.profileImage);
                     updateProfileIcon(user.profileImage);
@@ -141,6 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    function closeAuthorCards(exceptCard = null) {
+        document.querySelectorAll('.author-profile-card.show').forEach((card) => {
+            if (card !== exceptCard) {
+                card.classList.remove('show');
+            }
+        });
+    }
+
 
     async function logout() {
         try {
@@ -216,8 +247,22 @@ document.addEventListener('DOMContentLoaded', () => {
         authorNameEl.className = 'author-name';
         authorNameEl.textContent = post.writer || '';
 
+        const authorCardEl = window.buildAuthorProfileCard({
+            userId: post.authorId || post.userId,
+            nickname: post.writer,
+            profileImage: post.authorProfileImage
+        });
+
+        authorRowEl.classList.add('author-card-trigger');
+        authorRowEl.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const willShow = !authorCardEl.classList.contains('show');
+            closeAuthorCards(authorCardEl);
+            authorCardEl.classList.toggle('show', willShow);
+        });
+
         authorRowEl.append(authorImageEl, authorNameEl);
-        card.append(titleEl, metaEl, dividerEl, authorRowEl);
+        card.append(titleEl, metaEl, dividerEl, authorRowEl, authorCardEl);
         return card;
     }
 
@@ -234,6 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         if (profileDropdown && !profileDropdown.contains(e.target) && e.target !== profileIcon) {
             profileDropdown.classList.remove('show');
+        }
+        if (!e.target.closest('.author-card-trigger') && !e.target.closest('.author-profile-card')) {
+            closeAuthorCards();
         }
     });
 

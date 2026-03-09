@@ -151,3 +151,115 @@ h2 {
     left: 20px;
     font-weight: bold;
 }
+
+/* DM shared styles */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: #7F6AEE;
+    background: #F4F0FF;
+    border: 1px solid #DDD6FE;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.header-icon-btn:hover {
+    background: #ECE7FF;
+    transform: translateY(-1px);
+}
+
+.dm-icon-btn.active {
+    background: #7F6AEE;
+    color: #FFFFFF;
+    border-color: #7F6AEE;
+}
+
+.author-card-trigger {
+    cursor: pointer;
+}
+
+.author-profile-card {
+    display: none;
+    margin-top: 14px;
+    padding: 16px;
+    border: 1px solid #E4E7EC;
+    border-radius: 16px;
+    background: #FFFFFF;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+}
+
+.author-profile-card.show {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.author-profile-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.author-profile-card-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-color: #D9D9D9;
+    background-size: cover;
+    background-position: center;
+}
+
+.author-profile-card-text {
+    min-width: 0;
+}
+
+.author-profile-card-name {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.author-profile-card-caption {
+    display: block;
+    font-size: 12px;
+    color: #667085;
+}
+
+.author-profile-card-action {
+    border: none;
+    border-radius: 10px;
+    background: #7F6AEE;
+    color: #FFFFFF;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.author-profile-card-action:disabled {
+    background: #D0C6FF;
+    cursor: default;
+}
+
+.inline-status-message {
+    font-size: 12px;
+    color: #7F6AEE;
+}

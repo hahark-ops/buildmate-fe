@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM - 아무 말 대잔치</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/dm.css">
+    <script>
+        (function () {
+            var img = localStorage.getItem('profileImage');
+            if (img) {
+                var style = document.createElement('style');
+                style.textContent = '#profileIcon { background-image: url(' + img + ') !important; }';
+                document.head.appendChild(style);
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <header>
+        <a href="index.html" class="back-button">&lt;</a>
+        <span class="logo">아무 말 대잔치</span>
+        <div class="header-content">
+            <div class="header-actions">
+                <a href="dm.html" class="header-icon-btn dm-icon-btn active" aria-label="DM">DM</a>
+                <div class="profile-icon" id="profileIcon"></div>
+            </div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="profile.html" class="dropdown-item">회원정보수정</a>
+                <a href="password.html" class="dropdown-item">비밀번호수정</a>
+                <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="dm-page-container">
+        <section class="dm-room-panel">
+            <div class="dm-panel-title">대화 목록</div>
+            <div id="dmRoomList" class="dm-room-list"></div>
+        </section>
+
+        <section class="dm-chat-panel">
+            <div class="dm-chat-header" id="dmChatHeader">
+                <div class="dm-peer-avatar" id="dmPeerAvatar"></div>
+                <div class="dm-peer-meta">
+                    <strong id="dmPeerName">대화 상대를 선택해주세요.</strong>
+                    <span id="dmStatusMessage">실시간 1:1 대화를 지원합니다.</span>
+                </div>
+            </div>
+            <div id="dmEmptyState" class="dm-empty-state">아직 시작한 대화가 없습니다.</div>
+            <div id="dmMessageList" class="dm-message-list"></div>
+            <form id="dmComposer" class="dm-composer">
+                <textarea id="dmInput" placeholder="메시지를 입력하세요" maxlength="500"></textarea>
+                <button type="submit" id="dmSendBtn">전송</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/dm.js"></script>
+</body>
+
+</html>

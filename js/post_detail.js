@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const authorName = document.getElementById('authorName');
     const postDate = document.getElementById('postDate');
     const postActions = document.getElementById('postActions');
+    const authorInfo = document.querySelector('.author-info');
+    const postMetaRow = document.querySelector('.post-meta-row');
     const editPostBtn = document.getElementById('editPostBtn');
     const deletePostBtn = document.getElementById('deletePostBtn');
     const postImageContainer = document.getElementById('postImageContainer');
@@ -53,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
     let isLiked = false;
     let editingCommentId = null;
+    let authorCardEl = null;
 
     // 로컬스토리지에서 사용자 정보 로드 (동기 처리 - 딜레이 방지)
     function loadUserFromStorage() {
@@ -105,6 +108,37 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideModal() {
         deleteModal.style.display = 'none';
     }
+    function closeAuthorCard() {
+        if (authorCardEl) {
+            authorCardEl.classList.remove('show');
+        }
+    }
+
+    function mountAuthorCard() {
+        if (!currentPost || !postMetaRow) return;
+        if (authorCardEl) {
+            authorCardEl.remove();
+        }
+
+        authorCardEl = window.buildAuthorProfileCard({
+            userId: currentPost.authorId || currentPost.userId,
+            nickname: currentPost.writer,
+            profileImage: currentPost.authorProfileImage
+        });
+        postMetaRow.insertAdjacentElement('afterend', authorCardEl);
+
+        if (authorInfo) {
+            authorInfo.classList.add('author-card-trigger');
+            authorInfo.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const willShow = !authorCardEl.classList.contains('show');
+                closeAuthorCard();
+                authorCardEl.classList.toggle('show', willShow);
+            };
+        }
+    }
+
 
     // ==========================================
     // API 함수
@@ -346,6 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
             authorAvatar.style.backgroundColor = '#D9D9D9';
         }
 
+        mountAuthorCard();
+
         // 이미지
         if (currentPost.fileUrl) {
             postImage.src = currentPost.fileUrl;
@@ -543,6 +579,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         if (profileDropdown && !profileDropdown.contains(e.target) && e.target !== profileIcon) {
             profileDropdown.classList.remove('show');
+        }
+        if (!e.target.closest('.author-info') && !e.target.closest('.author-profile-card')) {
+            closeAuthorCard();
         }
     });
 

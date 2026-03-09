@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let rooms = [];
     let socket = null;
     let reconnectAttempts = 0;
+    let reconnectTimer = null;
 
     function formatMessageTime(value) {
         if (!value) return '';
@@ -29,8 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${hh}:${mm}`;
     }
 
-    function closeSocket() {
+    function closeSocket(intentional = true) {
+        if (reconnectTimer) {
+            window.clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+        }
         if (socket) {
+            socket.__intentionalClose = intentional;
             socket.close();
             socket = null;
         }
@@ -213,24 +219,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function connectSocket() {
         closeSocket();
         if (!currentRoomId) return;
+
+        const roomIdAtConnect = currentRoomId;
         const apiUrl = API_BASE_URL ? new URL(API_BASE_URL, window.location.origin) : new URL(window.location.origin);
         const wsProtocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${wsProtocol}//${apiUrl.host}/ws/dm/${currentRoomId}`;
-        socket = new WebSocket(wsUrl);
+        const wsUrl = `${wsProtocol}//${apiUrl.host}/ws/dm/${roomIdAtConnect}`;
+        const nextSocket = new WebSocket(wsUrl);
+        socket = nextSocket;
 
-        socket.addEventListener('open', () => {
+        nextSocket.addEventListener('open', () => {
+            if (socket !== nextSocket) return;
             reconnectAttempts = 0;
             statusMessageEl.textContent = '실시간 연결됨';
         });
 
-        socket.addEventListener('message', (event) => {
+        nextSocket.addEventListener('message', (event) => {
+            if (socket !== nextSocket) return;
             try {
                 const payload = JSON.parse(event.data);
                 if (payload.type === 'message_created' && payload.data) {
                     appendMessage(payload.data);
                     emptyStateEl.style.display = 'none';
                     scrollToBottom();
-                    const room = rooms.find((item) => Number(item.roomId) === currentRoomId);
+                    const room = rooms.find((item) => Number(item.roomId) === roomIdAtConnect);
                     if (room) {
                         room.lastMessage = payload.data.content;
                         room.lastMessageAt = payload.data.createdAt;
@@ -244,11 +255,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        socket.addEventListener('close', () => {
+        nextSocket.addEventListener('close', () => {
+            if (socket === nextSocket) {
+                socket = null;
+            }
+
+            if (nextSocket.__intentionalClose || currentRoomId !== roomIdAtConnect) {
+                return;
+            }
+
             if (reconnectAttempts < 2 && currentRoomId) {
                 reconnectAttempts += 1;
                 statusMessageEl.textContent = '실시간 연결이 끊어졌습니다. 재연결 중...';
-                window.setTimeout(connectSocket, 1000 * reconnectAttempts);
+                reconnectTimer = window.setTimeout(() => {
+                    reconnectTimer = null;
+                    if (!socket && currentRoomId === roomIdAtConnect) {
+                        connectSocket();
+                    }
+                }, 1000 * reconnectAttempts);
                 return;
             }
             statusMessageEl.textContent = '실시간 연결이 끊어졌습니다.';
@@ -263,6 +287,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         socket.send(JSON.stringify({ type: 'send_message', content }));
         inputEl.value = '';
+    }
+
+    function handleComposerKeydown(event) {
+        if (event.key !== 'Enter' || event.shiftKey) {
+            return;
+        }
+
+        event.preventDefault();
+        composerEl.requestSubmit();
     }
 
     async function logout() {
@@ -296,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await logout();
     });
     composerEl.addEventListener('submit', sendMessage);
+    inputEl.addEventListener('keydown', handleComposerKeydown);
 
     (async () => {
         try {

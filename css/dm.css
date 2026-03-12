@@ -1,9 +1,9 @@
-
 .dm-page-container {
     max-width: 1100px;
     display: grid;
     grid-template-columns: 320px 1fr;
     gap: 20px;
+    height: calc(100vh - 160px);
     min-height: calc(100vh - 160px);
 }
 
@@ -13,10 +13,13 @@
     border-radius: 20px;
     border: 1px solid #E5E7EB;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    min-height: 0;
 }
 
 .dm-room-panel {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .dm-panel-title {
@@ -29,6 +32,8 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 .dm-room-item {
@@ -116,7 +121,7 @@
 .dm-chat-panel {
     display: flex;
     flex-direction: column;
-    min-height: 620px;
+    height: 100%;
 }
 
 .dm-chat-header {
@@ -146,7 +151,14 @@
     gap: 14px;
     padding: 24px;
     overflow-y: auto;
-    min-height: 400px;
+    min-height: 0;
+}
+
+.dm-history-loader {
+    align-self: center;
+    font-size: 12px;
+    color: #667085;
+    padding: 4px 0 10px;
 }
 
 .dm-message-row {
@@ -161,6 +173,10 @@
 
 .dm-message-row.mine .dm-bubble-avatar {
     display: none;
+}
+
+.dm-message-row.pending .dm-bubble {
+    opacity: 0.72;
 }
 
 .dm-message-body {
@@ -232,13 +248,18 @@
 @media (max-width: 900px) {
     .dm-page-container {
         grid-template-columns: 1fr;
+        height: auto;
+        min-height: calc(100vh - 160px);
     }
 
     .dm-room-panel {
         order: 2;
+        min-height: 240px;
     }
 
     .dm-chat-panel {
         order: 1;
+        min-height: 0;
+        height: min(68vh, 620px);
     }
 }

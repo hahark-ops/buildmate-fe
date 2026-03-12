@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const profileIcon = document.getElementById('profileIcon');
     const profileDropdown = document.getElementById('profileDropdown');
@@ -13,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const peerNameEl = document.getElementById('dmPeerName');
     const statusMessageEl = document.getElementById('dmStatusMessage');
 
+    const PAGE_SIZE = 50;
+    const AUTO_SCROLL_THRESHOLD = 80;
+    const ROOM_REFRESH_INTERVAL_MS = 15000;
+
     const params = new URLSearchParams(window.location.search);
     let currentRoomId = params.get('roomId') ? Number(params.get('roomId')) : null;
     let currentUser = window.getStoredCurrentUser ? window.getStoredCurrentUser() : null;
@@ -20,9 +23,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket = null;
     let reconnectAttempts = 0;
     let reconnectTimer = null;
+    let roomRefreshTimer = null;
     let messageState = new Map();
+    let pendingMessages = new Map();
     let isComposing = false;
+    let isWindowFocused = document.hasFocus();
+    let isPageVisible = document.visibilityState === 'visible';
+    let hasMoreMessages = false;
+    let oldestMessageId = null;
+    let isLoadingOlderMessages = false;
+    let lastReadMessageId = 0;
 
+    const historyLoaderEl = document.createElement('div');
+    historyLoaderEl.className = 'dm-history-loader';
+    historyLoaderEl.style.display = 'none';
+    historyLoaderEl.textContent = '이전 메시지를 불러오는 중...';
+
+    function ensureHistoryLoader() {
+        if (!historyLoaderEl.parentElement) {
+            messageListEl.appendChild(historyLoaderEl);
+        }
+    }
+
+    function generateClientMessageId() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+        }
+        return `dm-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+    }
 
     function sortRooms() {
         rooms.sort((a, b) => {
@@ -53,32 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         syncUnreadBadge();
     }
 
-    function applyReadReceipt(lastReadMessageId, readerUserId) {
-        if (!lastReadMessageId) {
-            return;
-        }
-
-        const normalizedReaderId = String(readerUserId || '');
-        const isCurrentUserReader = currentUser && String(currentUser.userId) === normalizedReaderId;
-        if (isCurrentUserReader) {
-            updateRoomSummary(currentRoomId, (room) => {
-                room.unreadCount = 0;
-            });
-            return;
-        }
-
-        messageState.forEach((message, messageId) => {
-            if (!message.isMine || Number(messageId) > Number(lastReadMessageId)) {
-                return;
-            }
-            message.readByOther = true;
-            const receipt = messageListEl.querySelector(`.dm-message-row[data-message-id="${messageId}"] .dm-bubble-read`);
-            if (receipt) {
-                receipt.textContent = '읽음';
-            }
-        });
-    }
-
     function formatMessageTime(value) {
         if (!value) return '';
         const date = new Date(value);
@@ -86,6 +88,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const hh = String(date.getHours()).padStart(2, '0');
         const mm = String(date.getMinutes()).padStart(2, '0');
         return `${hh}:${mm}`;
+    }
+
+    function formatDate(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return '';
+        const yy = String(date.getFullYear()).slice(-2);
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yy}.${mm}.${dd}`;
+    }
+
+    function isNearBottom() {
+        const remaining = messageListEl.scrollHeight - (messageListEl.scrollTop + messageListEl.clientHeight);
+        return remaining <= AUTO_SCROLL_THRESHOLD;
     }
 
     function closeSocket(intentional = true) {
@@ -120,7 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchRooms() {
+    async function fetchRooms(options = {}) {
+        const preserveSelection = options.preserveSelection !== false;
         const response = await fetch(`${API_BASE_URL}/v1/dm/rooms`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
@@ -130,16 +148,27 @@ document.addEventListener('DOMContentLoaded', () => {
         rooms = Array.isArray(data.rooms) ? data.rooms : [];
         sortRooms();
         renderRooms();
-        if (window.setDmUnreadBadgeCount) {
-            window.setDmUnreadBadgeCount(Number(data.totalUnreadCount || 0));
-        }
+        syncUnreadBadge();
 
         if (!currentRoomId && rooms.length > 0) {
             currentRoomId = rooms[0].roomId;
         }
 
-        if (currentRoomId) {
+        if (!preserveSelection && currentRoomId) {
             await selectRoom(currentRoomId, false);
+            return;
+        }
+
+        if (currentRoomId) {
+            const activeRoom = rooms.find((room) => Number(room.roomId) === Number(currentRoomId));
+            if (activeRoom) {
+                peerNameEl.textContent = activeRoom.partner && activeRoom.partner.nickname ? activeRoom.partner.nickname : '알 수 없는 사용자';
+                peerAvatarEl.style.backgroundImage = activeRoom.partner && activeRoom.partner.profileImage ? `url(${activeRoom.partner.profileImage})` : '';
+                statusMessageEl.textContent = activeRoom.lastMessageAt ? `${formatDate(activeRoom.lastMessageAt)} 기준 최근 활동` : '메시지를 시작해보세요.';
+                renderRooms();
+            } else {
+                renderEmptyRoom();
+            }
         } else {
             renderEmptyRoom();
         }
@@ -213,19 +242,84 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderEmptyRoom() {
         closeSocket();
         emptyStateEl.style.display = 'block';
+        messageState = new Map();
+        hasMoreMessages = false;
+        oldestMessageId = null;
+        lastReadMessageId = 0;
         messageListEl.innerHTML = '';
+        ensureHistoryLoader();
         peerAvatarEl.style.backgroundImage = '';
         peerNameEl.textContent = '대화 상대를 선택해주세요.';
         statusMessageEl.textContent = '실시간 1:1 대화를 지원합니다.';
         sendBtn.disabled = true;
     }
 
-    function renderMessages(messages) {
+    function clearMessages() {
         messageListEl.innerHTML = '';
-        messageState = new Map();
-        emptyStateEl.style.display = messages.length ? 'none' : 'block';
-        messages.forEach((message) => appendMessage(message));
-        scrollToBottom();
+        ensureHistoryLoader();
+    }
+
+    function createMessageRow(message, options = {}) {
+        const row = document.createElement('div');
+        row.className = `dm-message-row${message.isMine ? ' mine' : ''}`;
+        row.dataset.messageId = options.pending ? `pending:${message.clientMessageId}` : String(message.messageId);
+        if (options.pending) {
+            row.dataset.clientMessageId = message.clientMessageId;
+            row.classList.add('pending');
+        }
+
+        const avatar = document.createElement('div');
+        avatar.className = 'dm-bubble-avatar';
+        if (message.senderProfileImage) {
+            avatar.style.backgroundImage = `url(${message.senderProfileImage})`;
+        }
+
+        const body = document.createElement('div');
+        body.className = 'dm-message-body';
+
+        const name = document.createElement('div');
+        name.className = 'dm-bubble-name';
+        name.textContent = message.isMine ? '나' : (message.senderNickname || '익명');
+
+        const bubble = document.createElement('div');
+        bubble.className = 'dm-bubble';
+        bubble.textContent = message.content || '';
+
+        const meta = document.createElement('div');
+        meta.className = 'dm-bubble-meta';
+
+        const time = document.createElement('div');
+        time.className = 'dm-bubble-time';
+        time.textContent = formatMessageTime(message.createdAt);
+        meta.append(time);
+
+        if (message.isMine) {
+            const read = document.createElement('span');
+            read.className = 'dm-bubble-read';
+            if (options.pending) {
+                read.textContent = '전송 중';
+            } else {
+                read.textContent = message.readByOther ? '읽음' : '';
+            }
+            meta.append(read);
+        }
+
+        body.append(name, bubble, meta);
+        row.append(avatar, body);
+        return row;
+    }
+
+    function getMessageInsertAnchor() {
+        return historyLoaderEl.nextSibling;
+    }
+
+    function appendPendingMessage(pendingMessage) {
+        const existing = messageListEl.querySelector(`.dm-message-row[data-client-message-id="${pendingMessage.clientMessageId}"]`);
+        if (existing) {
+            existing.remove();
+        }
+        const row = createMessageRow(pendingMessage, { pending: true });
+        messageListEl.appendChild(row);
     }
 
     function appendMessage(message) {
@@ -241,59 +335,188 @@ document.addEventListener('DOMContentLoaded', () => {
             existing.remove();
         }
 
-        const row = document.createElement('div');
-        row.className = `dm-message-row${normalizedMessage.isMine ? ' mine' : ''}`;
-        row.dataset.messageId = String(normalizedMessage.messageId);
-
-        const avatar = document.createElement('div');
-        avatar.className = 'dm-bubble-avatar';
-        if (normalizedMessage.senderProfileImage) {
-            avatar.style.backgroundImage = `url(${normalizedMessage.senderProfileImage})`;
+        const pending = normalizedMessage.clientMessageId
+            ? messageListEl.querySelector(`.dm-message-row[data-client-message-id="${normalizedMessage.clientMessageId}"]`)
+            : null;
+        if (pending) {
+            pending.remove();
+            pendingMessages.delete(normalizedMessage.clientMessageId);
         }
 
-        const body = document.createElement('div');
-        body.className = 'dm-message-body';
-
-        const name = document.createElement('div');
-        name.className = 'dm-bubble-name';
-        name.textContent = normalizedMessage.isMine ? '나' : (normalizedMessage.senderNickname || '익명');
-
-        const bubble = document.createElement('div');
-        bubble.className = 'dm-bubble';
-        bubble.textContent = normalizedMessage.content || '';
-
-        const meta = document.createElement('div');
-        meta.className = 'dm-bubble-meta';
-
-        const time = document.createElement('div');
-        time.className = 'dm-bubble-time';
-        time.textContent = formatMessageTime(normalizedMessage.createdAt);
-        meta.append(time);
-
-        if (normalizedMessage.isMine) {
-            const read = document.createElement('span');
-            read.className = 'dm-bubble-read';
-            read.textContent = normalizedMessage.readByOther ? '읽음' : '';
-            meta.append(read);
-        }
-
-        body.append(name, bubble, meta);
-        row.append(avatar, body);
+        const row = createMessageRow(normalizedMessage);
         messageListEl.appendChild(row);
+    }
+
+    function prependMessages(messages) {
+        if (!messages.length) {
+            return;
+        }
+        const fragment = document.createDocumentFragment();
+        messages.forEach((message) => {
+            const normalizedMessage = {
+                ...message,
+                messageId: Number(message.messageId),
+                readByOther: Boolean(message.readByOther),
+            };
+            if (messageState.has(normalizedMessage.messageId)) {
+                return;
+            }
+            messageState.set(normalizedMessage.messageId, normalizedMessage);
+            fragment.appendChild(createMessageRow(normalizedMessage));
+        });
+        messageListEl.insertBefore(fragment, getMessageInsertAnchor());
+    }
+
+    function renderMessages(messages) {
+        clearMessages();
+        messageState = new Map();
+        emptyStateEl.style.display = messages.length ? 'none' : 'block';
+        messages.forEach((message) => appendMessage(message));
+        reconcilePendingMessagesForCurrentRoom(messages);
+        scrollToBottom();
     }
 
     function scrollToBottom() {
         messageListEl.scrollTop = messageListEl.scrollHeight;
     }
 
-    async function fetchMessages(roomId) {
-        const response = await fetch(`${API_BASE_URL}/v1/dm/rooms/${roomId}/messages?limit=50`, { credentials: 'include' });
+    function getLatestActualMessageId() {
+        let latest = 0;
+        messageState.forEach((message) => {
+            latest = Math.max(latest, Number(message.messageId || 0));
+        });
+        return latest;
+    }
+
+    function canMarkReadNow() {
+        return Boolean(
+            currentRoomId &&
+            socket &&
+            socket.readyState === WebSocket.OPEN &&
+            isWindowFocused &&
+            isPageVisible &&
+            isNearBottom()
+        );
+    }
+
+    function applyReadReceipt(lastReadId, readerUserId) {
+        if (!lastReadId) {
+            return;
+        }
+
+        const normalizedReaderId = String(readerUserId || '');
+        const isCurrentUserReader = currentUser && String(currentUser.userId) === normalizedReaderId;
+        if (isCurrentUserReader) {
+            lastReadMessageId = Math.max(lastReadMessageId, Number(lastReadId));
+            updateRoomSummary(currentRoomId, (room) => {
+                room.unreadCount = 0;
+            });
+            return;
+        }
+
+        messageState.forEach((message, messageId) => {
+            if (!message.isMine || Number(messageId) > Number(lastReadId)) {
+                return;
+            }
+            message.readByOther = true;
+            const receipt = messageListEl.querySelector(`.dm-message-row[data-message-id="${messageId}"] .dm-bubble-read`);
+            if (receipt) {
+                receipt.textContent = '읽음';
+            }
+        });
+    }
+
+    function updateStatusMessage(text) {
+        statusMessageEl.textContent = text;
+    }
+
+    function markCurrentRoomRead(lastReadId) {
+        const targetMessageId = Number(lastReadId || getLatestActualMessageId() || 0);
+        if (!targetMessageId || targetMessageId <= lastReadMessageId) {
+            return;
+        }
+        if (!canMarkReadNow()) {
+            return;
+        }
+        socket.send(JSON.stringify({
+            type: 'mark_read',
+            lastReadMessageId: targetMessageId,
+        }));
+        lastReadMessageId = targetMessageId;
+        updateRoomSummary(currentRoomId, (room) => {
+            room.unreadCount = 0;
+        });
+    }
+
+    function maybeMarkCurrentRoomAsRead(lastReadId) {
+        if (!currentRoomId || !socket || socket.readyState !== WebSocket.OPEN) {
+            return;
+        }
+        if (!canMarkReadNow()) {
+            return;
+        }
+        markCurrentRoomRead(lastReadId);
+    }
+
+    async function fetchMessages(roomId, options = {}) {
+        const reset = options.reset !== false;
+        const beforeMessageId = options.beforeMessageId || null;
+        const query = new URLSearchParams({ limit: String(PAGE_SIZE) });
+        if (beforeMessageId) {
+            query.set('beforeMessageId', String(beforeMessageId));
+        }
+
+        const response = await fetch(`${API_BASE_URL}/v1/dm/rooms/${roomId}/messages?${query.toString()}`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
             throw new Error(result.message || '메시지를 불러오지 못했습니다.');
         }
         const data = result.data || {};
-        renderMessages(Array.isArray(data.messages) ? data.messages : []);
+        const messages = Array.isArray(data.messages) ? data.messages : [];
+        hasMoreMessages = Boolean(data.hasMore);
+        oldestMessageId = data.oldestMessageId ? Number(data.oldestMessageId) : null;
+
+        if (reset) {
+            lastReadMessageId = 0;
+            renderMessages(messages);
+            return;
+        }
+
+        const previousScrollHeight = messageListEl.scrollHeight;
+        const previousScrollTop = messageListEl.scrollTop;
+        prependMessages(messages);
+        const newScrollHeight = messageListEl.scrollHeight;
+        messageListEl.scrollTop = previousScrollTop + (newScrollHeight - previousScrollHeight);
+    }
+
+    function reconcilePendingMessagesForCurrentRoom(serverMessages) {
+        const serverMessageIds = new Set((serverMessages || []).map((message) => message.clientMessageId).filter(Boolean));
+        [...pendingMessages.values()].forEach((pendingMessage) => {
+            if (Number(pendingMessage.roomId) !== Number(currentRoomId)) {
+                return;
+            }
+            if (serverMessageIds.has(pendingMessage.clientMessageId)) {
+                pendingMessages.delete(pendingMessage.clientMessageId);
+                return;
+            }
+            appendPendingMessage(pendingMessage);
+        });
+    }
+
+    async function loadOlderMessages() {
+        if (!currentRoomId || !hasMoreMessages || !oldestMessageId || isLoadingOlderMessages) {
+            return;
+        }
+        isLoadingOlderMessages = true;
+        historyLoaderEl.style.display = 'block';
+        try {
+            await fetchMessages(currentRoomId, { reset: false, beforeMessageId: oldestMessageId });
+        } catch (error) {
+            console.error('older message load failed', error);
+        } finally {
+            isLoadingOlderMessages = false;
+            historyLoaderEl.style.display = 'none';
+        }
     }
 
     async function selectRoom(roomId, pushHistory) {
@@ -312,15 +535,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         peerNameEl.textContent = room.partner && room.partner.nickname ? room.partner.nickname : '알 수 없는 사용자';
-        statusMessageEl.textContent = room.lastMessageAt ? `${formatDate(room.lastMessageAt)} 기준 최근 활동` : '메시지를 시작해보세요.';
+        updateStatusMessage(room.lastMessageAt ? `${formatDate(room.lastMessageAt)} 기준 최근 활동` : '메시지를 시작해보세요.');
         peerAvatarEl.style.backgroundImage = room.partner && room.partner.profileImage ? `url(${room.partner.profileImage})` : '';
         sendBtn.disabled = false;
 
-        await fetchMessages(currentRoomId);
-        updateRoomSummary(currentRoomId, (activeRoom) => {
-            activeRoom.unreadCount = 0;
-        });
+        await fetchMessages(currentRoomId, { reset: true });
         connectSocket();
+    }
+
+    function resendPendingMessagesForCurrentRoom() {
+        if (!socket || socket.readyState !== WebSocket.OPEN || !currentRoomId) {
+            return;
+        }
+        [...pendingMessages.values()]
+            .filter((message) => Number(message.roomId) === Number(currentRoomId))
+            .forEach((pendingMessage) => {
+                socket.send(JSON.stringify({
+                    type: 'send_message',
+                    content: pendingMessage.content,
+                    clientMessageId: pendingMessage.clientMessageId,
+                }));
+            });
     }
 
     function connectSocket() {
@@ -337,7 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
         nextSocket.addEventListener('open', () => {
             if (socket !== nextSocket) return;
             reconnectAttempts = 0;
-            statusMessageEl.textContent = '실시간 연결됨';
+            updateStatusMessage('실시간 연결됨');
+            resendPendingMessagesForCurrentRoom();
+            maybeMarkCurrentRoomAsRead();
         });
 
         nextSocket.addEventListener('message', (event) => {
@@ -345,16 +582,26 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const payload = JSON.parse(event.data);
                 if (payload.type === 'message_created' && payload.data) {
+                    const shouldStickToBottom = payload.data.isMine || isNearBottom();
                     appendMessage(payload.data);
                     emptyStateEl.style.display = 'none';
-                    scrollToBottom();
+                    if (shouldStickToBottom) {
+                        scrollToBottom();
+                    }
                     updateRoomSummary(roomIdAtConnect, (room) => {
                         room.lastMessage = payload.data.content;
                         room.lastMessageAt = payload.data.createdAt;
-                        if (!payload.data.isMine) {
+                        if (payload.data.isMine) {
                             room.unreadCount = 0;
+                        } else if (canMarkReadNow()) {
+                            room.unreadCount = 0;
+                        } else {
+                            room.unreadCount = Number(room.unreadCount || 0) + 1;
                         }
                     });
+                    if (!payload.data.isMine) {
+                        maybeMarkCurrentRoomAsRead(payload.data.messageId);
+                    }
                 } else if (payload.type === 'messages_read' && payload.data) {
                     applyReadReceipt(payload.data.lastReadMessageId, payload.data.readerUserId);
                 } else if (payload.type === 'error') {
@@ -376,7 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (reconnectAttempts < 2 && currentRoomId) {
                 reconnectAttempts += 1;
-                statusMessageEl.textContent = '실시간 연결이 끊어졌습니다. 재연결 중...';
+                updateStatusMessage('실시간 연결이 끊어졌습니다. 재연결 중...');
                 reconnectTimer = window.setTimeout(() => {
                     reconnectTimer = null;
                     if (!socket && currentRoomId === roomIdAtConnect) {
@@ -385,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 1000 * reconnectAttempts);
                 return;
             }
-            statusMessageEl.textContent = '실시간 연결이 끊어졌습니다.';
+            updateStatusMessage('실시간 연결이 끊어졌습니다.');
         });
     }
 
@@ -395,11 +642,32 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const content = inputEl.value.trim();
-        if (!content || !socket || socket.readyState !== WebSocket.OPEN) {
+        const rawContent = inputEl.value.replace(/\r\n/g, '\n');
+        if (!rawContent.trim() || !socket || socket.readyState !== WebSocket.OPEN || !currentRoomId) {
             return;
         }
-        socket.send(JSON.stringify({ type: 'send_message', content }));
+
+        const content = rawContent;
+        const clientMessageId = generateClientMessageId();
+        const pendingMessage = {
+            clientMessageId,
+            roomId: currentRoomId,
+            senderNickname: currentUser && currentUser.nickname ? currentUser.nickname : '나',
+            senderProfileImage: currentUser && currentUser.profileImage ? currentUser.profileImage : '',
+            content,
+            createdAt: new Date().toISOString(),
+            isMine: true,
+            readByOther: false,
+        };
+        pendingMessages.set(clientMessageId, pendingMessage);
+        appendPendingMessage(pendingMessage);
+        updateRoomSummary(currentRoomId, (room) => {
+            room.lastMessage = content;
+            room.lastMessageAt = pendingMessage.createdAt;
+            room.unreadCount = 0;
+        });
+        scrollToBottom();
+        socket.send(JSON.stringify({ type: 'send_message', content, clientMessageId }));
         inputEl.value = '';
     }
 
@@ -414,6 +682,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         event.preventDefault();
         composerEl.requestSubmit();
+    }
+
+    async function refreshRoomsSilently() {
+        try {
+            await fetchRooms({ preserveSelection: true });
+            if (currentRoomId) {
+                maybeMarkCurrentRoomAsRead();
+            }
+        } catch (error) {
+            console.error('room refresh failed', error);
+        }
+    }
+
+    function startRoomRefreshPolling() {
+        if (roomRefreshTimer) {
+            window.clearInterval(roomRefreshTimer);
+        }
+        roomRefreshTimer = window.setInterval(refreshRoomsSilently, ROOM_REFRESH_INTERVAL_MS);
     }
 
     async function logout() {
@@ -454,11 +740,37 @@ document.addEventListener('DOMContentLoaded', () => {
     inputEl.addEventListener('compositionend', () => {
         isComposing = false;
     });
+    messageListEl.addEventListener('scroll', () => {
+        if (messageListEl.scrollTop <= 60) {
+            loadOlderMessages();
+        }
+        maybeMarkCurrentRoomAsRead();
+    });
+    window.addEventListener('focus', () => {
+        isWindowFocused = true;
+        refreshRoomsSilently();
+        maybeMarkCurrentRoomAsRead();
+    });
+    window.addEventListener('blur', () => {
+        isWindowFocused = false;
+    });
+    document.addEventListener('visibilitychange', () => {
+        isPageVisible = document.visibilityState === 'visible';
+        if (isPageVisible) {
+            refreshRoomsSilently();
+            maybeMarkCurrentRoomAsRead();
+        }
+    });
+    window.addEventListener('beforeunload', () => {
+        closeSocket();
+    });
 
     (async () => {
         try {
+            ensureHistoryLoader();
             await fetchCurrentUser();
-            await fetchRooms();
+            await fetchRooms({ preserveSelection: false });
+            startRoomRefreshPolling();
         } catch (error) {
             console.error('dm init failed', error);
         }

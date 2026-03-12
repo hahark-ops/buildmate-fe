@@ -89,6 +89,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function clearAuthState() {
+        localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('nickname');
+        localStorage.removeItem('email');
+        localStorage.removeItem('profileImage');
+        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+    }
+
     async function loginAfterSignup(email, password) {
         const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
             method: 'POST',
@@ -116,6 +126,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         return data.data;
+    }
+
+    async function logoutAfterAutoApply() {
+        try {
+            await fetch(`${API_BASE_URL}/v1/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.warn('Auto-apply logout failed:', error);
+        } finally {
+            clearAuthState();
+        }
     }
 
     async function uploadProfileImage(file) {
@@ -450,24 +473,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? loginResult.data.user
                     : (loginResult.data || {});
 
-                const mergedUser = {
+                saveAuthState({
                     ...loginUserData,
                     userId: me.userId,
                     email,
                     nickname,
                     profileImage: fileUrl
-                };
+                }, (loginResult.data && loginResult.data.token) ? loginResult.data.token : null);
 
-                const token = (loginResult.data && loginResult.data.token)
-                    ? loginResult.data.token
-                    : null;
-                saveAuthState(mergedUser, token);
+                await logoutAfterAutoApply();
 
-                showCustomModal('회원가입이 완료되었습니다.\n프로필 이미지가 즉시 적용되었습니다.', () => {
-                    window.location.href = 'index.html';
+                showCustomModal('회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다.', () => {
+                    window.location.href = 'login.html';
                 });
             } catch (autoApplyError) {
                 console.error('Signup image auto-apply error:', autoApplyError);
+                await logoutAfterAutoApply();
                 showCustomModal('회원가입은 완료되었지만 프로필 이미지 자동 반영에 실패했습니다.\n로그인 후 프로필 수정에서 다시 시도해주세요.', () => {
                     window.location.href = 'login.html';
                 });

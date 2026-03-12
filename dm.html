@@ -44,10 +44,16 @@
 
         <section class="dm-chat-panel">
             <div class="dm-chat-header" id="dmChatHeader">
-                <div class="dm-peer-avatar" id="dmPeerAvatar"></div>
-                <div class="dm-peer-meta">
-                    <strong id="dmPeerName">대화 상대를 선택해주세요.</strong>
-                    <span id="dmStatusMessage">실시간 1:1 대화를 지원합니다.</span>
+                <div class="dm-chat-header-main">
+                    <div class="dm-peer-avatar" id="dmPeerAvatar"></div>
+                    <div class="dm-peer-meta">
+                        <strong id="dmPeerName">대화 상대를 선택해주세요.</strong>
+                        <span id="dmStatusMessage">실시간 1:1 대화를 지원합니다.</span>
+                    </div>
+                </div>
+                <div class="dm-chat-header-actions">
+                    <button type="button" id="dmPushToggleBtn" class="dm-push-toggle-btn">알림 켜기</button>
+                    <span id="dmPushHint" class="dm-push-hint">채팅방을 보고 있지 않을 때 브라우저 알림을 받습니다.</span>
                 </div>
             </div>
             <div id="dmEmptyState" class="dm-empty-state">아직 시작한 대화가 없습니다.</div>

@@ -11,10 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const peerAvatarEl = document.getElementById('dmPeerAvatar');
     const peerNameEl = document.getElementById('dmPeerName');
     const statusMessageEl = document.getElementById('dmStatusMessage');
+    const pushToggleBtn = document.getElementById('dmPushToggleBtn');
+    const pushHintEl = document.getElementById('dmPushHint');
 
     const PAGE_SIZE = 50;
     const AUTO_SCROLL_THRESHOLD = 80;
     const ROOM_REFRESH_INTERVAL_MS = 15000;
+    const HEARTBEAT_INTERVAL_MS = 20000;
 
     const params = new URLSearchParams(window.location.search);
     let currentRoomId = params.get('roomId') ? Number(params.get('roomId')) : null;
@@ -24,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let reconnectAttempts = 0;
     let reconnectTimer = null;
     let roomRefreshTimer = null;
+    let heartbeatTimer = null;
     let messageState = new Map();
     let pendingMessages = new Map();
     let isComposing = false;
@@ -33,6 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let oldestMessageId = null;
     let isLoadingOlderMessages = false;
     let lastReadMessageId = 0;
+    let pushRegistration = null;
+    let webPushStatus = {
+        enabled: false,
+        subscribed: false,
+        activeSubscriptionCount: 0,
+        vapidPublicKey: null,
+    };
 
     const historyLoaderEl = document.createElement('div');
     historyLoaderEl.className = 'dm-history-loader';
@@ -50,6 +61,206 @@ document.addEventListener('DOMContentLoaded', () => {
             return window.crypto.randomUUID();
         }
         return `dm-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let index = 0; index < rawData.length; index += 1) {
+            outputArray[index] = rawData.charCodeAt(index);
+        }
+        return outputArray;
+    }
+
+    function setPushHint(message) {
+        if (pushHintEl) {
+            pushHintEl.textContent = message || '';
+        }
+    }
+
+    function isWebPushSupported() {
+        return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
+    }
+
+    async function ensurePushRegistration() {
+        if (!isWebPushSupported()) {
+            throw new Error('이 브라우저는 웹푸시를 지원하지 않습니다.');
+        }
+        if (pushRegistration) {
+            return pushRegistration;
+        }
+        pushRegistration = await navigator.serviceWorker.register('/push-sw.js');
+        return pushRegistration;
+    }
+
+    async function getBrowserPushSubscription() {
+        if (!isWebPushSupported()) {
+            return null;
+        }
+        const registration = await ensurePushRegistration();
+        return registration.pushManager.getSubscription();
+    }
+
+    async function syncPushToggleState() {
+        if (!pushToggleBtn) {
+            return;
+        }
+
+        if (!isWebPushSupported()) {
+            pushToggleBtn.textContent = '알림 미지원';
+            pushToggleBtn.disabled = true;
+            setPushHint('이 브라우저는 웹푸시를 지원하지 않습니다.');
+            return;
+        }
+
+        if (!webPushStatus.enabled) {
+            pushToggleBtn.textContent = '알림 비활성';
+            pushToggleBtn.disabled = true;
+            setPushHint('서버에서 브라우저 알림이 비활성화되어 있습니다.');
+            return;
+        }
+
+        pushToggleBtn.disabled = false;
+        let subscription = null;
+        try {
+            subscription = await getBrowserPushSubscription();
+        } catch (error) {
+            console.error('push registration init failed', error);
+            pushToggleBtn.textContent = '알림 사용 불가';
+            pushToggleBtn.disabled = true;
+            setPushHint('브라우저 알림 초기화에 실패했습니다. 새로고침 후 다시 시도해주세요.');
+            return;
+        }
+        const permission = Notification.permission;
+
+        if (permission === 'denied') {
+            pushToggleBtn.textContent = '알림 차단됨';
+            setPushHint('브라우저 설정에서 알림을 허용해야 부재 알림을 받을 수 있습니다.');
+            return;
+        }
+
+        if (subscription && webPushStatus.subscribed) {
+            pushToggleBtn.textContent = '알림 끄기';
+            setPushHint('이 방을 보고 있지 않을 때 새 메시지를 브라우저 알림으로 받습니다.');
+            return;
+        }
+
+        pushToggleBtn.textContent = '알림 켜기';
+        setPushHint('채팅방을 보고 있지 않을 때 브라우저 알림을 받습니다.');
+    }
+
+    async function fetchWebPushStatus() {
+        const response = await fetch(`${API_BASE_URL}/v1/notifications/webpush/status`, { credentials: 'include' });
+        const result = await window.parseApiResponseSafe(response);
+        if (!response.ok) {
+            throw new Error(result.message || '웹푸시 상태를 불러오지 못했습니다.');
+        }
+        webPushStatus = result.data || webPushStatus;
+        await syncPushToggleState();
+        return webPushStatus;
+    }
+
+    async function subscribeToWebPush() {
+        if (!webPushStatus.enabled) {
+            showCustomModal('서버에서 브라우저 알림이 비활성화되어 있습니다.');
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            showCustomModal('브라우저 설정에서 알림을 허용해야 부재 알림을 받을 수 있습니다.');
+            await syncPushToggleState();
+            return;
+        }
+
+        const registration = await ensurePushRegistration();
+        const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(webPushStatus.vapidPublicKey),
+        });
+
+        const response = await fetch(`${API_BASE_URL}/v1/notifications/webpush/subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(subscription.toJSON()),
+        });
+        const result = await window.parseApiResponseSafe(response);
+        if (!response.ok) {
+            throw new Error(result.message || '웹푸시 구독 등록에 실패했습니다.');
+        }
+        await fetchWebPushStatus();
+    }
+
+    async function unsubscribeFromWebPush() {
+        const subscription = await getBrowserPushSubscription();
+        if (!subscription) {
+            webPushStatus.subscribed = false;
+            await syncPushToggleState();
+            return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/v1/notifications/webpush/subscribe`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ endpoint: subscription.endpoint }),
+        });
+        const result = await window.parseApiResponseSafe(response);
+        if (!response.ok) {
+            throw new Error(result.message || '웹푸시 구독 해제에 실패했습니다.');
+        }
+
+        await subscription.unsubscribe().catch(() => undefined);
+        await fetchWebPushStatus();
+    }
+
+    async function toggleWebPush() {
+        if (!isWebPushSupported()) {
+            showCustomModal('이 브라우저는 웹푸시를 지원하지 않습니다.');
+            return;
+        }
+
+        if (Notification.permission === 'denied') {
+            showCustomModal('브라우저 설정에서 알림을 허용해야 부재 알림을 받을 수 있습니다.');
+            return;
+        }
+
+        pushToggleBtn.disabled = true;
+        try {
+            await fetchWebPushStatus();
+            const subscription = await getBrowserPushSubscription();
+            if (subscription && webPushStatus.subscribed) {
+                await unsubscribeFromWebPush();
+            } else {
+                await subscribeToWebPush();
+            }
+        } catch (error) {
+            console.error('push toggle failed', error);
+            showCustomModal(error.message || '브라우저 알림 설정에 실패했습니다.');
+            await syncPushToggleState();
+        } finally {
+            pushToggleBtn.disabled = false;
+        }
+    }
+
+    function startHeartbeat() {
+        stopHeartbeat();
+        heartbeatTimer = window.setInterval(() => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+            socket.send(JSON.stringify({ type: 'heartbeat' }));
+        }, HEARTBEAT_INTERVAL_MS);
+    }
+
+    function stopHeartbeat() {
+        if (heartbeatTimer) {
+            window.clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+        }
     }
 
     function sortRooms() {
@@ -106,6 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function closeSocket(intentional = true) {
+        stopHeartbeat();
         if (reconnectTimer) {
             window.clearTimeout(reconnectTimer);
             reconnectTimer = null;
@@ -573,6 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (socket !== nextSocket) return;
             reconnectAttempts = 0;
             updateStatusMessage('실시간 연결됨');
+            startHeartbeat();
             resendPendingMessagesForCurrentRoom();
             maybeMarkCurrentRoomAsRead();
         });
@@ -616,6 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (socket === nextSocket) {
                 socket = null;
             }
+            stopHeartbeat();
 
             if (nextSocket.__intentionalClose || currentRoomId !== roomIdAtConnect) {
                 return;
@@ -732,6 +946,11 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         await logout();
     });
+    if (pushToggleBtn) {
+        pushToggleBtn.addEventListener('click', async () => {
+            await toggleWebPush();
+        });
+    }
     composerEl.addEventListener('submit', sendMessage);
     inputEl.addEventListener('keydown', handleComposerKeydown);
     inputEl.addEventListener('compositionstart', () => {
@@ -769,6 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             ensureHistoryLoader();
             await fetchCurrentUser();
+            await fetchWebPushStatus();
             await fetchRooms({ preserveSelection: false });
             startRoomRefreshPolling();
         } catch (error) {

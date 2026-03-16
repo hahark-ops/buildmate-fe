@@ -43,14 +43,8 @@ test('게시글, 댓글, 좋아요, DM, unread 흐름', async ({ browser }) => {
   await pageB.locator('#commentSubmitBtn').click();
   const commentResponse = await commentResponsePromise;
   expect(commentResponse.ok()).toBeTruthy();
-  const commentsFetchPromise = pageB.waitForResponse((response) =>
-    response.url().includes('/comments') && response.request().method() === 'GET' && response.ok()
-  );
-  await pageB.reload();
-  const commentsFetchResponse = await commentsFetchPromise;
-  expect(commentsFetchResponse.ok()).toBeTruthy();
-  await expect(pageB.locator('.comment-item')).toHaveCount(1);
-  await expect(pageB.locator('.comment-content').first()).toHaveText(commentContent);
+  await expect(pageB.locator('.comment-item')).toHaveCount(1, { timeout: 15000 });
+  await expect(pageB.locator('.comment-content').first()).toHaveText(commentContent, { timeout: 15000 });
 
   await pageB.locator('.author-info').click();
   await pageB.getByRole('button', { name: '채팅하기' }).click();

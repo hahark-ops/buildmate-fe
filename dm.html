@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DM - 아무 말 대잔치</title>
+    <title>협업 채팅 - 빌드메이트</title>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/dm.css">
 </head>
@@ -12,15 +12,15 @@
 <body>
     <header>
         <a href="index.html" class="back-button">&lt;</a>
-        <span class="logo">아무 말 대잔치</span>
+        <span class="logo">빌드메이트</span>
         <div class="header-content">
             <div class="header-actions">
-                <a href="dm.html" class="header-icon-btn dm-icon-btn active" aria-label="DM">DM</a>
+                <a href="dm.html" class="header-icon-btn dm-icon-btn active" aria-label="협업 채팅">협업 채팅</a>
                 <div class="profile-icon" id="profileIcon"></div>
             </div>
             <div class="profile-dropdown" id="profileDropdown">
-                <a href="profile.html" class="dropdown-item">회원정보수정</a>
-                <a href="password.html" class="dropdown-item">비밀번호수정</a>
+                <a href="profile.html" class="dropdown-item">메이커 프로필</a>
+                <a href="password.html" class="dropdown-item">계정 보안</a>
                 <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
             </div>
         </div>
@@ -28,7 +28,7 @@
 
     <main class="dm-page-container">
         <section class="dm-room-panel">
-            <div class="dm-panel-title">대화 목록</div>
+            <div class="dm-panel-title">협업 채팅</div>
             <div id="dmRoomList" class="dm-room-list"></div>
         </section>
 
@@ -37,19 +37,19 @@
                 <div class="dm-chat-header-main">
                     <div class="dm-peer-avatar" id="dmPeerAvatar"></div>
                     <div class="dm-peer-meta">
-                        <strong id="dmPeerName">대화 상대를 선택해주세요.</strong>
-                        <span id="dmStatusMessage">실시간 1:1 대화를 지원합니다.</span>
+                        <strong id="dmPeerName">협업할 메이트를 선택해주세요.</strong>
+                        <span id="dmStatusMessage">프로젝트 논의를 위한 실시간 협업 채팅을 지원합니다.</span>
                     </div>
                 </div>
                 <div class="dm-chat-header-actions">
                     <button type="button" id="dmPushToggleBtn" class="dm-push-toggle-btn">알림 켜기</button>
-                    <span id="dmPushHint" class="dm-push-hint">채팅방을 보고 있지 않을 때 브라우저 알림을 받습니다.</span>
+                    <span id="dmPushHint" class="dm-push-hint">프로젝트 관련 새 메시지를 브라우저 알림으로 받을 수 있습니다.</span>
                 </div>
             </div>
-            <div id="dmEmptyState" class="dm-empty-state">아직 시작한 대화가 없습니다.</div>
+            <div id="dmEmptyState" class="dm-empty-state">아직 시작한 협업 대화가 없습니다.</div>
             <div id="dmMessageList" class="dm-message-list"></div>
             <form id="dmComposer" class="dm-composer">
-                <textarea id="dmInput" placeholder="메시지를 입력하세요" maxlength="500"></textarea>
+                <textarea id="dmInput" placeholder="협업 메시지를 입력하세요." maxlength="500"></textarea>
                 <button type="submit" id="dmSendBtn">전송</button>
             </form>
         </section>

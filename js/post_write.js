@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.status === 201) {
-                showCustomModal('게시글이 작성되었습니다.', () => {
+                showCustomModal('프로젝트 모집글이 등록되었습니다.', () => {
                     window.location.href = 'index.html';
                 });
             } else if (response.status === 401) {
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'login.html';
                 });
             } else {
-                showHelper(data.message || '게시글 작성에 실패했습니다.');
+                showHelper(data.message || '모집글 등록에 실패했습니다.');
             }
 
         } catch (error) {

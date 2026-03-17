@@ -48,7 +48,7 @@ async function createPost(page, { title, content }) {
   await page.locator('#content').fill(content);
   await expect(page.locator('#submitBtn')).toBeEnabled();
   await page.locator('#submitBtn').click();
-  await expect(page.getByText('게시글이 작성되었습니다.')).toBeVisible();
+  await expect(page.getByText('프로젝트 모집글이 등록되었습니다.')).toBeVisible();
   await closeModal(page);
   await page.waitForURL(/index\.html$/);
 }

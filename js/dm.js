@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyLoaderEl = document.createElement('div');
     historyLoaderEl.className = 'dm-history-loader';
     historyLoaderEl.style.display = 'none';
-    historyLoaderEl.textContent = '이전 메시지를 불러오는 중...';
+    historyLoaderEl.textContent = '이전 협업 메시지를 불러오는 중...';
 
     function ensureHistoryLoader() {
         if (!historyLoaderEl.parentElement) {
@@ -137,18 +137,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (permission === 'denied') {
             pushToggleBtn.textContent = '알림 차단됨';
-            setPushHint('브라우저 설정에서 알림을 허용해야 부재 알림을 받을 수 있습니다.');
+            setPushHint('브라우저 설정에서 알림을 허용해야 프로젝트 관련 새 메시지를 받을 수 있습니다.');
             return;
         }
 
         if (subscription && webPushStatus.subscribed) {
             pushToggleBtn.textContent = '알림 끄기';
-            setPushHint('이 방을 보고 있지 않을 때 새 메시지를 브라우저 알림으로 받습니다.');
+            setPushHint('프로젝트 관련 새 메시지를 브라우저 알림으로 받을 수 있습니다.');
             return;
         }
 
         pushToggleBtn.textContent = '알림 켜기';
-        setPushHint('채팅방을 보고 있지 않을 때 브라우저 알림을 받습니다.');
+        setPushHint('프로젝트 관련 새 메시지를 브라우저 알림으로 받을 수 있습니다.');
     }
 
     async function fetchWebPushStatus() {
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-            showCustomModal('브라우저 설정에서 알림을 허용해야 부재 알림을 받을 수 있습니다.');
+            showCustomModal('브라우저 설정에서 알림을 허용해야 프로젝트 관련 새 메시지를 받을 수 있습니다.');
             await syncPushToggleState();
             return;
         }
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (Notification.permission === 'denied') {
-            showCustomModal('브라우저 설정에서 알림을 허용해야 부재 알림을 받을 수 있습니다.');
+            showCustomModal('브라우저 설정에서 알림을 허용해야 프로젝트 관련 새 메시지를 받을 수 있습니다.');
             return;
         }
 
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${API_BASE_URL}/v1/dm/rooms`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '채팅방 목록을 불러오지 못했습니다.');
+            throw new Error(result.message || '협업 채팅방 목록을 불러오지 못했습니다.');
         }
         const data = result.data || {};
         rooms = Array.isArray(data.rooms) ? data.rooms : [];
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeRoom) {
                 peerNameEl.textContent = activeRoom.partner && activeRoom.partner.nickname ? activeRoom.partner.nickname : '알 수 없는 사용자';
                 peerAvatarEl.style.backgroundImage = activeRoom.partner && activeRoom.partner.profileImage ? `url(${activeRoom.partner.profileImage})` : '';
-                statusMessageEl.textContent = activeRoom.lastMessageAt ? `${formatDate(activeRoom.lastMessageAt)} 기준 최근 활동` : '메시지를 시작해보세요.';
+                statusMessageEl.textContent = activeRoom.lastMessageAt ? `${formatDate(activeRoom.lastMessageAt)} 기준 최근 활동` : '아직 협업 메시지가 없습니다.';
                 renderRooms();
             } else {
                 renderEmptyRoom();
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rooms.length) {
             const empty = document.createElement('div');
             empty.className = 'dm-room-last';
-            empty.textContent = '대화방이 없습니다.';
+            empty.textContent = '아직 참여 중인 협업 채팅방이 없습니다.';
             roomListEl.appendChild(empty);
             return;
         }
@@ -441,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const last = document.createElement('div');
             last.className = 'dm-room-last';
-            last.textContent = room.lastMessage || '아직 메시지가 없습니다.';
+            last.textContent = room.lastMessage || '아직 협업 메시지가 없습니다.';
 
             item.append(top, last);
             item.addEventListener('click', async () => {
@@ -454,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderEmptyRoom() {
         closeSocket();
         emptyStateEl.style.display = 'block';
+        emptyStateEl.textContent = rooms.length ? '협업할 메이트를 선택해주세요.' : '아직 참여 중인 협업 채팅방이 없습니다.';
         messageState = new Map();
         hasMoreMessages = false;
         oldestMessageId = null;
@@ -461,8 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
         messageListEl.innerHTML = '';
         ensureHistoryLoader();
         peerAvatarEl.style.backgroundImage = '';
-        peerNameEl.textContent = '대화 상대를 선택해주세요.';
-        statusMessageEl.textContent = '실시간 1:1 대화를 지원합니다.';
+        peerNameEl.textContent = '협업할 메이트를 선택해주세요.';
+        statusMessageEl.textContent = '프로젝트 논의를 위한 실시간 협업 채팅을 지원합니다.';
         sendBtn.disabled = true;
     }
 
@@ -617,6 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderMessages(messages) {
         clearMessages();
         messageState = new Map();
+        emptyStateEl.textContent = '아직 협업 메시지가 없습니다.';
         emptyStateEl.style.display = messages.length ? 'none' : 'block';
         messages.forEach((message) => appendMessage(message));
         reconcilePendingMessagesForCurrentRoom(messages);
@@ -716,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${API_BASE_URL}/v1/dm/rooms/${roomId}/messages?${query.toString()}`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '메시지를 불러오지 못했습니다.');
+            throw new Error(result.message || '협업 메시지를 불러오지 못했습니다.');
         }
         const data = result.data || {};
         const messages = Array.isArray(data.messages) ? data.messages : [];
@@ -782,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         peerNameEl.textContent = room.partner && room.partner.nickname ? room.partner.nickname : '알 수 없는 사용자';
-        updateStatusMessage(room.lastMessageAt ? `${formatDate(room.lastMessageAt)} 기준 최근 활동` : '메시지를 시작해보세요.');
+        updateStatusMessage(room.lastMessageAt ? `${formatDate(room.lastMessageAt)} 기준 최근 활동` : '아직 협업 메시지가 없습니다.');
         peerAvatarEl.style.backgroundImage = room.partner && room.partner.profileImage ? `url(${room.partner.profileImage})` : '';
         sendBtn.disabled = false;
 
@@ -820,7 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nextSocket.addEventListener('open', () => {
             if (socket !== nextSocket) return;
             reconnectAttempts = 0;
-            updateStatusMessage('실시간 연결됨');
+            updateStatusMessage('실시간 협업 채팅이 연결되었습니다.');
             startHeartbeat();
             resendPendingMessagesForCurrentRoom();
             maybeMarkCurrentRoomAsRead();
@@ -854,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (payload.type === 'messages_read' && payload.data) {
                     applyReadReceipt(payload.data.lastReadMessageId, payload.data.readerUserId);
                 } else if (payload.type === 'error') {
-                    showCustomModal(payload.message || '채팅 연결에 실패했습니다.');
+                    showCustomModal(payload.message || '협업 채팅 연결에 실패했습니다.');
                 }
             } catch (error) {
                 console.error('ws message parse error', error);
@@ -873,7 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (reconnectAttempts < 2 && currentRoomId) {
                 reconnectAttempts += 1;
-                updateStatusMessage('실시간 연결이 끊어졌습니다. 재연결 중...');
+                updateStatusMessage('실시간 연결을 다시 시도하고 있습니다.');
                 reconnectTimer = window.setTimeout(() => {
                     reconnectTimer = null;
                     if (!socket && currentRoomId === roomIdAtConnect) {
@@ -905,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        updateStatusMessage('실시간 연결 중... 메시지를 전송 대기 중입니다.');
+        updateStatusMessage('실시간 연결 중... 메시지 전송을 대기하고 있습니다.');
         if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
             connectSocket();
         }

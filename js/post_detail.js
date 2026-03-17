@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deletePostBtn = document.getElementById('deletePostBtn');
     const postImageContainer = document.getElementById('postImageContainer');
     const postImage = document.getElementById('postImage');
+    const postKeyFacts = document.getElementById('postKeyFacts');
     const postContent = document.getElementById('postContent');
     const likeBtn = document.getElementById('likeBtn');
     const likeCount = document.getElementById('likeCount');
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 모달 요소
     const deleteModal = document.getElementById('deleteModal');
     const modalTitle = document.getElementById('modalTitle');
+    const modalSubtitle = document.getElementById('modalSubtitle');
     const modalCancelBtn = document.getElementById('modalCancelBtn');
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
 
@@ -56,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLiked = false;
     let editingCommentId = null;
     let authorCardEl = null;
+    let modalConfirmHandler = null;
 
     // 로컬스토리지에서 사용자 정보 로드 (동기 처리 - 딜레이 방지)
     function loadUserFromStorage() {
@@ -90,23 +93,116 @@ document.addEventListener('DOMContentLoaded', () => {
         return num.toString();
     }
 
+    const KEY_FACT_LABELS = [
+        '현재 단계',
+        '필요 역할',
+        '사용 도구',
+        '협업 방식',
+        '합류 형태',
+    ];
+
     // formatDate는 common.js에서 제공
 
-    function showModal(title, onConfirm) {
+    function parseStructuredContent(rawContent) {
+        const content = rawContent || '';
+        const lines = content.split('\n');
+        const factMap = new Map();
+        const bodyLines = [];
+
+        lines.forEach((line) => {
+            const trimmed = line.trim();
+            if (!trimmed) {
+                bodyLines.push(line);
+                return;
+            }
+
+            const introMatch = trimmed.match(/^프로젝트 소개\s*[:：]\s*(.*)$/);
+            if (introMatch) {
+                if (introMatch[1].trim()) {
+                    bodyLines.push(introMatch[1].trim());
+                }
+                return;
+            }
+
+            const matchedLabel = KEY_FACT_LABELS.find((label) => trimmed.startsWith(`${label}:`) || trimmed.startsWith(`${label} :`) || trimmed.startsWith(`${label}：`));
+            if (!matchedLabel) {
+                bodyLines.push(line);
+                return;
+            }
+
+            const value = trimmed.replace(new RegExp(`^${matchedLabel}\\s*[:：]\\s*`), '').trim();
+            if (value && !factMap.has(matchedLabel)) {
+                factMap.set(matchedLabel, value);
+                return;
+            }
+            bodyLines.push(line);
+        });
+
+        return {
+            facts: KEY_FACT_LABELS
+                .filter((label) => factMap.has(label))
+                .map((label) => ({ label, value: factMap.get(label) })),
+            body: bodyLines.join('\n').replace(/\n{3,}/g, '\n\n').trim(),
+        };
+    }
+
+    function renderKeyFacts(facts) {
+        if (!postKeyFacts) {
+            return;
+        }
+
+        postKeyFacts.innerHTML = '';
+        if (!facts.length) {
+            postKeyFacts.hidden = true;
+            return;
+        }
+
+        facts.forEach((fact) => {
+            const item = document.createElement('div');
+            item.className = 'post-key-fact';
+
+            const label = document.createElement('span');
+            label.className = 'post-key-fact-label';
+            label.textContent = fact.label;
+
+            const value = document.createElement('strong');
+            value.className = 'post-key-fact-value';
+            value.textContent = fact.value;
+
+            item.append(label, value);
+            postKeyFacts.appendChild(item);
+        });
+
+        postKeyFacts.hidden = false;
+    }
+
+    function showModal(title, onConfirm, subtitle = '삭제한 모집 내용은 복구할 수 없습니다.') {
         modalTitle.textContent = title;
+        if (modalSubtitle) {
+            modalSubtitle.textContent = subtitle;
+        }
         deleteModal.style.display = 'flex';
 
-        const handleConfirm = () => {
+        if (modalConfirmHandler) {
+            modalConfirmBtn.removeEventListener('click', modalConfirmHandler);
+        }
+
+        modalConfirmHandler = () => {
             deleteModal.style.display = 'none';
-            modalConfirmBtn.removeEventListener('click', handleConfirm);
+            modalConfirmBtn.removeEventListener('click', modalConfirmHandler);
+            modalConfirmHandler = null;
             onConfirm();
         };
 
-        modalConfirmBtn.addEventListener('click', handleConfirm);
+        modalConfirmBtn.addEventListener('click', modalConfirmHandler);
     }
 
     function hideModal() {
         deleteModal.style.display = 'none';
+        if (modalConfirmHandler) {
+            modalConfirmBtn.removeEventListener('click', modalConfirmHandler);
+            modalConfirmHandler = null;
+        }
     }
     function closeAuthorCard() {
         if (authorCardEl) {
@@ -209,8 +305,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderComments(comments);
                 return comments;
             }
+
+            const hasRenderedComments = Boolean(commentList.querySelector('.comment-item'));
+            const hasExpectedComments = Number(currentPost?.commentCount || 0) > 0;
+            renderCommentStatus(
+                hasRenderedComments
+                    ? '최신 질문을 다시 불러오지 못했습니다. 잠시 후 새로고침 해주세요.'
+                    : (hasExpectedComments
+                        ? '질문 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
+                        : '아직 공개 질문이나 문의가 없습니다.'),
+                (hasRenderedComments || hasExpectedComments) ? 'error' : 'empty',
+                hasRenderedComments
+            );
+            console.warn('Failed to fetch comments:', response.status);
         } catch (error) {
             console.error('Failed to fetch comments:', error);
+            const hasRenderedComments = Boolean(commentList.querySelector('.comment-item'));
+            const hasExpectedComments = Number(currentPost?.commentCount || 0) > 0;
+            renderCommentStatus(
+                hasRenderedComments
+                    ? '최신 질문을 다시 불러오지 못했습니다. 잠시 후 새로고침 해주세요.'
+                    : (hasExpectedComments
+                        ? '질문 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
+                        : '아직 공개 질문이나 문의가 없습니다.'),
+                (hasRenderedComments || hasExpectedComments) ? 'error' : 'empty',
+                hasRenderedComments
+            );
         }
         return [];
     }
@@ -284,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                showCustomModal('게시글이 삭제되었습니다.', () => {
+                showCustomModal('모집글이 삭제되었습니다.', () => {
                     window.location.href = 'index.html';
                 });
             } else {
@@ -331,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pendingCommentId = editingCommentId;
 
                 commentInput.value = '';
-                commentSubmitBtn.textContent = '댓글 등록';
+                commentSubmitBtn.textContent = '질문 남기기';
                 commentSubmitBtn.disabled = true;
                 commentSubmitBtn.classList.remove('active');
                 editingCommentId = null;
@@ -348,9 +468,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!isEditMode) {
                     let count = parseInt(commentCountEl.textContent.replace(/[^0-9]/g, '')) || 0;
                     commentCountEl.textContent = formatCount(count + 1);
+                    if (currentPost) {
+                        currentPost.commentCount = count + 1;
+                    }
                 }
             } else {
-                showCustomModal('댓글 등록에 실패했습니다.');
+                showCustomModal('질문 등록에 실패했습니다.');
             }
         } catch (error) {
             console.error('Error submitting comment:', error);
@@ -365,11 +488,25 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                await fetchComments();
+                const existingComment = commentList.querySelector(`[data-id="${commentId}"]`);
+                if (existingComment) {
+                    existingComment.remove();
+                }
+
                 let count = parseInt(commentCountEl.textContent.replace(/[^0-9]/g, '')) || 0;
-                commentCountEl.textContent = formatCount(Math.max(0, count - 1));
+                const nextCount = Math.max(0, count - 1);
+                commentCountEl.textContent = formatCount(nextCount);
+                if (currentPost) {
+                    currentPost.commentCount = nextCount;
+                }
+
+                if (!commentList.querySelector('.comment-item')) {
+                    renderCommentStatus('아직 공개 질문이나 문의가 없습니다.');
+                }
+
+                await fetchComments();
             } else {
-                showCustomModal('댓글 삭제에 실패했습니다.');
+                showCustomModal('질문 삭제에 실패했습니다.');
             }
         } catch (error) {
             console.error('Failed to delete comment:', error);
@@ -382,8 +519,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPost() {
         if (!currentPost) return;
 
+        const structuredContent = parseStructuredContent(currentPost.content || '');
+
+        const bodyText = structuredContent.body || '';
+
         postTitle.textContent = currentPost.title || '';
-        postContent.textContent = currentPost.content || '';
+        renderKeyFacts(structuredContent.facts);
+        postContent.textContent = bodyText;
+        postContent.style.display = bodyText ? 'block' : 'none';
         authorName.textContent = currentPost.writer || '익명';
         postDate.textContent = currentPost.createdAt ? formatDate(currentPost.createdAt) : '';
 
@@ -408,6 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
         likeCount.textContent = formatCount(currentPost.likeCount || 0);
         viewCount.textContent = formatCount(currentPost.viewCount || 0);
         commentCountEl.textContent = formatCount(currentPost.commentCount || 0);
+        likeBtn.disabled = false;
 
 
 
@@ -505,12 +649,12 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn = document.createElement('button');
             editBtn.className = 'comment-action-btn edit-comment-btn';
             editBtn.type = 'button';
-            editBtn.textContent = '수정';
+            editBtn.textContent = '질문 수정';
 
             deleteBtn = document.createElement('button');
             deleteBtn.className = 'comment-action-btn delete-comment-btn';
             deleteBtn.type = 'button';
-            deleteBtn.textContent = '삭제';
+            deleteBtn.textContent = '질문 삭제';
 
             actionsEl.append(editBtn, deleteBtn);
             headerEl.appendChild(actionsEl);
@@ -527,16 +671,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 editingCommentId = comment.commentId;
                 commentInput.value = comment.content;
                 commentInput.focus();
-                commentSubmitBtn.textContent = '댓글 수정';
+                commentSubmitBtn.textContent = '질문 수정';
                 commentSubmitBtn.disabled = false;
                 commentSubmitBtn.classList.add('active');
                 commentInput.scrollIntoView({ behavior: 'smooth' });
             });
 
             deleteBtn.addEventListener('click', () => {
-                showModal('댓글을 삭제하시겠습니까?', () => {
+                showModal('질문을 삭제하시겠습니까?', () => {
                     deleteComment(comment.commentId);
-                });
+                }, '삭제한 질문은 복구할 수 없습니다.');
             });
         }
 
@@ -565,9 +709,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderComments(comments) {
         commentList.innerHTML = '';
+        if (!comments.length) {
+            renderCommentStatus('아직 공개 질문이나 문의가 없습니다.');
+            return;
+        }
         comments.forEach((comment) => {
             commentList.appendChild(buildCommentElement(comment));
         });
+    }
+
+    function renderCommentStatus(message, variant = 'empty', preserveExisting = false) {
+        if (!preserveExisting) {
+            commentList.innerHTML = '';
+        } else {
+            commentList.querySelectorAll('.comment-empty-state, .comment-error-state').forEach((el) => el.remove());
+        }
+
+        const stateEl = document.createElement('div');
+        stateEl.className = variant === 'error' ? 'comment-error-state' : 'comment-empty-state';
+        stateEl.textContent = message;
+        commentList.appendChild(stateEl);
     }
 
     // ==========================================
@@ -578,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `post_edit.html?id=${postId}`;
     });
     deletePostBtn.addEventListener('click', () => {
-        showModal('게시글을 삭제하시겠습니까?', deletePost);
+        showModal('모집글을 삭제하시겠습니까?', deletePost);
     });
     modalCancelBtn.addEventListener('click', hideModal);
     deleteModal.addEventListener('click', (e) => {
@@ -635,6 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 초기화
     async function init() {
         loadUserFromStorage(); // 로컬스토리지에서 즉시 로드
+        likeBtn.disabled = true;
         await fetchPostDetail();
         await fetchLikeStatus(); // 사용자가 이미 좋아요한 게시글인지 확인
         fetchComments();

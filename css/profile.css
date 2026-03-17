@@ -1,5 +1,5 @@
-/* 
-  Profile Page Styles - 회원정보수정 페이지 스타일
+/*
+  Profile Page Styles - 메이커 프로필 페이지 스타일
 */
 
 /* --- Container --- */
@@ -168,7 +168,7 @@
     display: block;
     margin: 60px auto 20px;
     /* Spacing from form */
-    padding: 12px 40px;
+    padding: 12px 28px;
     background-color: #ACA0EB;
     color: white;
     border: none;
@@ -178,6 +178,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: background-color 0.3s;
+    text-align: center;
 }
 
 .complete-btn:hover {

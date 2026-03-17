@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             profileImgElement.src = '';
             profilePreview.classList.remove('has-image');
-            showHelper(profileError, '* 프로필 사진은 선택사항입니다. 선택하면 가입 직후 자동 반영됩니다.');
+            showHelper(profileError, '* 프로필 사진은 가입 후 메이커 프로필에서 설정할 수 있습니다.');
             checkFormValidity();
         }
     });
@@ -489,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (autoApplyError) {
                 console.error('Signup image auto-apply error:', autoApplyError);
                 await logoutAfterAutoApply();
-                showCustomModal('회원가입은 완료되었지만 프로필 이미지 자동 반영에 실패했습니다.\n로그인 후 프로필 수정에서 다시 시도해주세요.', () => {
+                showCustomModal('회원가입은 완료되었지만 프로필 이미지 자동 반영에 실패했습니다.\n로그인 후 메이커 프로필에서 다시 시도해주세요.', () => {
                     window.location.href = 'login.html';
                 });
             }
@@ -503,6 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 초기화
-    showHelper(profileError, '* 프로필 사진은 선택사항입니다. 선택하면 가입 직후 자동 반영됩니다.');
+    showHelper(profileError, '* 프로필 사진은 가입 후 메이커 프로필에서 설정할 수 있습니다.');
     checkFormValidity();
 });

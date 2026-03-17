@@ -175,6 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 수정완료 버튼 - 목록으로 이동
     if (completeBtn) {
         completeBtn.addEventListener('click', () => {
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
             window.location.href = 'index.html';
         });
     }
@@ -244,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (nickname) {
                     localStorage.setItem('nickname', nickname);
                 }
-                showToast('수정 완료');
+                showToast('저장 완료');
             } else if (response.status === 409) {
                 showHelper('*중복된 닉네임 입니다.');
             } else {
@@ -288,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('email');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('user');
-                showCustomModal('회원 탈퇴가 완료되었습니다. 계정과 관련 데이터가 영구 삭제되었습니다.', () => {
+                showCustomModal('빌드메이트 탈퇴가 완료되었습니다. 계정과 관련 데이터가 영구 삭제되었습니다.', () => {
                     window.location.href = 'login.html';
                 });
             } else {

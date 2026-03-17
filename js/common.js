@@ -287,12 +287,12 @@ async function startDirectMessage(targetUserId) {
             });
             return null;
         }
-        throw new Error(result.message || '채팅방 생성에 실패했습니다.');
+        throw new Error(result.message || '협업 채팅방 생성에 실패했습니다.');
     }
 
     const roomId = result?.data?.roomId;
     if (!roomId) {
-        throw new Error('채팅방 정보를 불러오지 못했습니다.');
+        throw new Error('협업 채팅방 정보를 불러오지 못했습니다.');
     }
 
     window.location.href = `dm.html?roomId=${roomId}`;
@@ -325,7 +325,7 @@ function buildAuthorProfileCard(options) {
 
     const caption = document.createElement('span');
     caption.className = 'author-profile-card-caption';
-    caption.textContent = '실시간 1:1 대화를 시작할 수 있습니다.';
+    caption.textContent = '공개 질문 뒤에 1:1 협업 채팅으로 이어갈 수 있습니다.';
 
     textWrap.append(name, caption);
     left.append(avatar, textWrap);
@@ -338,7 +338,7 @@ function buildAuthorProfileCard(options) {
         action.textContent = '대화 불가';
         action.disabled = true;
     } else {
-        action.textContent = '채팅하기';
+        action.textContent = '협업 제안하기';
         action.addEventListener('click', async (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -346,7 +346,7 @@ function buildAuthorProfileCard(options) {
                 await startDirectMessage(targetUserId);
             } catch (error) {
                 console.error('failed to start dm', error);
-                showCustomModal(error.message || '채팅방을 여는 데 실패했습니다.');
+                showCustomModal(error.message || '협업 채팅을 여는 데 실패했습니다.');
             }
         });
     }

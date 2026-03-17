@@ -69,9 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     isLastPage = true;
                     if (requestOffset === 0) {
                         const emptyState = document.createElement('div');
+                        emptyState.className = 'posts-empty-state';
                         emptyState.style.textAlign = 'center';
                         emptyState.style.padding = '20px';
-                        emptyState.textContent = '게시글이 없습니다. 첫 글을 작성해보세요!';
+                        emptyState.textContent = '아직 등록된 프로젝트가 없습니다. 첫 모집글을 올려보세요.';
                         postContainer.appendChild(emptyState);
                     }
                     return;
@@ -209,6 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
         titleEl.className = 'post-card-title';
         titleEl.textContent = post.title || '';
 
+        const statusEl = document.createElement('div');
+        statusEl.className = 'post-card-status';
+        statusEl.textContent = '모집 중';
+
         const metaEl = document.createElement('div');
         metaEl.className = 'post-card-meta';
 
@@ -216,11 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
         statsEl.className = 'post-stats';
 
         const likesEl = document.createElement('span');
-        likesEl.textContent = `좋아요 ${likesStr}`;
+        likesEl.textContent = `관심 ${likesStr}`;
         const commentsEl = document.createElement('span');
-        commentsEl.textContent = `댓글 ${commentsStr}`;
+        commentsEl.textContent = `질문 ${commentsStr}`;
         const viewsEl = document.createElement('span');
-        viewsEl.textContent = `조회수 ${viewsStr}`;
+        viewsEl.textContent = `조회 ${viewsStr}`;
         statsEl.append(likesEl, commentsEl, viewsEl);
 
         const dateEl = document.createElement('div');
@@ -262,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         authorRowEl.append(authorImageEl, authorNameEl);
-        card.append(titleEl, metaEl, dividerEl, authorRowEl, authorCardEl);
+        card.append(statusEl, titleEl, metaEl, dividerEl, authorRowEl, authorCardEl);
         return card;
     }
 

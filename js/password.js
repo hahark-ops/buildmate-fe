@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logoutBtn');
 
     // 폼 입력 필드
+    const accountEmailInput = document.getElementById('accountEmail');
     const currentPasswordInput = document.getElementById('currentPassword');
     const newPasswordInput = document.getElementById('newPassword');
     const confirmPasswordInput = document.getElementById('confirmPassword');
@@ -121,6 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             currentUser = result.data || result;
 
+            if (currentUser.email && accountEmailInput) {
+                accountEmailInput.value = currentUser.email;
+            }
+
             if (currentUser.profileImage) {
                 localStorage.setItem('profileImage', currentUser.profileImage);
                 profileIcon.style.backgroundImage = `url(${currentUser.profileImage})`;
@@ -215,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                showToast('수정 완료');
+                showToast('저장 완료');
                 // 입력 필드 초기화
                 currentPasswordInput.value = '';
                 newPasswordInput.value = '';
@@ -242,8 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 로컬 스토리지에서 먼저 로드 (깜박임 방지)
     const cachedProfileImage = localStorage.getItem('profileImage');
+    const cachedEmail = localStorage.getItem('email');
     if (cachedProfileImage && profileIcon) {
         profileIcon.style.backgroundImage = `url(${cachedProfileImage})`;
+    }
+    if (cachedEmail && accountEmailInput) {
+        accountEmailInput.value = cachedEmail;
     }
 
     loadUserData();

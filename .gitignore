@@ -24,3 +24,8 @@ npm-debug.log*
 # Build output
 dist/
 build/
+playwright-report/
+test-results/
+
+# Local tooling state
+.stitch-project.json

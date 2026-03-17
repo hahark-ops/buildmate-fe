@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                showCustomModal('게시글이 수정되었습니다.', () => {
+                showCustomModal('모집글이 수정되었습니다.', () => {
                     window.location.href = `post_detail.html?id=${postId}`;
                 });
             } else if (response.status === 401) {
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = `post_detail.html?id=${postId}`;
                 });
             } else {
-                showHelper(data.message || '게시글 수정에 실패했습니다.');
+                showHelper(data.message || '모집글 수정에 실패했습니다.');
             }
 
         } catch (error) {

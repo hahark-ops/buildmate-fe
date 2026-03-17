@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아무 말 대잔치</title>
+    <title>빌드메이트</title>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/posts.css">
 </head>
@@ -12,16 +12,16 @@
 <body>
     <!-- 상단 메뉴바 -->
     <header>
-        <span class="logo">아무 말 대잔치</span>
+        <span class="logo">빌드메이트</span>
         <div class="header-content">
             <div class="header-actions">
-                <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="DM">DM</a>
+                <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">협업 채팅</a>
                 <div class="profile-icon" id="profileIcon"></div>
             </div>
             <!-- 드롭다운 메뉴 -->
             <div class="profile-dropdown" id="profileDropdown">
-                <a href="profile.html" class="dropdown-item">회원정보수정</a>
-                <a href="password.html" class="dropdown-item">비밀번호수정</a>
+                <a href="profile.html" class="dropdown-item">메이커 프로필</a>
+                <a href="password.html" class="dropdown-item">계정 보안</a>
                 <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
             </div>
         </div>
@@ -30,13 +30,15 @@
     <!-- 메인 컨텐츠 -->
     <main class="post-list-container">
 
-        <div class="welcome-section">
-            안녕하세요,<br>
-            아무 말 대잔치 <span>게시판</span> 입니다.
-        </div>
+        <section class="welcome-section">
+            <p class="welcome-kicker">사이드 프로젝트 팀 빌딩 서비스</p>
+            <h1>빌드메이트</h1>
+            <p class="welcome-message">혼자 만들다 막히면, 함께 만들 메이트를 찾으세요.</p>
+            <p class="welcome-description">팀원을 구하는 사람은 모집글을 올리고, 합류하고 싶은 사람은 프로젝트를 둘러본 뒤 공개 질문이나 협업 제안으로 바로 이어갈 수 있습니다.</p>
+        </section>
 
         <div class="action-section">
-            <button class="write-btn" onclick="location.href='post_write.html'">게시글 작성</button>
+            <button class="write-btn" onclick="location.href='post_write.html'">프로젝트 모집하기</button>
         </div>
 
         <!-- 게시글 목록 (JS로 채워짐) -->

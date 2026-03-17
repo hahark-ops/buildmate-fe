@@ -21,8 +21,18 @@
     letter-spacing: 0;
     color: #000000;
     text-align: center;
-    margin-bottom: 32px;
-    /* Adjusted spacing */
+    margin-bottom: 16px;
+    line-height: 130%;
+}
+
+.login-description {
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 28px;
+    text-align: center;
+    font-size: 16px;
+    line-height: 160%;
+    color: #4B5563;
 }
 
 /* 폼 스타일 */
@@ -91,6 +101,12 @@
 
 .helper-text.show {
     visibility: visible;
+}
+
+.helper-text-static {
+    visibility: visible;
+    height: auto;
+    line-height: 140%;
 }
 
 .login-btn {

@@ -49,7 +49,7 @@ test('게시글, 댓글, 좋아요, DM, unread 흐름', async ({ browser }) => {
   await expect(pageB.locator('#commentList .comment-content').filter({ hasText: commentContent }).first()).toBeVisible({ timeout: 15000 });
 
   await pageB.locator('.author-info').click();
-  await pageB.getByRole('button', { name: '채팅하기' }).click();
+  await pageB.getByRole('button', { name: '협업 제안하기' }).click();
   await pageB.waitForURL(/dm\.html\?roomId=/);
   await pageB.locator('#dmInput').fill(dmMessage);
   await pageB.locator('#dmSendBtn').click();

@@ -4,29 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 - 아무 말 대잔치</title>
+    <title>로그인 - 빌드메이트</title>
     <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/login.css">
 </head>
 
 <body>
     <header>
-        <a href="login.html" class="logo">아무 말 대잔치</a>
+        <a href="login.html" class="logo">빌드메이트</a>
     </header>
 
     <main class="login-container">
-        <h1 class="login-title">로그인</h1>
+        <h1 class="login-title">함께 만들 메이트를 찾아보세요</h1>
+        <p class="login-description">프로젝트를 올리거나, 합류할 팀을 찾거나, 협업 채팅을 이어서 시작해보세요.</p>
 
         <form id="loginForm" class="login-form">
             <div class="input-group">
                 <label for="email">이메일</label>
-                <input type="email" id="email" name="email" placeholder="이메일을 입력하세요">
+                <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" autocomplete="username">
                 <div id="emailError" class="helper-text"></div>
             </div>
 
             <div class="input-group">
                 <label for="password">비밀번호</label>
-                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
                 <div id="passwordError" class="helper-text"></div>
             </div>
 
@@ -34,7 +35,7 @@
         </form>
 
         <div class="signup-link">
-            <a href="signup.html">회원가입</a>
+            <a href="signup.html">빌드메이트 시작하기</a>
         </div>
     </main>
 

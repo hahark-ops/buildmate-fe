@@ -23,7 +23,8 @@ const backendProxy = createProxyMiddleware({
     target: backendTarget,
     changeOrigin: true,
     xfwd: true,
-    pathFilter: ['/v1', '/uploads'], // 여기서 필터링 설정!
+    ws: true,
+    pathFilter: ['/v1', '/uploads', '/ws'], // 로컬 검증 시 DM websocket까지 프록시
     logger: console,
     onProxyReq: (proxyReq, req, res) => {
         console.log(`[Proxy] Proxying ${req.method} ${req.url} -> Backend`);
@@ -57,7 +58,9 @@ app.use((req, res, next) => {
     res.status(404).send('Not Found via Express');
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`서버가 실행되었습니다!`);
     console.log(`접속 주소: http://localhost:${port}`);
 });
+
+server.on('upgrade', backendProxy.upgrade);

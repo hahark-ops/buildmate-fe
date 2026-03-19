@@ -5,20 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>메이커 프로필 - 빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
+    <link rel="stylesheet" href="css/profile.css?v=20260319-mobile2">
 </head>
 
-<body>
+<body class="account-page">
     <header>
-        <!-- Back button removed -->
         <span class="logo">빌드메이트</span>
         <div class="header-content">
             <div class="header-actions">
                 <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">협업 채팅</a>
                 <div class="profile-icon" id="profileIcon"></div>
             </div>
-            <!-- 드롭다운 메뉴 -->
             <div class="profile-dropdown" id="profileDropdown">
                 <a href="profile.html" class="dropdown-item active">메이커 프로필</a>
                 <a href="password.html" class="dropdown-item">계정 보안</a>
@@ -27,51 +25,115 @@
         </div>
     </header>
 
-    <main class="profile-container">
-        <h1 class="page-title">메이커 프로필</h1>
+    <main class="profile-container account-page-shell">
+        <aside class="account-overview-card">
+            <span class="account-kicker">Maker Profile</span>
+            <h1 class="account-title">협업 전에 신뢰도 있는 첫인상을 정리하세요.</h1>
+            <p class="account-copy">프로필 사진과 닉네임은 협업 제안, 공개 질문, 채팅 전환에서 가장 먼저 보이는 정보입니다. Buildmate의 팀 빌딩 흐름에 맞게 간결하고 읽기 쉽게 유지하세요.</p>
 
-        <form id="profileForm" class="profile-form">
-            <!-- 프로필 사진 (원형 오버레이 디자인) -->
-            <div class="input-group profile-upload-section">
-                <label>프로필 사진*</label>
-                <div class="profile-image-container" id="profileImageContainer">
-                    <img id="profileImg" src="" alt="프로필 이미지">
-                    <div class="profile-overlay">
-                        <span class="overlay-text">변경</span>
+            <div class="account-identity">
+                <div class="account-identity-avatar" id="profileOverviewAvatar"></div>
+                <div class="account-identity-meta">
+                    <strong id="profileOverviewNickname">메이커 프로필</strong>
+                    <span id="profileOverviewEmail">이메일을 불러오는 중입니다.</span>
+                </div>
+            </div>
+
+            <div class="account-signal-strip">
+                <span class="account-signal-pill">협업 제안 전 노출</span>
+                <span class="account-signal-pill">작성자 카드 반영</span>
+                <span class="account-signal-pill">채팅 목록 이름 동기화</span>
+            </div>
+
+            <div class="account-overview-list">
+                <article class="account-overview-item">
+                    <strong>프로필 이미지</strong>
+                    <span>얼굴, 로고, 대표 이미지를 최신 상태로 유지하면 제안 수락 전에 신뢰를 더 빠르게 형성할 수 있습니다.</span>
+                </article>
+                <article class="account-overview-item">
+                    <strong>닉네임 가독성</strong>
+                    <span>모집글 작성자 카드와 협업 채팅 목록에서 바로 읽히는 짧고 명확한 이름이 좋습니다.</span>
+                </article>
+                <article class="account-overview-item">
+                    <strong>계정 흐름 연결</strong>
+                    <span>프로필을 저장한 뒤 계정 보안 화면에서 비밀번호 정책도 같이 점검해두면 운영이 더 안정적입니다.</span>
+                </article>
+            </div>
+        </aside>
+
+        <section class="account-form-card">
+            <div class="account-form-header">
+                <span class="account-form-kicker">Profile Settings</span>
+                <h1 class="page-title">메이커 프로필</h1>
+                <p class="account-form-copy">협업 제안을 보내기 전에 기본 정보를 점검하고 저장하세요. 변경 내용은 바로 헤더와 작성자 카드에도 반영됩니다.</p>
+            </div>
+
+            <form id="profileForm" class="profile-form">
+                <section class="account-form-section">
+                    <div class="account-section-head">
+                        <span>Identity</span>
+                        <h2>보이는 기본 정보</h2>
+                        <p>작성자 카드와 협업 제안에서 가장 먼저 읽히는 정보입니다.</p>
+                    </div>
+
+                    <div class="input-group profile-upload-section">
+                        <label>프로필 사진*</label>
+                        <div class="profile-image-container" id="profileImageContainer">
+                            <img id="profileImg" src="" alt="프로필 이미지">
+                            <div class="profile-overlay">
+                                <span class="overlay-text">변경</span>
+                            </div>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <div id="profileError" class="helper-text"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>이메일</label>
+                        <div class="email-display" id="emailDisplay">loading@email.com</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="nickname">닉네임</label>
+                        <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" maxlength="10" autocomplete="nickname">
+                        <div id="nicknameHelper" class="helper-text"></div>
+                    </div>
+                </section>
+
+                <section class="account-form-section account-form-section-muted">
+                    <div class="account-section-head">
+                        <span>Presence Preview</span>
+                        <h2>협업 제안에서 보이는 방식</h2>
+                        <p>닉네임과 프로필 이미지가 실제 액션 지점에서 어떻게 읽히는지 미리 확인합니다.</p>
+                    </div>
+
+                    <div class="profile-presence-card">
+                        <div class="profile-presence-card-top">
+                            <div class="profile-presence-avatar" id="profileCardPreviewAvatar"></div>
+                            <div class="profile-presence-meta">
+                                <strong id="profileCardPreviewNickname">메이커 프로필</strong>
+                                <span>공개 질문 뒤에 1:1 협업 제안으로 이어갈 수 있습니다.</span>
+                            </div>
+                        </div>
+                        <button type="button" class="profile-presence-action" disabled>협업 제안하기</button>
+                    </div>
+
+                    <div class="account-inline-note">저장 후에는 헤더 프로필 아이콘과 작성자 카드도 같은 정보로 갱신됩니다.</div>
+                </section>
+
+                <div class="account-form-actions">
+                    <button type="button" id="submitBtn" class="submit-btn">프로필 저장하기</button>
+
+                    <div class="withdraw-link">
+                        <a href="#" id="withdrawBtn">회원 탈퇴</a>
                     </div>
                 </div>
-                <input type="file" id="imageInput" accept="image/*" style="display: none;">
-                <div id="profileError" class="helper-text"></div>
-            </div>
+            </form>
 
-            <!-- 이메일 (읽기 전용) -->
-            <div class="input-group">
-                <label>이메일</label>
-                <div class="email-display" id="emailDisplay">loading@email.com</div>
-            </div>
-
-            <!-- 닉네임 -->
-            <div class="input-group">
-                <label for="nickname">닉네임</label>
-                <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" maxlength="10" autocomplete="nickname">
-                <div id="nicknameHelper" class="helper-text"></div>
-            </div>
-
-            <!-- 수정하기 버튼 -->
-            <button type="button" id="submitBtn" class="submit-btn" style="background-color: #ACA0EB;">프로필 저장하기</button>
-
-            <!-- 회원 탈퇴 -->
-            <div class="withdraw-link">
-                <a href="#" id="withdrawBtn">회원 탈퇴</a>
-            </div>
-        </form>
-
-        <!-- 수정완료 버튼 (목록으로 이동) -->
-        <button type="button" id="completeBtn" class="complete-btn">이전 화면으로 돌아가기</button>
-
+            <button type="button" id="completeBtn" class="complete-btn">이전 화면으로 돌아가기</button>
+        </section>
     </main>
 
-    <!-- 회원 탈퇴 확인 모달 -->
     <div class="modal-overlay" id="withdrawModal" style="display: none;">
         <div class="modal-box">
             <p class="modal-title">빌드메이트를 탈퇴하시겠습니까?</p>
@@ -87,7 +149,7 @@
     <div class="toast" id="toast">저장 완료</div>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js"></script>
+    <script src="js/common.js?v=20260319-preview"></script>
     <script src="js/modal.js"></script>
     <script src="js/profile.js"></script>
 </body>

@@ -1,136 +1,30 @@
-/* 
-  Login Page Styles - 로그인 페이지 전용 스타일
-*/
-
-.login-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 140px;
-    width: 100%;
+.auth-shell-login .auth-hero-panel {
+    min-height: 760px;
 }
 
-.login-title {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 100%;
-    letter-spacing: 0;
-    color: #000000;
-    text-align: center;
-    margin-bottom: 16px;
-    line-height: 130%;
+.auth-shell-login .auth-card-panel {
+    min-height: 760px;
 }
 
-.login-description {
-    width: 100%;
-    max-width: 420px;
-    margin-bottom: 48px;
-    text-align: center;
-    font-size: 16px;
-    line-height: 160%;
-    color: #4B5563;
+.auth-shell-login .auth-card-copy {
+    max-width: 520px;
 }
 
-/* 폼 스타일 */
-.login-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 355px;
-    gap: 24px;
+.auth-shell-login .auth-hero-surface {
+    max-width: 560px;
 }
 
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.auth-shell-login .auth-card-support {
+    margin-top: -6px;
 }
 
-.input-group label {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    line-height: 100%;
-    letter-spacing: 0;
-    color: #000000;
+.auth-shell-login .login-form {
+    margin-top: 4px;
 }
 
-.input-group input {
-    width: 355px;
-    height: 33px;
-    padding: 0 10px;
-    border: 1px solid #000000;
-    border-radius: 4px;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 100%;
-    color: #000000;
-    outline: none;
-    box-sizing: border-box;
-}
-
-.input-group input::placeholder {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    color: #000000;
-    opacity: 1;
-}
-
-.input-group input:focus {
-    border-color: var(--active-btn-color);
-}
-
-.helper-text {
-    height: 15px;
-    visibility: hidden;
-    margin-top: 5px;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 100%;
-    color: #FF0000;
-}
-
-.helper-text.show {
-    visibility: visible;
-}
-
-.login-btn {
-    width: 355px;
-    height: 33px;
-    padding: 0;
-    border: none;
-    border-radius: 4px;
-    background-color: #ACA0EB;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    color: #FFFFFF;
-    cursor: not-allowed;
-    transition: background-color 0.3s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.login-btn.active {
-    background-color: var(--active-btn-color);
-    cursor: pointer;
-}
-
-.signup-link {
-    margin-top: 12px;
-    text-align: center;
-}
-
-.signup-link a {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 100%;
-    color: #000000;
-    text-decoration: none;
+@media (max-width: 980px) {
+    .auth-shell-login .auth-hero-panel,
+    .auth-shell-login .auth-card-panel {
+        min-height: auto;
+    }
 }

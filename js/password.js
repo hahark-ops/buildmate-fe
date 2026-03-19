@@ -1,6 +1,7 @@
 // password.js - API_BASE_URL, showCustomModal은 common.js에서 제공
 
 document.addEventListener('DOMContentLoaded', () => {
+    const isPreviewMode = new URLSearchParams(window.location.search).get('preview') === 'stitch';
     // ==========================================
     // 1. 요소 가져오기
     // ==========================================
@@ -11,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 폼 입력 필드
     const accountEmailInput = document.getElementById('accountEmail');
+    const accountEmailDisplay = document.getElementById('accountEmailDisplay');
     const currentPasswordInput = document.getElementById('currentPassword');
     const newPasswordInput = document.getElementById('newPassword');
     const confirmPasswordInput = document.getElementById('confirmPassword');
@@ -25,6 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 상태 변수
     let currentUser = null;
+    const previewUser = {
+        userId: 101,
+        email: 'ari@buildmate.local',
+        profileImage: '',
+    };
 
     // ==========================================
     // 2. 헬퍼 함수
@@ -125,6 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentUser.email && accountEmailInput) {
                 accountEmailInput.value = currentUser.email;
             }
+            if (currentUser.email && accountEmailDisplay) {
+                accountEmailDisplay.textContent = currentUser.email;
+            }
 
             if (currentUser.profileImage) {
                 localStorage.setItem('profileImage', currentUser.profileImage);
@@ -202,6 +212,19 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.addEventListener('click', async () => {
         if (submitBtn.disabled) return;
 
+        if (isPreviewMode) {
+            showToast('저장 완료');
+            currentPasswordInput.value = '';
+            newPasswordInput.value = '';
+            confirmPasswordInput.value = '';
+            submitBtn.disabled = true;
+            submitBtn.classList.remove('active');
+            hideHelper(currentPasswordHelper);
+            hideHelper(newPasswordHelper);
+            hideHelper(confirmPasswordHelper);
+            return;
+        }
+
         const payload = {
             currentPassword: currentPasswordInput.value,
             newPassword: newPasswordInput.value
@@ -253,6 +276,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (cachedEmail && accountEmailInput) {
         accountEmailInput.value = cachedEmail;
+    }
+    if (cachedEmail && accountEmailDisplay) {
+        accountEmailDisplay.textContent = cachedEmail;
+    }
+
+    if (isPreviewMode) {
+        currentUser = { ...previewUser };
+        if (accountEmailInput) {
+            accountEmailInput.value = currentUser.email;
+        }
+        if (accountEmailDisplay) {
+            accountEmailDisplay.textContent = currentUser.email;
+        }
+        return;
     }
 
     loadUserData();

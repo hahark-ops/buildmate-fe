@@ -1,107 +1,306 @@
-/*
-  Profile Page Styles - 메이커 프로필 페이지 스타일
-*/
+body.account-page {
+    background:
+        radial-gradient(circle at top left, rgba(43, 140, 238, 0.14), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.10), transparent 28%),
+        linear-gradient(180deg, #F7FAFC 0%, #EEF3F8 100%);
+}
 
-/* --- Container --- */
-.profile-container {
+body.account-page main.account-page-shell {
+    max-width: 1440px;
+    padding: 34px 28px 64px;
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.account-overview-card,
+.account-form-card {
+    position: relative;
+    border-radius: 34px;
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.96) 100%);
+    box-shadow: 0 24px 54px rgba(15, 23, 42, 0.10);
+    overflow: hidden;
+}
+
+.account-overview-card {
+    position: sticky;
+    top: 100px;
+    padding: 32px;
+    background:
+        radial-gradient(circle at top left, rgba(43, 140, 238, 0.16), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(15, 23, 42, 0.10), transparent 26%),
+        linear-gradient(180deg, #FFFFFF 0%, #EEF4F8 100%);
+}
+
+.account-kicker,
+.account-form-kicker {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #2B7FD3;
+}
+
+.account-title {
+    margin-top: 16px;
+    font-size: clamp(36px, 4vw, 48px);
+    font-weight: 900;
+    line-height: 1.04;
+    letter-spacing: -0.05em;
+    color: #0F172A;
+}
+
+.account-copy {
+    margin-top: 16px;
+    font-size: 15px;
+    line-height: 1.85;
+    color: #475467;
+}
+
+.account-identity {
+    margin: 30px 0 24px;
+    padding: 20px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.84);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.account-identity-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 24px;
+    flex-shrink: 0;
+    background:
+        radial-gradient(circle at top left, rgba(43, 140, 238, 0.16), transparent 45%),
+        linear-gradient(180deg, #DCE9F6 0%, #BFD3E6 100%);
+    background-size: cover;
+    background-position: center;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.account-identity-meta {
+    min-width: 0;
+}
+
+.account-identity-meta strong {
+    display: block;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #0F172A;
+}
+
+.account-identity-meta span {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #667085;
+    overflow-wrap: anywhere;
+}
+
+.account-signal-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.account-signal-pill {
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.84);
+    background: rgba(255, 255, 255, 0.72);
+    color: #475467;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.account-overview-list {
+    display: grid;
+    gap: 14px;
+}
+
+.account-overview-item {
+    padding: 18px 20px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.84);
+}
+
+.account-overview-item strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.account-overview-item span {
+    font-size: 13px;
+    line-height: 1.75;
+    color: #667085;
+}
+
+.account-form-card {
+    padding: 34px 36px 32px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin-top: 40px;
-    width: 100%;
-    padding: 0 20px;
-    box-sizing: border-box;
+    gap: 26px;
+}
+
+.account-form-header {
+    display: flex;
+    flex-direction: column;
 }
 
 .page-title {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: #000000;
-    text-align: center;
-    margin-bottom: 40px;
+    margin-top: 14px;
+    font-size: clamp(34px, 3vw, 44px);
+    font-weight: 850;
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    color: #0F172A;
 }
 
-/* --- Form Styles --- */
-.profile-form {
+.account-form-copy {
+    margin-top: 14px;
+    max-width: 640px;
+    font-size: 15px;
+    line-height: 1.82;
+    color: #667085;
+}
+
+.profile-form,
+.password-form {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 400px;
-    gap: 20px;
+    gap: 22px;
+}
+
+.account-form-section {
+    padding: 24px;
+    border-radius: 28px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(248, 250, 252, 0.84);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.account-form-section-muted {
+    background:
+        radial-gradient(circle at top left, rgba(43, 140, 238, 0.12), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 248, 251, 0.96) 100%);
+}
+
+.account-section-head span {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #2B7FD3;
+}
+
+.account-section-head h2 {
+    margin: 8px 0 0;
+    border: 0;
+    padding: 0;
+    font-size: 28px;
+    font-weight: 850;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    color: #0F172A;
+}
+
+.account-section-head p {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #667085;
 }
 
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .input-group label {
-    font-family: 'Pretendard', sans-serif;
     font-size: 14px;
-    font-weight: 700;
-    color: #000000;
+    font-weight: 800;
+    color: #111827;
 }
 
-/* Email Display (Read-only) */
-.email-display {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    color: #666;
-    padding: 8px 0;
-}
-
-/* Nickname Input */
-.input-group input[type="text"] {
+.email-display,
+.input-group input[type="text"],
+.input-group input[type="password"] {
     width: 100%;
-    height: 40px;
-    padding: 0 12px;
-    border: 1px solid #000000;
-    border-radius: 4px;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    color: #000000;
+    min-height: 56px;
+    padding: 0 18px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 18px;
+    background: rgba(248, 250, 252, 0.92);
+    font-size: 15px;
+    color: #0F172A;
     outline: none;
-    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.input-group input[type="text"]:focus {
-    border-color: #7F6AEE;
+.input-group input[type="text"]:focus,
+.input-group input[type="password"]:focus {
+    border-color: rgba(43, 140, 238, 0.48);
+    box-shadow: 0 0 0 4px rgba(43, 140, 238, 0.10);
+    background: #FFFFFF;
 }
 
-/* Helper Text */
+.input-group input[type="text"]::placeholder,
+.input-group input[type="password"]::placeholder {
+    color: #94A3B8;
+}
+
 .helper-text {
-    min-height: 15px;
+    min-height: 18px;
     visibility: hidden;
-    font-family: 'Inter', sans-serif;
     font-size: 12px;
-    font-weight: 400;
-    color: #FF0000;
+    line-height: 1.45;
+    color: #DC2626;
 }
 
 .helper-text.show {
     visibility: visible;
 }
 
-/* --- Profile Image Upload (Circular with Overlay) --- */
 .profile-upload-section {
-    align-items: center;
-    /* Label centering */
+    align-items: flex-start;
 }
 
 .profile-image-container {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
+    width: 126px;
+    height: 126px;
+    margin-top: 6px;
+    border-radius: 34px;
     overflow: hidden;
     position: relative;
     cursor: pointer;
-    background-color: #C4C4C4;
-    /* Place holder color */
-    margin: 10px auto;
-    /* Center horizontally */
-    border: 1px solid #ddd;
+    background:
+        radial-gradient(circle at top left, rgba(43, 140, 238, 0.16), transparent 40%),
+        linear-gradient(180deg, #FFFFFF 0%, #E6EDF4 100%);
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.10);
 }
 
 .profile-image-container img {
@@ -113,228 +312,326 @@
 
 .profile-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.04) 0%, rgba(15, 23, 42, 0.56) 100%);
     display: flex;
+    align-items: flex-end;
     justify-content: center;
-    align-items: center;
-    opacity: 1;
-    /* Always visible based on design */
-    transition: opacity 0.2s;
+    padding-bottom: 14px;
+    transition: background-color 0.2s ease;
 }
 
 .profile-image-container:hover .profile-overlay {
-    opacity: 1;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.62) 100%);
 }
 
 .overlay-text {
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    padding: 4px 12px;
-    border-radius: 20px;
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
-
-/* --- Submit Button --- */
-.submit-btn {
-    width: 100%;
-    height: 42px;
-    margin-top: 10px;
-    padding: 0;
-    border: none;
-    border-radius: 4px;
-    /* More squared as per typical forms */
-    background-color: #ACA0EB;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
+    display: inline-flex;
+    min-height: 32px;
+    padding: 0 12px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.32);
     color: #FFFFFF;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 12px;
+    font-weight: 800;
 }
 
-.submit-btn:hover {
-    background-color: #7F6AEE !important;
+.profile-presence-card {
+    padding: 20px;
+    border-radius: 24px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
 }
 
-/* --- Complete Button (Bottom) --- */
-.complete-btn {
+.profile-presence-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.profile-presence-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    background:
+        radial-gradient(circle at top left, rgba(43, 140, 238, 0.16), transparent 45%),
+        linear-gradient(180deg, #DCE9F6 0%, #BFD3E6 100%);
+    background-size: cover;
+    background-position: center;
+}
+
+.profile-presence-meta {
+    min-width: 0;
+}
+
+.profile-presence-meta strong {
     display: block;
-    margin: 60px auto 20px;
-    /* Spacing from form */
-    padding: 12px 28px;
-    background-color: #ACA0EB;
-    color: white;
+    font-size: 18px;
+    font-weight: 850;
+    color: #0F172A;
+    letter-spacing: -0.03em;
+}
+
+.profile-presence-meta span {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #667085;
+}
+
+.profile-presence-action {
+    min-width: 126px;
+    min-height: 46px;
+    padding: 0 18px;
     border: none;
-    border-radius: 25px;
-    /* Fully rounded pill shape */
-    font-size: 16px;
-    font-weight: 700;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #2B8CEE 0%, #1F6FD6 100%);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.profile-presence-action:disabled {
+    opacity: 1;
+}
+
+.account-inline-note {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #667085;
+}
+
+.submit-btn,
+.complete-btn {
+    width: 100%;
+    min-height: 56px;
+    border-radius: 18px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.submit-btn {
+    border: none;
+    background: linear-gradient(135deg, #2B8CEE 0%, #1F6FD6 100%);
+    color: #FFFFFF;
+    box-shadow: 0 18px 36px rgba(43, 140, 238, 0.22);
     cursor: pointer;
-    transition: background-color 0.3s;
-    text-align: center;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+    background: #C7D9F2;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.submit-btn.active {
+    background: linear-gradient(135deg, #2B8CEE 0%, #1F6FD6 100%);
+}
+
+.complete-btn {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.84);
+    color: #0F172A;
+    cursor: pointer;
 }
 
 .complete-btn:hover {
-    background-color: #7F6AEE;
+    transform: translateY(-1px);
+    border-color: rgba(43, 140, 238, 0.18);
 }
 
-/* --- Withdraw Link --- */
+.account-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
 .withdraw-link {
-    text-align: center;
-    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .withdraw-link a {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    color: #666;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 700;
     text-decoration: none;
 }
 
 .withdraw-link a:hover {
-    text-decoration: underline;
+    color: #0F172A;
 }
 
-/* --- Dropdown Menu --- */
-.header-content {
-    position: relative;
-}
-
-.profile-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    background: white;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    min-width: 140px;
-    z-index: 100;
-    overflow: hidden;
-}
-
-.profile-dropdown.show {
-    display: block;
-}
-
-.dropdown-item {
-    display: block;
-    padding: 12px 16px;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
-    color: #333;
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.dropdown-item:hover {
-    background-color: #E9E9E9;
-}
-
-.dropdown-item.active {
-    color: #7F6AEE;
-    font-weight: 600;
-}
-
-/* --- Modal --- */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(15, 23, 42, 0.46);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
+    padding: 20px;
 }
 
 .modal-box {
-    background: white;
-    padding: 40px;
-    border-radius: 16px;
+    width: min(460px, 100%);
+    padding: 34px;
+    border-radius: 28px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+    box-shadow: 0 24px 54px rgba(15, 23, 42, 0.18);
     text-align: center;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
-    width: 90%;
 }
 
 .modal-title {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #000;
-    margin: 0 0 12px 0;
+    font-size: 24px;
+    font-weight: 850;
+    line-height: 1.24;
+    letter-spacing: -0.04em;
+    color: #0F172A;
 }
 
 .modal-subtitle {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 15px;
-    color: #666;
-    margin: 0 0 30px 0;
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #667085;
 }
 
 .modal-buttons {
     display: flex;
-    gap: 16px;
-    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
 }
 
 .modal-btn {
     flex: 1;
-    max-width: 140px;
-    padding: 14px 0;
+    min-height: 52px;
     border: none;
-    border-radius: 8px;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
-    transition: opacity 0.2s;
-}
-
-.modal-btn:hover {
-    opacity: 0.85;
 }
 
 .cancel-btn {
-    background-color: #000000;
-    color: white;
+    background: #0F172A;
+    color: #FFFFFF;
 }
 
 .confirm-btn {
-    background-color: #ACA0EB;
-    color: white;
+    background: linear-gradient(135deg, #2B8CEE 0%, #1F6FD6 100%);
+    color: #FFFFFF;
 }
 
-/* --- Toast Message --- */
 .toast {
     position: fixed;
-    bottom: 30px;
     left: 50%;
+    bottom: 28px;
     transform: translateX(-50%) translateY(100px);
-    background: #333;
-    color: white;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
+    min-width: 140px;
+    padding: 14px 22px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.92);
+    color: #FFFFFF;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: transform 0.25s ease, opacity 0.25s ease;
     z-index: 10000;
 }
 
 .toast.show {
     transform: translateX(-50%) translateY(0);
     opacity: 1;
+}
+
+@media (max-width: 1120px) {
+    body.account-page main.account-page-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .account-overview-card {
+        position: relative;
+        top: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    body.account-page main.account-page-shell {
+        padding: 22px 16px 44px;
+        gap: 18px;
+    }
+
+    .account-overview-card,
+    .account-form-card {
+        padding: 24px 20px;
+        border-radius: 26px;
+    }
+
+    .account-title,
+    .page-title {
+        font-size: 32px;
+    }
+
+    .account-identity {
+        padding: 16px;
+        border-radius: 22px;
+    }
+
+    .account-form-section {
+        padding: 20px;
+        border-radius: 24px;
+    }
+
+    .account-section-head h2 {
+        font-size: 24px;
+    }
+
+    .account-identity-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 20px;
+    }
+
+    .profile-image-container {
+        width: 112px;
+        height: 112px;
+        border-radius: 28px;
+    }
+
+    .profile-presence-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .profile-presence-action {
+        width: 100%;
+    }
+
+    .modal-box {
+        padding: 24px 20px;
+        border-radius: 22px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
 }

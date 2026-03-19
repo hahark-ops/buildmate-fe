@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // URL에서 게시글 ID 추출
     const urlParams = new URLSearchParams(window.location.search);
-    const postId = urlParams.get('id');
+    const isPreviewMode = urlParams.get('preview') === 'stitch';
+    const postId = urlParams.get('id') || (isPreviewMode ? 'preview' : null);
 
     if (!postId) {
         showCustomModal('잘못된 접근입니다.', () => {
@@ -18,18 +19,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 게시글 요소
     const postTitle = document.getElementById('postTitle');
+    const postSummary = document.getElementById('postSummary');
     const authorAvatar = document.getElementById('authorAvatar');
     const authorName = document.getElementById('authorName');
     const postDate = document.getElementById('postDate');
     const postActions = document.getElementById('postActions');
     const authorInfo = document.querySelector('.author-info');
     const postMetaRow = document.querySelector('.post-meta-row');
+    const postHeroBriefTitle = document.getElementById('postHeroBriefTitle');
+    const postHeroBriefCopy = document.getElementById('postHeroBriefCopy');
+    const postHeroBriefPills = document.getElementById('postHeroBriefPills');
+    const authorCardSlot = document.getElementById('authorCardSlot');
     const editPostBtn = document.getElementById('editPostBtn');
     const deletePostBtn = document.getElementById('deletePostBtn');
     const postImageContainer = document.getElementById('postImageContainer');
     const postImage = document.getElementById('postImage');
     const postKeyFacts = document.getElementById('postKeyFacts');
     const postContent = document.getElementById('postContent');
+    const lookingForSection = document.getElementById('lookingForSection');
+    const lookingForGrid = document.getElementById('lookingForGrid');
     const likeBtn = document.getElementById('likeBtn');
     const likeCount = document.getElementById('likeCount');
     const viewCount = document.getElementById('viewCount');
@@ -39,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentInput = document.getElementById('commentInput');
     const commentSubmitBtn = document.getElementById('commentSubmitBtn');
     const commentList = document.getElementById('commentList');
+    const askQuestionBtn = document.getElementById('askQuestionBtn');
+    const commentsSection = document.getElementById('commentsSection');
 
     // 모달 요소
     const deleteModal = document.getElementById('deleteModal');
@@ -59,6 +69,49 @@ document.addEventListener('DOMContentLoaded', () => {
     let editingCommentId = null;
     let authorCardEl = null;
     let modalConfirmHandler = null;
+
+    const previewPost = {
+        postId: 9999,
+        title: 'Apple-style onboarding for a fast-moving maker team',
+        content: [
+            '현재 단계: MVP 실험 직전',
+            '필요 역할: Frontend Designer, Product Engineer, Growth Marketer',
+            '사용 도구: Figma, Cursor, Supabase, Notion',
+            '협업 방식: 주 2회 싱크 + 비동기 작업',
+            '합류 형태: 파트타임 코어 멤버',
+            '',
+            '프로젝트 소개: 팀원을 모으는 서비스지만, 첫 인상은 제품처럼 보여야 한다고 판단했습니다.',
+            '이번 라운드에서는 홈 보드와 프로젝트 상세, 협업 채팅의 밀도를 다시 설계하고 있습니다.',
+            '바로 구현 가능한 수준의 시안을 먼저 맞춘 뒤 실제 기능을 그대로 입히는 방식으로 진행합니다.',
+        ].join('\n'),
+        writer: 'Ari Kim',
+        authorId: 101,
+        authorProfileImage: '',
+        createdAt: '2026-03-19T09:00:00.000Z',
+        likeCount: 28,
+        viewCount: 184,
+        commentCount: 2,
+        isLiked: false,
+    };
+
+    const previewComments = [
+        {
+            commentId: 1,
+            content: '디자인 시스템 없이 먼저 홈/상세 톤을 고정하는 방향인가요?',
+            authorId: 202,
+            authorNickname: 'Min',
+            authorProfileImage: '',
+            createdAt: '2026-03-19T10:20:00.000Z',
+        },
+        {
+            commentId: 2,
+            content: '합류 형태가 파트타임 코어 멤버면 주당 예상 투입 시간도 함께 맞춰보면 좋겠습니다.',
+            authorId: 303,
+            authorNickname: 'Soo',
+            authorProfileImage: '',
+            createdAt: '2026-03-19T11:05:00.000Z',
+        },
+    ];
 
     // 로컬스토리지에서 사용자 정보 로드 (동기 처리 - 딜레이 방지)
     function loadUserFromStorage() {
@@ -176,6 +229,126 @@ document.addEventListener('DOMContentLoaded', () => {
         postKeyFacts.hidden = false;
     }
 
+    function splitFactValue(value) {
+        if (!value) {
+            return [];
+        }
+        return value
+            .split(/,|\/|\||·|ㆍ|\n/)
+            .map((item) => item.trim())
+            .filter(Boolean);
+    }
+
+    function renderLookingFor(facts) {
+        if (!lookingForSection || !lookingForGrid) {
+            return;
+        }
+
+        const factMap = new Map(facts.map((fact) => [fact.label, fact.value]));
+        const cards = [];
+        const roles = splitFactValue(factMap.get('필요 역할'));
+        const tools = splitFactValue(factMap.get('사용 도구'));
+
+        if (roles.length) {
+            cards.push({
+                label: 'Needed Roles',
+                value: roles.slice(0, 3).join(' · ')
+            });
+        }
+        if (factMap.get('협업 방식')) {
+            cards.push({
+                label: 'Collaboration',
+                value: factMap.get('협업 방식')
+            });
+        }
+        if (tools.length) {
+            cards.push({
+                label: 'Tool Stack',
+                value: tools.slice(0, 4).join(' · ')
+            });
+        }
+        if (factMap.get('합류 형태')) {
+            cards.push({
+                label: 'Join Type',
+                value: factMap.get('합류 형태')
+            });
+        }
+
+        lookingForGrid.innerHTML = '';
+        if (!cards.length) {
+            lookingForSection.hidden = true;
+            return;
+        }
+
+        cards.forEach((card) => {
+            const item = document.createElement('div');
+            item.className = 'looking-for-item';
+
+            const label = document.createElement('span');
+            label.className = 'looking-for-item-label';
+            label.textContent = card.label;
+
+            const value = document.createElement('strong');
+            value.className = 'looking-for-item-value';
+            value.textContent = card.value;
+
+            item.append(label, value);
+            lookingForGrid.appendChild(item);
+        });
+
+        lookingForSection.hidden = false;
+    }
+
+    function buildLeadSummary(bodyText, facts) {
+        const summarySource = (bodyText || '').replace(/\s+/g, ' ').trim();
+        if (summarySource) {
+            return summarySource.length > 180 ? `${summarySource.slice(0, 177)}...` : summarySource;
+        }
+
+        if (facts.length) {
+            return facts.map((fact) => `${fact.label} ${fact.value}`).join(' · ');
+        }
+
+        return '현재 단계와 필요한 역할을 확인한 뒤, 공개 질문과 협업 제안으로 실제 작업 흐름을 이어갈 수 있습니다.';
+    }
+
+    function renderHeroBrief(facts, bodyText) {
+        if (!postHeroBriefTitle || !postHeroBriefCopy || !postHeroBriefPills) {
+            return;
+        }
+
+        const factMap = new Map(facts.map((fact) => [fact.label, fact.value]));
+        const roles = splitFactValue(factMap.get('필요 역할'));
+        const tools = splitFactValue(factMap.get('사용 도구'));
+        const stage = factMap.get('현재 단계') || '초기 논의 단계';
+        const collaboration = factMap.get('협업 방식') || '협업 방식 조율 필요';
+        const joinType = factMap.get('합류 형태') || '합류 형태 협의';
+        const summarySource = (bodyText || '').replace(/\s+/g, ' ').trim();
+
+        postHeroBriefTitle.textContent = roles.length
+            ? `${roles[0]} 중심으로 팀을 확장합니다.`
+            : '합류 전에 역할 적합도를 먼저 맞춰보세요.';
+        postHeroBriefCopy.textContent = summarySource
+            ? (summarySource.length > 120 ? `${summarySource.slice(0, 117)}...` : summarySource)
+            : '핵심 역할, 협업 방식, 합류 형태를 빠르게 확인하고 공개 질문으로 이어가세요.';
+
+        const pills = [
+            `Stage · ${stage}`,
+            `Mode · ${collaboration}`,
+            `Join · ${joinType}`,
+            roles.length ? `Roles · ${roles.slice(0, 2).join(' / ')}` : null,
+            tools.length ? `Tools · ${tools.slice(0, 2).join(' / ')}` : null,
+        ].filter(Boolean);
+
+        postHeroBriefPills.innerHTML = '';
+        pills.forEach((pillText) => {
+            const pill = document.createElement('span');
+            pill.className = 'post-hero-brief-pill';
+            pill.textContent = pillText;
+            postHeroBriefPills.appendChild(pill);
+        });
+    }
+
     function showModal(title, onConfirm, subtitle = '삭제한 모집 내용은 복구할 수 없습니다.') {
         modalTitle.textContent = title;
         if (modalSubtitle) {
@@ -221,13 +394,24 @@ document.addEventListener('DOMContentLoaded', () => {
             nickname: currentPost.writer,
             profileImage: currentPost.authorProfileImage
         });
-        postMetaRow.insertAdjacentElement('afterend', authorCardEl);
+
+        if (authorCardSlot) {
+            authorCardEl.classList.add('show');
+            authorCardSlot.innerHTML = '';
+            authorCardSlot.appendChild(authorCardEl);
+        } else {
+            postMetaRow.insertAdjacentElement('afterend', authorCardEl);
+        }
 
         if (authorInfo) {
-            authorInfo.classList.add('author-card-trigger');
             authorInfo.onclick = (event) => {
                 event.preventDefault();
                 event.stopPropagation();
+                if (authorCardSlot) {
+                    authorCardEl.classList.add('show');
+                    authorCardSlot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    return;
+                }
                 const willShow = !authorCardEl.classList.contains('show');
                 closeAuthorCard();
                 authorCardEl.classList.toggle('show', willShow);
@@ -345,6 +529,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function toggleLike() {
+        if (isPreviewMode) {
+            isLiked = !isLiked;
+            likeBtn.classList.toggle('liked', isLiked);
+            const baseCount = Number(currentPost?.likeCount || 0);
+            const nextCount = isLiked ? baseCount + 1 : baseCount;
+            likeCount.textContent = formatCount(nextCount);
+            return;
+        }
+
         if (!currentUser) {
             showCustomModal('로그인이 필요합니다.', () => {
                 window.location.href = 'login.html';
@@ -524,7 +717,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const bodyText = structuredContent.body || '';
 
         postTitle.textContent = currentPost.title || '';
+        postSummary.textContent = buildLeadSummary(bodyText, structuredContent.facts);
+        renderHeroBrief(structuredContent.facts, bodyText);
         renderKeyFacts(structuredContent.facts);
+        renderLookingFor(structuredContent.facts);
         postContent.textContent = bodyText;
         postContent.style.display = bodyText ? 'block' : 'none';
         authorName.textContent = currentPost.writer || '익명';
@@ -751,6 +947,14 @@ document.addEventListener('DOMContentLoaded', () => {
         commentSubmitBtn.classList.toggle('active', hasContent);
     });
     commentSubmitBtn.addEventListener('click', submitComment);
+    if (askQuestionBtn) {
+        askQuestionBtn.addEventListener('click', () => {
+            if (commentsSection) {
+                commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            commentInput.focus();
+        });
+    }
 
     // 프로필 드롭다운 이벤트
     if (profileIcon) {
@@ -797,6 +1001,18 @@ document.addEventListener('DOMContentLoaded', () => {
     async function init() {
         loadUserFromStorage(); // 로컬스토리지에서 즉시 로드
         likeBtn.disabled = true;
+        if (isPreviewMode) {
+            currentUser = {
+                userId: 101,
+                nickname: 'Ari Kim',
+                email: 'ari@buildmate.local',
+                profileImage: ''
+            };
+            currentPost = previewPost;
+            renderPost();
+            renderComments(previewComments);
+            return;
+        }
         await fetchPostDetail();
         await fetchLikeStatus(); // 사용자가 이미 좋아요한 게시글인지 확인
         fetchComments();

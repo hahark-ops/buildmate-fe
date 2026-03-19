@@ -383,8 +383,50 @@ function setDmUnreadBadgeCount(count) {
     });
 }
 
+let dmUnreadBadgeRetryTimer = null;
+
+function isStitchPreviewMode() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('preview') === 'stitch';
+}
+
+function applyPreviewParamToLocalLinks() {
+    if (!isStitchPreviewMode()) {
+        return;
+    }
+
+    document.querySelectorAll('a[href]').forEach((link) => {
+        const rawHref = link.getAttribute('href');
+        if (!rawHref || rawHref.startsWith('#') || rawHref.startsWith('javascript:') || rawHref.startsWith('mailto:')) {
+            return;
+        }
+        if (!/\.html($|[?#])/.test(rawHref)) {
+            return;
+        }
+
+        const nextUrl = new URL(rawHref, window.location.href);
+        nextUrl.searchParams.set('preview', 'stitch');
+        const relativePath = nextUrl.pathname.split('/').pop() || nextUrl.pathname;
+        link.setAttribute('href', `${relativePath}${nextUrl.search}${nextUrl.hash}`);
+    });
+}
+
+function scheduleDmUnreadBadgeRefresh(delay = 1200) {
+    if (!document.querySelector('.dm-icon-btn') || isStitchPreviewMode()) {
+        return;
+    }
+    if (dmUnreadBadgeRetryTimer) {
+        window.clearTimeout(dmUnreadBadgeRetryTimer);
+    }
+    dmUnreadBadgeRetryTimer = window.setTimeout(() => {
+        dmUnreadBadgeRetryTimer = null;
+        refreshDmUnreadBadge().catch(() => {});
+    }, delay);
+}
+
 async function refreshDmUnreadBadge() {
-    if (!document.querySelector('.dm-icon-btn')) {
+    if (!document.querySelector('.dm-icon-btn') || isStitchPreviewMode()) {
+        setDmUnreadBadgeCount(0);
         return;
     }
 
@@ -410,18 +452,25 @@ window.setDmUnreadBadgeCount = setDmUnreadBadgeCount;
 window.refreshDmUnreadBadge = refreshDmUnreadBadge;
 
 document.addEventListener('DOMContentLoaded', () => {
+    applyPreviewParamToLocalLinks();
     if (!document.querySelector('.dm-icon-btn')) {
         return;
     }
     ensureDmUnreadBadge();
+    if (isStitchPreviewMode()) {
+        setDmUnreadBadgeCount(0);
+        return;
+    }
     refreshDmUnreadBadge().catch((error) => {
         console.warn('failed to refresh dm unread badge', error);
     });
+    scheduleDmUnreadBadgeRefresh();
 });
 
 window.addEventListener('focus', () => {
-    if (!document.querySelector('.dm-icon-btn')) {
+    if (!document.querySelector('.dm-icon-btn') || isStitchPreviewMode()) {
         return;
     }
     refreshDmUnreadBadge().catch(() => {});
+    scheduleDmUnreadBadgeRefresh();
 });

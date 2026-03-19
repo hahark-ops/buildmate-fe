@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프로젝트 상세 - 빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/post_detail.css">
+    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
+    <link rel="stylesheet" href="css/post_detail.css?v=20260319-mobile2">
 </head>
 
 <body>
@@ -28,70 +28,115 @@
     </header>
 
     <main class="post-detail-container">
-        <!-- 게시글 본문 영역 -->
-        <article class="post-article">
-            <!-- 제목 -->
-            <h1 class="post-title" id="postTitle"></h1>
+        <section class="post-hero-shell">
+            <article class="post-article">
+                <div class="post-hero-copy">
+                    <p class="post-hero-kicker">Buildmate Project</p>
+                    <h1 class="post-title" id="postTitle"></h1>
+                    <p class="post-summary" id="postSummary"></p>
 
-            <!-- 작성자 정보 + 수정/삭제 버튼 -->
-            <div class="post-meta-row">
-                <div class="author-info">
-                    <div class="author-avatar" id="authorAvatar"></div>
-                    <span class="author-name" id="authorName"></span>
-                    <span class="post-date" id="postDate"></span>
+                    <div class="post-meta-row">
+                        <div class="post-meta-copy">
+                            <span class="post-meta-badge">공개 모집 중</span>
+                            <span class="post-meta-text">핵심 정보는 위에서 빠르게 보고, 세부 내용은 아래에서 확인하세요.</span>
+                        </div>
+                    </div>
                 </div>
-                <!-- 수정/삭제 버튼 (본인일 때만 표시) -->
-                <div class="post-actions" id="postActions" style="display: none;">
-                    <button class="action-btn edit-btn" id="editPostBtn">수정</button>
-                    <button class="action-btn delete-btn" id="deletePostBtn">삭제</button>
-                </div>
-            </div>
 
-            <div class="post-divider"></div>
+                <aside class="post-hero-brief">
+                    <p class="post-hero-brief-label">Decision Snapshot</p>
+                    <h2 class="post-hero-brief-title" id="postHeroBriefTitle">합류 전에 먼저 맞춰볼 것</h2>
+                    <p class="post-hero-brief-copy" id="postHeroBriefCopy">핵심 역할, 협업 방식, 합류 형태를 빠르게 확인하고 공개 질문으로 이어가세요.</p>
+                    <div class="post-hero-brief-pills" id="postHeroBriefPills"></div>
 
-            <!-- 게시글 이미지 -->
-            <div class="post-image-container" id="postImageContainer" style="display: none;">
-                <img id="postImage" src="" alt="게시글 이미지">
-            </div>
+                    <div class="post-hero-actions">
+                        <button class="hero-cta-btn" id="askQuestionBtn" type="button">공개 질문 남기기</button>
+                        <div class="post-actions" id="postActions" style="display: none;">
+                            <button class="action-btn edit-btn" id="editPostBtn">수정</button>
+                            <button class="action-btn delete-btn" id="deletePostBtn">삭제</button>
+                        </div>
+                    </div>
+                </aside>
+            </article>
 
             <section class="post-key-facts" id="postKeyFacts" hidden></section>
-
-            <!-- 본문 내용 -->
-            <div class="post-content" id="postContent"></div>
-
-            <!-- 통계 박스 (좋아요, 조회수, 댓글수) -->
-            <div class="stats-box">
-                <button class="stat-item like-btn" id="likeBtn" disabled>
-                    <span class="stat-count" id="likeCount">0</span>
-                    <span class="stat-label">관심 수</span>
-                </button>
-                <div class="stat-item">
-                    <span class="stat-count" id="viewCount">0</span>
-                    <span class="stat-label">조회</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-count" id="commentCount">0</span>
-                    <span class="stat-label">질문</span>
-                </div>
-            </div>
-        </article>
-
-        <!-- 댓글 영역 -->
-        <section class="comments-section">
-            <!-- 댓글 입력 -->
-            <div class="comment-input-area">
-                <textarea id="commentInput" placeholder="프로젝트에 대해 공개로 확인하고 싶은 점을 남겨보세요."></textarea>
-                <button type="button" id="commentSubmitBtn" class="comment-submit-btn" disabled>질문 남기기</button>
-            </div>
-
-            <!-- 댓글 목록 -->
-            <div class="comment-list" id="commentList">
-                <!-- 댓글 아이템들이 JS로 렌더링됨 -->
-            </div>
         </section>
+
+        <div class="post-content-layout">
+            <section class="post-main-column">
+                <div class="post-image-container" id="postImageContainer" style="display: none;">
+                    <img id="postImage" src="" alt="게시글 이미지">
+                </div>
+
+                <article class="post-section-card">
+                    <div class="post-section-heading">
+                        <p class="post-section-kicker">Project Details</p>
+                        <h2>프로젝트 소개</h2>
+                    </div>
+                    <div class="post-content" id="postContent"></div>
+                </article>
+
+                <section class="post-section-card looking-for-section" id="lookingForSection" hidden>
+                    <div class="post-section-heading">
+                        <p class="post-section-kicker">What We're Looking For</p>
+                        <h2>합류 전에 맞춰볼 포인트</h2>
+                    </div>
+                    <div class="looking-for-grid" id="lookingForGrid"></div>
+                </section>
+
+                <section class="comments-section" id="commentsSection">
+                    <div class="comments-heading">
+                        <div>
+                            <p class="post-section-kicker">Public Questions</p>
+                            <h2>공개 질문</h2>
+                        </div>
+                        <p class="comments-caption">합류 전에 공개로 정리할수록 협업 채팅에서의 의사결정이 빨라집니다.</p>
+                    </div>
+
+                    <div class="comment-input-area">
+                        <textarea id="commentInput" placeholder="프로젝트에 대해 공개로 확인하고 싶은 점을 남겨보세요."></textarea>
+                        <button type="button" id="commentSubmitBtn" class="comment-submit-btn" disabled>질문 남기기</button>
+                    </div>
+
+                    <div class="comment-list" id="commentList"></div>
+                </section>
+            </section>
+
+            <aside class="post-side-column">
+                <section class="post-side-card">
+                    <p class="post-side-label">Project Lead</p>
+                    <div class="author-info">
+                        <div class="author-avatar" id="authorAvatar"></div>
+                        <div class="author-copy">
+                            <span class="author-name" id="authorName"></span>
+                            <span class="post-date" id="postDate"></span>
+                        </div>
+                    </div>
+                    <p class="post-side-copy">프로젝트 리드를 확인하고, 공개 질문 이후 바로 협업 제안으로 이어갈 수 있습니다.</p>
+                    <div class="author-card-slot" id="authorCardSlot"></div>
+                </section>
+
+                <section class="post-side-card">
+                    <p class="post-side-label">Project Pulse</p>
+                    <div class="stats-box">
+                        <button class="stat-item like-btn" id="likeBtn" disabled>
+                            <span class="stat-count" id="likeCount">0</span>
+                            <span class="stat-label">관심 수</span>
+                        </button>
+                        <div class="stat-item">
+                            <span class="stat-count" id="viewCount">0</span>
+                            <span class="stat-label">조회</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-count" id="commentCount">0</span>
+                            <span class="stat-label">질문</span>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </div>
     </main>
 
-    <!-- 삭제 확인 모달 -->
     <div class="modal-overlay" id="deleteModal" style="display: none;">
         <div class="modal-box">
             <p class="modal-title" id="modalTitle">모집글을 삭제하시겠습니까?</p>
@@ -104,7 +149,7 @@
     </div>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js"></script>
+    <script src="js/common.js?v=20260319-preview"></script>
     <script src="js/modal.js"></script>
     <script src="js/post_detail.js"></script>
 </body>

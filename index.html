@@ -5,53 +5,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/posts.css">
+    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
+    <link rel="stylesheet" href="css/posts.css?v=20260319-mobile2">
 </head>
 
-<body>
-    <!-- 상단 메뉴바 -->
-    <header>
-        <span class="logo">빌드메이트</span>
-        <div class="header-content">
-            <div class="header-actions">
-                <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">협업 채팅</a>
-                <div class="profile-icon" id="profileIcon"></div>
+<body class="home-page">
+    <header class="home-header">
+        <div class="home-header-shell">
+            <div class="home-header-left">
+                <a href="index.html" class="logo home-logo">빌드메이트</a>
+                <nav class="home-nav" aria-label="메인 탐색">
+                    <a href="#opportunityBoard">Discover</a>
+                    <a href="#opportunityBoard">Projects</a>
+                    <a href="#readyToBuild">How It Works</a>
+                    <a href="post_write.html">Start a Project</a>
+                </nav>
             </div>
-            <!-- 드롭다운 메뉴 -->
-            <div class="profile-dropdown" id="profileDropdown">
-                <a href="profile.html" class="dropdown-item">메이커 프로필</a>
-                <a href="password.html" class="dropdown-item">계정 보안</a>
-                <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+
+            <div class="header-content">
+                <label class="home-header-search" aria-label="프로젝트 검색">
+                    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M8.75 3.75a5 5 0 1 0 0 10a5 5 0 0 0 0-10ZM2.5 8.75a6.25 6.25 0 1 1 10.932 4.127l3.345 3.346a.625.625 0 0 1-.884.884l-3.346-3.345A6.25 6.25 0 0 1 2.5 8.75Z" fill="currentColor" />
+                    </svg>
+                    <input type="search" placeholder="Search projects..." />
+                </label>
+
+                <div class="home-header-auth" id="homeHeaderAuthActions" hidden>
+                    <a href="signup.html" class="home-auth-primary">Sign Up</a>
+                    <a href="login.html" class="home-auth-secondary">Log In</a>
+                </div>
+                <div class="header-actions">
+                    <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">협업 채팅</a>
+                    <div class="profile-icon" id="profileIcon"></div>
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="profile.html" class="dropdown-item">메이커 프로필</a>
+                    <a href="password.html" class="dropdown-item">계정 보안</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- 메인 컨텐츠 -->
     <main class="post-list-container">
+        <section class="hero-section">
+            <div class="hero-copy">
+                <p class="hero-kicker">Find Your Next Build</p>
+                <h1 class="hero-title">Build something that matters.</h1>
+                <p class="hero-description">좋은 프로젝트는 결국 좋은 메이트를 만나는 속도에서 갈립니다. Buildmate는 공개 모집, 질문, 협업 채팅을 하나의 흐름으로 묶어 팀 빌딩을 더 빠르게 만듭니다.</p>
+                <div class="hero-actions">
+                    <button class="write-btn hero-primary-btn" onclick="location.href='post_write.html'">프로젝트 모집하기</button>
+                    <a href="#opportunityBoard" class="hero-secondary-btn">열린 프로젝트 둘러보기</a>
+                </div>
+                <p class="hero-note">Find the right team faster.</p>
+            </div>
 
-        <section class="welcome-section">
-            <p class="welcome-kicker">사이드 프로젝트 팀 빌딩 서비스</p>
-            <h1>빌드메이트</h1>
-            <p class="welcome-message">혼자 만들다 막히면, 함께 만들 메이트를 찾으세요.</p>
-            <p class="welcome-description">팀원을 구하는 사람은 모집글을 올리고, 합류하고 싶은 사람은 프로젝트를 둘러본 뒤 공개 질문이나 협업 제안으로 바로 이어갈 수 있습니다.</p>
+            <div class="hero-media" aria-hidden="true">
+                <div class="hero-media-frame">
+                    <span class="hero-media-label">Featured Project</span>
+                    <div class="hero-media-panel hero-media-panel-top">
+                        <p>현재 단계</p>
+                        <strong>MVP 고도화</strong>
+                        <span>Frontend, Product Design, PM</span>
+                    </div>
+                    <div class="hero-media-panel hero-media-panel-bottom">
+                        <div>
+                            <p>From question to collaboration</p>
+                            <strong>질문으로 맞춰보고, 채팅으로 결정합니다.</strong>
+                            <span>공개 질문에서 역할 기대치를 맞춘 뒤, 바로 협업 채팅으로 이어집니다.</span>
+                        </div>
+                        <div class="hero-media-tools">
+                            <span class="hero-media-tool">React</span>
+                            <span class="hero-media-tool">Figma</span>
+                            <span class="hero-media-tool">Cursor</span>
+                            <span class="hero-media-tool">Paid + Equity</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <div class="action-section">
-            <button class="write-btn" onclick="location.href='post_write.html'">프로젝트 모집하기</button>
-        </div>
+        <section class="board-section" id="opportunityBoard">
+            <div class="board-header">
+                <div class="board-header-copy">
+                    <p class="board-kicker">Open Opportunities</p>
+                    <h2>지금 합류 가능한 프로젝트</h2>
+                    <p class="board-description">현재 단계, 필요한 역할, 사용 도구를 빠르게 살펴보고 지금 합류할 만한 프로젝트를 골라보세요.</p>
+                    <span class="board-count" id="opportunityCount">프로젝트를 불러오는 중입니다.</span>
+                </div>
+                <div class="board-filters" aria-label="프로젝트 필터">
+                    <button type="button" class="board-filter-control">
+                        <span>Role</span>
+                        <strong class="board-filter-value">All Roles</strong>
+                        <em class="board-filter-chevron" aria-hidden="true">⌄</em>
+                    </button>
+                    <button type="button" class="board-filter-control">
+                        <span>Stage</span>
+                        <strong class="board-filter-value">Open Stages</strong>
+                        <em class="board-filter-chevron" aria-hidden="true">⌄</em>
+                    </button>
+                    <button type="button" class="board-filter-cta">
+                        <span>View</span>
+                        <strong>More Filters</strong>
+                    </button>
+                </div>
+            </div>
 
-        <!-- 게시글 목록 (JS로 채워짐) -->
-        <div id="postList" class="post-list">
-            <!-- Dummy Data Loading... -->
-        </div>
+            <div id="postList" class="post-list"></div>
+            <div class="board-more">
+                <button type="button" class="board-more-btn" id="viewMorePostsBtn" hidden>View More Projects</button>
+            </div>
+        </section>
 
-        <!-- 무한 스크롤 트리거 (바닥 감지용) -->
+        <section class="board-cta-section" id="readyToBuild">
+            <div class="board-cta-card">
+                <div class="board-cta-content">
+                    <p class="board-kicker">Ready To Build</p>
+                    <h2>Ready to find your next team?</h2>
+                    <p class="board-cta-description">현재 단계와 필요한 역할을 분명하게 적어두면, 더 맞는 사람과 더 빠르게 연결됩니다. 모집글을 올리고 바로 첫 대화를 시작하세요.</p>
+                    <div class="board-cta-actions">
+                        <button class="write-btn" onclick="location.href='post_write.html'">Create a Project</button>
+                        <a href="dm.html" class="hero-secondary-btn">Join as Collaborator</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <div id="scrollTrigger" style="height: 20px;"></div>
     </main>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js"></script>
+    <script src="js/common.js?v=20260319-preview"></script>
     <script src="js/modal.js"></script>
     <script src="js/posts.js"></script>
 </body>

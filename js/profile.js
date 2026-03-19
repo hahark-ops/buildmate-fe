@@ -1,6 +1,7 @@
 // profile.js - API_BASE_URL, showCustomModal은 common.js에서 제공
 
 document.addEventListener('DOMContentLoaded', () => {
+    const isPreviewMode = new URLSearchParams(window.location.search).get('preview') === 'stitch';
     // ==========================================
     // 1. 요소 가져오기
     // ==========================================
@@ -14,6 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageInput = document.getElementById('imageInput');
     const profileImageContainer = document.getElementById('profileImageContainer');
     const profileImg = document.getElementById('profileImg');
+    const profileError = document.getElementById('profileError');
+    const profileOverviewAvatar = document.getElementById('profileOverviewAvatar');
+    const profileOverviewNickname = document.getElementById('profileOverviewNickname');
+    const profileOverviewEmail = document.getElementById('profileOverviewEmail');
+    const profileCardPreviewAvatar = document.getElementById('profileCardPreviewAvatar');
+    const profileCardPreviewNickname = document.getElementById('profileCardPreviewNickname');
     const submitBtn = document.getElementById('submitBtn');
     const completeBtn = document.getElementById('completeBtn');
 
@@ -27,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 상태 변수
     let currentUser = null;
     const PROFILE_IMAGE_MAX_BYTES = 15 * 1024 * 1024;
+    const previewUser = {
+        userId: 101,
+        email: 'ari@buildmate.local',
+        nickname: 'Ari Kim',
+        profileImage: '',
+    };
 
     // ==========================================
     // 2. 헬퍼 함수
@@ -39,6 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideHelper() {
         nicknameHelper.textContent = '';
         nicknameHelper.classList.remove('show');
+    }
+
+    function showProfileError(message) {
+        if (!profileError) return;
+        profileError.textContent = message;
+        profileError.classList.add('show');
+    }
+
+    function hideProfileError() {
+        if (!profileError) return;
+        profileError.textContent = '';
+        profileError.classList.remove('show');
     }
 
     function showToast(message) {
@@ -57,6 +82,31 @@ document.addEventListener('DOMContentLoaded', () => {
             return { valid: false, message: '*닉네임은 최대 10자 까지 작성 가능합니다.' };
         }
         return { valid: true };
+    }
+
+    function syncProfileIdentity() {
+        const nickname = nicknameInput.value.trim() || currentUser?.nickname || '메이커 프로필';
+        const email = currentUser?.email || emailDisplay.textContent || '이메일 정보가 없습니다.';
+
+        if (profileOverviewNickname) {
+            profileOverviewNickname.textContent = nickname;
+        }
+        if (profileCardPreviewNickname) {
+            profileCardPreviewNickname.textContent = nickname;
+        }
+        if (profileOverviewEmail) {
+            profileOverviewEmail.textContent = email;
+        }
+    }
+
+    function applyProfilePreviewImage(imageUrl = '') {
+        const image = imageUrl || '';
+        if (profileOverviewAvatar) {
+            profileOverviewAvatar.style.backgroundImage = image ? `url(${image})` : '';
+        }
+        if (profileCardPreviewAvatar) {
+            profileCardPreviewAvatar.style.backgroundImage = image ? `url(${image})` : '';
+        }
     }
 
     // ==========================================
@@ -123,13 +173,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // 폼에 데이터 채우기
             emailDisplay.textContent = currentUser.email || '';
             nicknameInput.value = currentUser.nickname || '';
+            syncProfileIdentity();
 
             if (currentUser.profileImage) {
                 // 원형 미리보기 이미지 설정
                 profileImg.src = currentUser.profileImage;
+                applyProfilePreviewImage(currentUser.profileImage);
             } else {
                 // 기본 이미지 처리 (필요시)
                 profileImg.style.backgroundColor = '#C4C4C4';
+                applyProfilePreviewImage('');
             }
 
             // 프로필 아이콘 이미지 설정
@@ -148,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     nicknameInput.addEventListener('input', () => {
         hideHelper();
+        syncProfileIdentity();
     });
 
     profileImageContainer.addEventListener('click', () => {
@@ -159,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             if (file.size > PROFILE_IMAGE_MAX_BYTES) {
                 imageInput.value = '';
-                showHelper('* 프로필 이미지는 15MB 이하 파일만 업로드할 수 있습니다.');
+                showProfileError('* 프로필 이미지는 15MB 이하 파일만 업로드할 수 있습니다.');
                 return;
             }
 
@@ -167,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 profileImg.src = e.target.result;
+                applyProfilePreviewImage(e.target.result);
+                hideProfileError();
             };
             reader.readAsDataURL(file);
         }
@@ -204,13 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (imageInput.files[0]) {
             try {
                 if (imageInput.files[0].size > PROFILE_IMAGE_MAX_BYTES) {
-                    showHelper('* 프로필 이미지는 15MB 이하 파일만 업로드할 수 있습니다.');
+                    showProfileError('* 프로필 이미지는 15MB 이하 파일만 업로드할 수 있습니다.');
                     return;
                 }
                 newProfileImageUrl = await uploadFileViaPresigned(imageInput.files[0], 'profile');
+                hideProfileError();
             } catch (error) {
                 console.error('Image upload error:', error);
-                showHelper(error.message || "이미지 업로드 중 오류가 발생했습니다.");
+                showProfileError(error.message || '이미지 업로드 중 오류가 발생했습니다.');
                 return;
             }
         }
@@ -220,6 +277,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         if (newProfileImageUrl) {
             payload.profileImage = newProfileImageUrl;
+        }
+
+        if (isPreviewMode) {
+            currentUser = {
+                ...currentUser,
+                nickname,
+                profileImage: newProfileImageUrl || currentUser?.profileImage || ''
+            };
+            syncProfileIdentity();
+            applyProfilePreviewImage(currentUser.profileImage || '');
+            showToast('저장 완료');
+            return;
         }
 
         try {
@@ -247,6 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (nickname) {
                     localStorage.setItem('nickname', nickname);
+                    if (profileOverviewNickname) {
+                        profileOverviewNickname.textContent = nickname;
+                    }
                 }
                 showToast('저장 완료');
             } else if (response.status === 409) {
@@ -280,6 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     modalConfirmBtn.addEventListener('click', async () => {
+        if (isPreviewMode) {
+            withdrawModal.style.display = 'none';
+            showCustomModal('미리보기 모드에서는 탈퇴를 실행하지 않습니다.');
+            return;
+        }
         try {
             const response = await fetch(`${API_BASE_URL}/v1/users/me`, {
                 method: 'DELETE',
@@ -312,6 +389,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const cachedProfileImage = localStorage.getItem('profileImage');
     if (cachedProfileImage && profileIcon) {
         profileIcon.style.backgroundImage = `url(${cachedProfileImage})`;
+    }
+
+    if (isPreviewMode) {
+        currentUser = { ...previewUser };
+        emailDisplay.textContent = currentUser.email;
+        nicknameInput.value = currentUser.nickname;
+        syncProfileIdentity();
+        applyProfilePreviewImage(currentUser.profileImage);
+        return;
     }
 
     loadUserData();

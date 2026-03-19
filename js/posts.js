@@ -3,6 +3,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const postContainer = document.getElementById('postList');
     const scrollTrigger = document.getElementById('scrollTrigger');
+    const viewMorePostsBtn = document.getElementById('viewMorePostsBtn');
+    const opportunityCountEl = document.getElementById('opportunityCount');
+    const homeHeaderAuthActions = document.getElementById('homeHeaderAuthActions');
+    const headerActions = document.querySelector('.header-actions');
     const profileIcon = document.getElementById('profileIcon');
     const profileDropdown = document.getElementById('profileDropdown');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -16,8 +20,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const RELOAD_COOLDOWN_MS = 800;
     let feedVersion = 0;
     let currentUser = null;
+    let totalPostCount = 0;
 
-    // 로컬 스토리지에서 사용자 정보 즉시 로드 (깜박임 방지)
+    const PREVIEW_FACT_LABELS = [
+        '현재 단계',
+        '필요 역할',
+        '사용 도구',
+        '협업 방식',
+        '합류 형태',
+    ];
+
+    const DOMAIN_RULES = [
+        { label: 'AI Tools', shortLabel: 'AI', keywords: ['ai', 'agent', 'llm', 'automation', 'cursor', 'gpt', '모델', '에이전트', '자동화'] },
+        { label: 'Fintech', shortLabel: 'FN', keywords: ['finance', 'fintech', 'treasury', 'dao', 'crypto', '결제', '금융'] },
+        { label: 'Healthcare', shortLabel: 'HC', keywords: ['health', 'care', 'medical', 'patient', '의료', '헬스', '건강'] },
+        { label: 'Climate', shortLabel: 'CL', keywords: ['climate', 'eco', 'carbon', 'sustain', '환경', '탄소', '지속가능'] },
+        { label: 'Commerce', shortLabel: 'CM', keywords: ['commerce', 'shopping', 'store', 'market', '이커머스', '커머스', '마켓'] },
+        { label: 'Education', shortLabel: 'ED', keywords: ['edtech', 'learning', 'school', 'education', '교육', '학습'] },
+        { label: 'Creator', shortLabel: 'CR', keywords: ['creator', 'content', 'media', 'design', '크리에이터', '콘텐츠'] },
+    ];
+
     function loadUserFromStorage() {
         const profileImage = localStorage.getItem('profileImage');
         const userStr = localStorage.getItem('user');
@@ -41,11 +63,124 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 1. 백엔드에서 게시글 목록 가져오기
+    function updateProfileIcon(imageUrl) {
+        if (!profileIcon) {
+            return;
+        }
+        if (imageUrl) {
+            profileIcon.style.backgroundImage = `url(${imageUrl})`;
+        } else {
+            profileIcon.style.backgroundColor = '#D9D9D9';
+        }
+    }
+
+    function syncHomeHeaderState() {
+        if (!homeHeaderAuthActions || !headerActions) {
+            return;
+        }
+        const isLoggedIn = Boolean(currentUser && currentUser.userId);
+        headerActions.hidden = !isLoggedIn;
+        homeHeaderAuthActions.hidden = isLoggedIn;
+    }
+
+    function updateBoardMeta(totalCount) {
+        if (!opportunityCountEl) {
+            return;
+        }
+
+        if (totalCount === null) {
+            opportunityCountEl.textContent = '열려 있는 프로젝트를 불러오는 중입니다.';
+            return;
+        }
+
+        if (!Number.isFinite(totalCount) || totalCount <= 0) {
+            opportunityCountEl.textContent = '아직 열린 프로젝트가 없습니다.';
+            return;
+        }
+
+        opportunityCountEl.textContent = `${formatNumber(totalCount)}개의 열린 프로젝트`;
+    }
+
+    function updateLoadMoreButton() {
+        if (!viewMorePostsBtn) {
+            return;
+        }
+        const shouldShow = !isLastPage && offset > 0 && offset < totalPostCount;
+        viewMorePostsBtn.hidden = !shouldShow;
+        viewMorePostsBtn.disabled = isLoading;
+    }
+
+    function extractProjectSignals(rawContent) {
+        const content = rawContent || '';
+        const facts = {};
+        const bodyLines = [];
+
+        content.split('\n').forEach((line) => {
+            const trimmed = line.trim();
+            if (!trimmed) {
+                bodyLines.push(line);
+                return;
+            }
+
+            const introMatch = trimmed.match(/^프로젝트 소개\s*[:：]\s*(.*)$/);
+            if (introMatch) {
+                if (introMatch[1].trim()) {
+                    bodyLines.push(introMatch[1].trim());
+                }
+                return;
+            }
+
+            const label = PREVIEW_FACT_LABELS.find((item) => trimmed.startsWith(`${item}:`) || trimmed.startsWith(`${item} :`) || trimmed.startsWith(`${item}：`));
+            if (!label) {
+                bodyLines.push(line);
+                return;
+            }
+
+            const value = trimmed.replace(new RegExp(`^${label}\\s*[:：]\\s*`), '').trim();
+            if (value && !facts[label]) {
+                facts[label] = value;
+            }
+        });
+
+        const rawSummary = bodyLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+        const collapsedSummary = rawSummary.replace(/\s+/g, ' ').trim();
+        const summary = collapsedSummary || '프로젝트 요약이 아직 등록되지 않았습니다.';
+
+        const splitChips = (value) => {
+            if (!value) return [];
+            return value
+                .split(/,|\/|\||·|ㆍ|\n/)
+                .map((item) => item.trim())
+                .filter(Boolean)
+                .slice(0, 4);
+        };
+
+        return {
+            stage: facts['현재 단계'] || '모집 중',
+            roles: splitChips(facts['필요 역할']),
+            tools: splitChips(facts['사용 도구']),
+            collaboration: facts['협업 방식'] || '대화 후 조율',
+            joinType: facts['합류 형태'] || '합류 형태 협의',
+            summary,
+        };
+    }
+
+    function inferProjectDomain(post) {
+        const source = `${post.title || ''} ${post.content || ''}`.toLowerCase();
+        const matchedRule = DOMAIN_RULES.find((rule) => rule.keywords.some((keyword) => source.includes(keyword)));
+        return matchedRule || { label: 'General', shortLabel: 'BM' };
+    }
+
+    function getProjectMark(post, projectSignals, projectDomain) {
+        const source = (projectDomain.shortLabel || projectSignals.stage || post.title || 'BM').trim();
+        return source.slice(0, 2).toUpperCase();
+    }
+
     async function fetchPosts() {
         if (isLoading || isLastPage) return;
 
         isLoading = true;
+        updateLoadMoreButton();
         const requestFeedVersion = feedVersion;
         const requestOffset = offset;
 
@@ -54,64 +189,82 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}/v1/posts?offset=${requestOffset}&limit=${LIMIT}&_ts=${cacheBuster}`, {
                 cache: 'no-store'
             });
-            const result = await response.json();
+            const result = window.parseApiResponseSafe
+                ? await window.parseApiResponseSafe(response)
+                : await response.json();
 
-            // 이전 reload 사이클에서 온 늦은 응답은 무시한다.
             if (requestFeedVersion !== feedVersion) {
                 return;
             }
 
-            if (response.ok) {
-                const posts = result.data.posts;
-                const totalCount = result.data.totalCount;
-
-                if (posts.length === 0) {
-                    isLastPage = true;
-                    if (requestOffset === 0) {
-                        const emptyState = document.createElement('div');
-                        emptyState.className = 'posts-empty-state';
-                        emptyState.style.textAlign = 'center';
-                        emptyState.style.padding = '20px';
-                        emptyState.textContent = '아직 등록된 프로젝트가 없습니다. 첫 모집글을 올려보세요.';
-                        postContainer.appendChild(emptyState);
-                    }
-                    return;
-                }
-
-
-                posts.forEach(post => {
-                    const postEl = createPostElement(post);
-                    postContainer.appendChild(postEl);
-                });
-
-                offset = requestOffset + posts.length;
-
-                // 더 이상 불러올 데이터가 없으면 중단
-                if (offset >= totalCount) {
-                    isLastPage = true;
-                    // 스크롤 트리거 숨김 또는 감시 중지
-                    if (scrollTrigger) scrollTrigger.style.display = 'none';
-                }
-            } else {
+            if (!response.ok) {
                 console.error('Failed to fetch posts:', result.message);
+                if (requestOffset === 0 && postContainer.children.length === 0) {
+                    const errorState = document.createElement('div');
+                    errorState.className = 'posts-empty-state';
+                    errorState.textContent = '프로젝트를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+                    postContainer.appendChild(errorState);
+                }
+                return;
+            }
+
+            const data = result?.data ?? result ?? {};
+            const posts = Array.isArray(data.posts) ? data.posts : [];
+            totalPostCount = Number.isFinite(Number(data.totalCount))
+                ? Number(data.totalCount)
+                : requestOffset + posts.length;
+            updateBoardMeta(totalPostCount);
+
+            if (posts.length === 0) {
+                isLastPage = true;
+                if (requestOffset === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'posts-empty-state';
+                    emptyState.textContent = '아직 등록된 프로젝트가 없습니다. 첫 모집글을 올려보세요.';
+                    postContainer.appendChild(emptyState);
+                    if (opportunityCountEl) {
+                        opportunityCountEl.textContent = '아직 열린 프로젝트가 없습니다.';
+                    }
+                }
+                updateLoadMoreButton();
+                return;
+            }
+
+            posts.forEach((post) => {
+                const postEl = createPostElement(post);
+                postContainer.appendChild(postEl);
+            });
+
+            offset = requestOffset + posts.length;
+            if (offset >= totalPostCount) {
+                isLastPage = true;
+                if (scrollTrigger) {
+                    scrollTrigger.style.display = 'none';
+                }
+            } else if (scrollTrigger) {
+                scrollTrigger.style.display = 'block';
             }
         } catch (error) {
             console.error('Error fetching posts:', error);
         } finally {
             isLoading = false;
+            updateLoadMoreButton();
         }
     }
 
     function resetAndReloadPosts() {
         feedVersion += 1;
         offset = 0;
+        totalPostCount = 0;
         isLoading = false;
         isLastPage = false;
         postContainer.innerHTML = '';
         lastReloadAt = Date.now();
+        updateBoardMeta(null);
         if (scrollTrigger) {
             scrollTrigger.style.display = 'block';
         }
+        updateLoadMoreButton();
         fetchPosts();
     }
 
@@ -123,56 +276,38 @@ document.addEventListener('DOMContentLoaded', () => {
         resetAndReloadPosts();
     }
 
-    // 2. 사용자 프로필 가져오기
     async function fetchUserProfile() {
         try {
             const response = await fetch(`${API_BASE_URL}/v1/auth/me`, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                credentials: 'include' // 세션 쿠키 포함
+                credentials: 'include'
             });
 
             const result = await response.json();
 
-            if (response.ok) {
-                // 최신 정보로 업데이트 및 스토리지 갱신
-                const user = result.data || result;
-                currentUser = user;
-                localStorage.setItem('user', JSON.stringify(user));
-                if (user.userId) localStorage.setItem('userId', user.userId);
-                if (user.nickname) localStorage.setItem('nickname', user.nickname);
-                if (user.email) localStorage.setItem('email', user.email);
-                if (user.profileImage) {
-                    localStorage.setItem('profileImage', user.profileImage);
-                    updateProfileIcon(user.profileImage);
-                }
-            } else {
+            if (!response.ok) {
                 console.warn('Login required or session expired');
+                return;
             }
+
+            const user = result.data || result;
+            currentUser = user;
+            localStorage.setItem('user', JSON.stringify(user));
+            if (user.userId) localStorage.setItem('userId', user.userId);
+            if (user.nickname) localStorage.setItem('nickname', user.nickname);
+            if (user.email) localStorage.setItem('email', user.email);
+            if (user.profileImage) {
+                localStorage.setItem('profileImage', user.profileImage);
+                updateProfileIcon(user.profileImage);
+            }
+            syncHomeHeaderState();
         } catch (error) {
             console.error('Error fetching user profile:', error);
+            syncHomeHeaderState();
         }
     }
-
-    function updateProfileIcon(imageUrl) {
-        if (profileIcon) {
-            if (imageUrl) {
-                profileIcon.style.backgroundImage = `url(${imageUrl})`;
-            } else {
-                profileIcon.style.backgroundColor = '#7F6AEE'; // 로그인한 사용자 기본 색상
-            }
-        }
-    }
-
-    function closeAuthorCards(exceptCard = null) {
-        document.querySelectorAll('.author-profile-card.show').forEach((card) => {
-            if (card !== exceptCard) {
-                card.classList.remove('show');
-            }
-        });
-    }
-
 
     async function logout() {
         try {
@@ -180,19 +315,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 credentials: 'include'
             });
-            // localStorage 정리 (다른 사용자 로그인 시 이전 데이터 방지)
             localStorage.removeItem('profileImage');
             localStorage.removeItem('nickname');
             localStorage.removeItem('email');
             localStorage.removeItem('userId');
             localStorage.removeItem('user');
+            currentUser = null;
+            syncHomeHeaderState();
             window.location.href = 'login.html';
         } catch (error) {
             console.error('Logout failed:', error);
         }
     }
 
-    // HTML 요소 생성
     function createPostElement(post) {
         const card = document.createElement('div');
         card.className = 'post-card';
@@ -200,79 +335,66 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = `post_detail.html?id=${post.postId}`;
         };
 
-        // 백엔드 응답 매핑
-        // 좋아요/댓글 수 포맷팅
-        const likesStr = formatNumber(post.likeCount || 0);
-        const commentsStr = formatNumber(post.commentCount || 0);
-        const viewsStr = formatNumber(post.viewCount || 0);
-        const dateStr = formatDate(post.createdAt);
+        const projectSignals = extractProjectSignals(post.content || '');
+        const projectDomain = inferProjectDomain(post);
+        const topEl = document.createElement('div');
+        topEl.className = 'post-card-top';
+
+        const markEl = document.createElement('div');
+        markEl.className = 'post-card-mark';
+        markEl.textContent = getProjectMark(post, projectSignals, projectDomain);
+
+        const headingEl = document.createElement('div');
+        headingEl.className = 'post-card-heading';
+
+        const eyebrowEl = document.createElement('div');
+        eyebrowEl.className = 'post-card-eyebrow';
+        eyebrowEl.textContent = `${projectSignals.stage} • ${projectDomain.label}`;
+
         const titleEl = document.createElement('div');
         titleEl.className = 'post-card-title';
         titleEl.textContent = post.title || '';
 
-        const statusEl = document.createElement('div');
-        statusEl.className = 'post-card-status';
-        statusEl.textContent = '모집 중';
+        headingEl.append(eyebrowEl, titleEl);
+        topEl.append(markEl, headingEl);
 
-        const metaEl = document.createElement('div');
-        metaEl.className = 'post-card-meta';
+        const summaryEl = document.createElement('p');
+        summaryEl.className = 'post-card-summary';
+        summaryEl.textContent = projectSignals.summary;
 
-        const statsEl = document.createElement('div');
-        statsEl.className = 'post-stats';
-
-        const likesEl = document.createElement('span');
-        likesEl.textContent = `관심 ${likesStr}`;
-        const commentsEl = document.createElement('span');
-        commentsEl.textContent = `질문 ${commentsStr}`;
-        const viewsEl = document.createElement('span');
-        viewsEl.textContent = `조회 ${viewsStr}`;
-        statsEl.append(likesEl, commentsEl, viewsEl);
-
-        const dateEl = document.createElement('div');
-        dateEl.className = 'post-date';
-        dateEl.textContent = dateStr;
-        metaEl.append(statsEl, dateEl);
-
-        const dividerEl = document.createElement('div');
-        dividerEl.className = 'post-divider';
-
-        const authorRowEl = document.createElement('div');
-        authorRowEl.className = 'post-author-row';
-
-        const authorImageEl = document.createElement('div');
-        authorImageEl.className = 'author-profile-img';
-        if (post.authorProfileImage) {
-            authorImageEl.style.backgroundImage = `url("${post.authorProfileImage}")`;
-            authorImageEl.style.backgroundSize = 'cover';
-        } else {
-            authorImageEl.classList.add('default-profile');
-        }
-
-        const authorNameEl = document.createElement('span');
-        authorNameEl.className = 'author-name';
-        authorNameEl.textContent = post.writer || '';
-
-        const authorCardEl = window.buildAuthorProfileCard({
-            userId: post.authorId || post.userId,
-            nickname: post.writer,
-            profileImage: post.authorProfileImage
+        const chipRowEl = document.createElement('div');
+        chipRowEl.className = 'post-chip-row';
+        const chipValues = projectSignals.roles.length ? projectSignals.roles : ['Roles Open'];
+        chipValues.slice(0, 3).forEach((chipValue) => {
+            const chipEl = document.createElement('span');
+            chipEl.className = 'post-chip';
+            chipEl.textContent = chipValue;
+            chipRowEl.appendChild(chipEl);
         });
 
-        authorRowEl.classList.add('author-card-trigger');
-        authorRowEl.addEventListener('click', (event) => {
-            event.stopPropagation();
-            const willShow = !authorCardEl.classList.contains('show');
-            closeAuthorCards(authorCardEl);
-            authorCardEl.classList.toggle('show', willShow);
+        const footerEl = document.createElement('div');
+        footerEl.className = 'post-card-bottom';
+
+        const toolRowEl = document.createElement('div');
+        toolRowEl.className = 'post-card-tools';
+        const toolValues = projectSignals.tools.length ? projectSignals.tools : [projectSignals.collaboration];
+        toolValues.slice(0, 3).forEach((toolValue) => {
+            const toolEl = document.createElement('span');
+            toolEl.className = 'post-tool-pill';
+            toolEl.textContent = toolValue;
+            toolRowEl.appendChild(toolEl);
         });
 
-        authorRowEl.append(authorImageEl, authorNameEl);
-        card.append(statusEl, titleEl, metaEl, dividerEl, authorRowEl, authorCardEl);
+        const joinTypeEl = document.createElement('div');
+        joinTypeEl.className = 'post-card-join-type';
+        joinTypeEl.textContent = projectSignals.joinType;
+
+        footerEl.append(toolRowEl, joinTypeEl);
+
+        card.append(topEl, summaryEl, chipRowEl, footerEl);
         return card;
     }
 
-    // 3. 이벤트 리스너
-    // 드롭다운 토글
     if (profileIcon) {
         profileIcon.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -280,17 +402,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', (e) => {
         if (profileDropdown && !profileDropdown.contains(e.target) && e.target !== profileIcon) {
             profileDropdown.classList.remove('show');
         }
-        if (!e.target.closest('.author-card-trigger') && !e.target.closest('.author-profile-card')) {
-            closeAuthorCards();
-        }
     });
 
-    // 로그아웃
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -298,27 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 인터섹션 옵저버 (무한 스크롤)
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                fetchPosts();
-            }
+    if (viewMorePostsBtn) {
+        viewMorePostsBtn.addEventListener('click', () => {
+            fetchPosts();
         });
-    });
-
-    if (scrollTrigger) {
-        observer.observe(scrollTrigger);
     }
 
-    // 초기화
-    loadUserFromStorage(); // 스토리지에서 먼저 로드해서 깜박임 방지
-    fetchUserProfile(); // 백엔드에서 최신 정보 확인
-    resetAndReloadPosts(); // 초기 게시글 로드
+    loadUserFromStorage();
+    syncHomeHeaderState();
+    fetchUserProfile();
+    resetAndReloadPosts();
 
-    // ==========================================
-    // 브라우저 뒤로가기 시 데이터 새로고침 (bfcache 대응)
-    // ==========================================
     window.addEventListener('pageshow', (event) => {
         const navEntries = performance.getEntriesByType('navigation');
         const navType = navEntries.length > 0 ? navEntries[0].type : '';
@@ -327,7 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 일부 브라우저/상황에서는 pageshow만으로 감지가 불안정할 수 있어 보조 처리
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
             wasHidden = true;

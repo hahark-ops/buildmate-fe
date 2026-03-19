@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusMessageEl = document.getElementById('dmStatusMessage');
     const pushToggleBtn = document.getElementById('dmPushToggleBtn');
     const pushHintEl = document.getElementById('dmPushHint');
+    const contextTitleEl = document.getElementById('dmContextTitle');
+    const contextSubtitleEl = document.getElementById('dmContextSubtitle');
+    const contextPillsEl = document.getElementById('dmContextPills');
+    const sidePeerNameEl = document.getElementById('dmSidePeerName');
+    const sideStatusEl = document.getElementById('dmSideStatus');
+    const sideHighlightsEl = document.getElementById('dmSideHighlights');
 
     const PAGE_SIZE = 50;
     const AUTO_SCROLL_THRESHOLD = 80;
@@ -20,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const HEARTBEAT_INTERVAL_MS = 20000;
 
     const params = new URLSearchParams(window.location.search);
+    const isPreviewMode = params.get('preview') === 'stitch';
     let currentRoomId = params.get('roomId') ? Number(params.get('roomId')) : null;
     let currentUser = window.getStoredCurrentUser ? window.getStoredCurrentUser() : null;
     let rooms = [];
@@ -43,6 +50,107 @@ document.addEventListener('DOMContentLoaded', () => {
         subscribed: false,
         activeSubscriptionCount: 0,
         vapidPublicKey: null,
+    };
+
+    const previewCurrentUser = {
+        userId: 101,
+        nickname: 'Ari Kim',
+        email: 'ari@buildmate.local',
+        profileImage: '',
+    };
+
+    const previewRooms = [
+        {
+            roomId: 2001,
+            partner: { nickname: 'Mina', profileImage: '' },
+            lastMessage: '오늘 밤까지 홈 보드 카드 밀도만 한 번 더 맞춰볼게요.',
+            lastMessageAt: '2026-03-19T13:12:00.000Z',
+            unreadCount: 2,
+            projectTitle: 'Buildmate Home Refresh',
+            projectStage: 'Hero polish',
+            collaborationMode: 'Async-first',
+            targetRole: 'Product Designer',
+            joinType: 'Core contributor',
+            highlights: [
+                '카드 정보 밀도는 줄이고 역할 가독성은 높이기',
+                'Stitch 톤을 유지하되 기존 기능 훅은 그대로 보존하기',
+                '모바일에서 필터 바 우선순위가 무너지지 않게 확인하기',
+            ],
+        },
+        {
+            roomId: 2002,
+            partner: { nickname: 'Jun', profileImage: '' },
+            lastMessage: '상세 화면의 공개 질문 CTA는 right rail보다 hero에서 먼저 보여주는 쪽이 좋아요.',
+            lastMessageAt: '2026-03-18T21:40:00.000Z',
+            unreadCount: 0,
+            projectTitle: 'Project Detail Direction',
+            projectStage: 'Review',
+            collaborationMode: 'Twice-weekly sync',
+            targetRole: 'Frontend Engineer',
+            joinType: 'Part-time core',
+            highlights: [
+                '합류 전 확인 포인트를 hero 안에서 먼저 보여주기',
+                '댓글 섹션은 질문 의도와 다음 액션이 함께 읽히게 구성하기',
+                '프로젝트 리드 카드와 지표 카드의 우선순위를 다시 정렬하기',
+            ],
+        },
+    ];
+
+    const previewMessagesByRoom = {
+        2001: [
+            {
+                messageId: 1,
+                roomId: 2001,
+                senderNickname: 'Mina',
+                senderProfileImage: '',
+                content: '홈 히어로는 지금보다 조금 더 침착하고 제품 소개처럼 보이면 좋겠어요.',
+                createdAt: '2026-03-19T12:52:00.000Z',
+                isMine: false,
+                readByOther: true,
+            },
+            {
+                messageId: 2,
+                roomId: 2001,
+                senderNickname: 'Ari Kim',
+                senderProfileImage: '',
+                content: '좋아요. 카드 하단 통계는 빼고 역할과 합류 형태만 남기는 쪽으로 조정해볼게요.',
+                createdAt: '2026-03-19T12:58:00.000Z',
+                isMine: true,
+                readByOther: true,
+            },
+            {
+                messageId: 3,
+                roomId: 2001,
+                senderNickname: 'Mina',
+                senderProfileImage: '',
+                content: '오늘 밤까지 홈 보드 카드 밀도만 한 번 더 맞춰볼게요.',
+                createdAt: '2026-03-19T13:12:00.000Z',
+                isMine: false,
+                readByOther: false,
+            },
+        ],
+        2002: [
+            {
+                messageId: 11,
+                roomId: 2002,
+                senderNickname: 'Jun',
+                senderProfileImage: '',
+                content: '상세 화면은 CTA가 지금보다 위에 보여야 하겠네요.',
+                createdAt: '2026-03-18T21:32:00.000Z',
+                isMine: false,
+                readByOther: true,
+            },
+            {
+                messageId: 12,
+                roomId: 2002,
+                senderNickname: 'Ari Kim',
+                senderProfileImage: '',
+                content: '네, hero 오른쪽에 decision snapshot 카드로 올리면 Stitch 톤에도 더 가깝습니다.',
+                createdAt: '2026-03-18T21:40:00.000Z',
+                isMine: true,
+                readByOther: true,
+            },
+        ],
     };
 
     const historyLoaderEl = document.createElement('div');
@@ -78,6 +186,99 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pushHintEl) {
             pushHintEl.textContent = message || '';
         }
+    }
+
+    function getRoomMeta(room = null) {
+        if (!room) {
+            return {
+                projectTitle: 'Current collaboration',
+                stage: 'Open discussion',
+                mode: 'Async-first',
+                role: 'Role fit',
+                joinType: 'Flexible',
+                highlights: [
+                    '역할 기대치와 일정 가능 시간을 먼저 맞춰보세요.',
+                    '공개 질문에서 다룬 내용은 요약해서 다시 확인하세요.',
+                    '합류 조건이 정리되면 실제 작업 시작 시점을 명확히 남기세요.',
+                ],
+            };
+        }
+
+        return {
+            projectTitle: room.projectTitle || room.contextTitle || 'Current collaboration',
+            stage: room.projectStage || 'Open discussion',
+            mode: room.collaborationMode || 'Async-first',
+            role: room.targetRole || 'Role fit',
+            joinType: room.joinType || 'Flexible',
+            highlights: Array.isArray(room.highlights) && room.highlights.length
+                ? room.highlights
+                : [
+                    '역할 기대치와 일정 가능 시간을 먼저 맞춰보세요.',
+                    '공개 질문에서 다룬 내용은 요약해서 다시 확인하세요.',
+                    '합류 조건이 정리되면 실제 작업 시작 시점을 명확히 남기세요.',
+                ],
+        };
+    }
+
+    function renderContextPills(room = null) {
+        if (!contextPillsEl) {
+            return;
+        }
+        const meta = getRoomMeta(room);
+        const pills = [
+            `Stage · ${meta.stage}`,
+            `Role · ${meta.role}`,
+            `Mode · ${meta.mode}`,
+            `Join · ${meta.joinType}`,
+        ];
+
+        contextPillsEl.innerHTML = '';
+        pills.forEach((pillText) => {
+            const pill = document.createElement('span');
+            pill.className = 'dm-chat-context-pill';
+            pill.textContent = pillText;
+            contextPillsEl.appendChild(pill);
+        });
+    }
+
+    function renderSideHighlights(room = null) {
+        if (!sideHighlightsEl) {
+            return;
+        }
+        const meta = getRoomMeta(room);
+        sideHighlightsEl.innerHTML = '';
+        meta.highlights.forEach((highlight) => {
+            const item = document.createElement('li');
+            item.textContent = highlight;
+            sideHighlightsEl.appendChild(item);
+        });
+    }
+
+    function syncConversationChrome(room = null) {
+        const partnerName = room && room.partner && room.partner.nickname
+            ? room.partner.nickname
+            : '협업할 메이트를 선택해주세요.';
+        const meta = getRoomMeta(room);
+        const statusText = room && room.lastMessageAt
+            ? `${formatDate(room.lastMessageAt)} 기준 최근 활동`
+            : '프로젝트 관련 최근 활동과 대화 흐름을 이곳에서 이어갈 수 있습니다.';
+
+        if (contextTitleEl) {
+            contextTitleEl.textContent = room ? meta.projectTitle : partnerName;
+        }
+        if (contextSubtitleEl) {
+            contextSubtitleEl.textContent = room
+                ? `${partnerName}와 역할 기대치, 일정, 협업 방식까지 빠르게 맞춰보세요.`
+                : '프로젝트 관련 최근 활동과 대화 흐름을 이곳에서 이어갈 수 있습니다.';
+        }
+        if (sidePeerNameEl) {
+            sidePeerNameEl.textContent = room ? meta.projectTitle : partnerName;
+        }
+        if (sideStatusEl) {
+            sideStatusEl.textContent = room ? `${partnerName}와 대화 중 · ${statusText}` : statusText;
+        }
+        renderContextPills(room);
+        renderSideHighlights(room);
     }
 
     function isWebPushSupported() {
@@ -377,6 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 peerNameEl.textContent = activeRoom.partner && activeRoom.partner.nickname ? activeRoom.partner.nickname : '알 수 없는 사용자';
                 peerAvatarEl.style.backgroundImage = activeRoom.partner && activeRoom.partner.profileImage ? `url(${activeRoom.partner.profileImage})` : '';
                 statusMessageEl.textContent = activeRoom.lastMessageAt ? `${formatDate(activeRoom.lastMessageAt)} 기준 최근 활동` : '아직 협업 메시지가 없습니다.';
+                syncConversationChrome(activeRoom);
                 renderRooms();
             } else {
                 renderEmptyRoom();
@@ -420,13 +622,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const meta = document.createElement('div');
+            const eyebrow = document.createElement('div');
+            eyebrow.className = 'dm-room-eyebrow';
+            eyebrow.textContent = room.projectTitle || room.contextTitle || 'Current collaboration';
             const name = document.createElement('div');
             name.className = 'dm-room-name';
             name.textContent = room.partner && room.partner.nickname ? room.partner.nickname : '알 수 없는 사용자';
             const time = document.createElement('div');
             time.className = 'dm-room-time';
             time.textContent = formatDate(room.lastMessageAt || '');
-            meta.append(name);
+            meta.append(eyebrow, name);
             topLeft.append(avatar, meta);
             topRight.append(time);
 
@@ -464,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         peerAvatarEl.style.backgroundImage = '';
         peerNameEl.textContent = '협업할 메이트를 선택해주세요.';
         statusMessageEl.textContent = '프로젝트 논의를 위한 실시간 협업 채팅을 지원합니다.';
+        syncConversationChrome(null);
         sendBtn.disabled = true;
     }
 
@@ -677,6 +883,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateStatusMessage(text) {
         statusMessageEl.textContent = text;
+        if (sideStatusEl) {
+            sideStatusEl.textContent = text;
+        }
     }
 
     function markCurrentRoomRead(lastReadId) {
@@ -786,7 +995,17 @@ document.addEventListener('DOMContentLoaded', () => {
         peerNameEl.textContent = room.partner && room.partner.nickname ? room.partner.nickname : '알 수 없는 사용자';
         updateStatusMessage(room.lastMessageAt ? `${formatDate(room.lastMessageAt)} 기준 최근 활동` : '아직 협업 메시지가 없습니다.');
         peerAvatarEl.style.backgroundImage = room.partner && room.partner.profileImage ? `url(${room.partner.profileImage})` : '';
+        syncConversationChrome(room);
         sendBtn.disabled = false;
+
+        if (isPreviewMode) {
+            const previewMessages = (previewMessagesByRoom[currentRoomId] || []).map((message) => ({ ...message }));
+            renderMessages(previewMessages);
+            updateRoomSummary(currentRoomId, (targetRoom) => {
+                targetRoom.unreadCount = 0;
+            });
+            return;
+        }
 
         await fetchMessages(currentRoomId, { reset: true });
         connectSocket();
@@ -899,6 +1118,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (isPreviewMode) {
+            const previewMessage = {
+                messageId: Date.now(),
+                roomId: currentRoomId,
+                senderNickname: currentUser && currentUser.nickname ? currentUser.nickname : '나',
+                senderProfileImage: currentUser && currentUser.profileImage ? currentUser.profileImage : '',
+                content: rawContent,
+                createdAt: new Date().toISOString(),
+                isMine: true,
+                readByOther: false,
+            };
+            previewMessagesByRoom[currentRoomId] = [...(previewMessagesByRoom[currentRoomId] || []), previewMessage];
+            appendMessage(previewMessage);
+            emptyStateEl.style.display = 'none';
+            inputEl.value = '';
+            updateRoomSummary(currentRoomId, (room) => {
+                room.lastMessage = rawContent;
+                room.lastMessageAt = previewMessage.createdAt;
+                room.unreadCount = 0;
+            });
+            scrollToBottom();
+            return;
+        }
+
         const pendingMessage = queuePendingMessage(rawContent);
         inputEl.value = '';
 
@@ -927,6 +1170,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function refreshRoomsSilently() {
+        if (isPreviewMode) {
+            return;
+        }
         try {
             await fetchRooms({ preserveSelection: true });
             if (currentRoomId) {
@@ -938,6 +1184,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startRoomRefreshPolling() {
+        if (isPreviewMode) {
+            return;
+        }
         if (roomRefreshTimer) {
             window.clearInterval(roomRefreshTimer);
         }
@@ -1015,6 +1264,30 @@ document.addEventListener('DOMContentLoaded', () => {
     (async () => {
         try {
             ensureHistoryLoader();
+            if (isPreviewMode) {
+                currentUser = previewCurrentUser;
+                rooms = previewRooms.map((room) => ({ ...room, partner: { ...room.partner } }));
+                sortRooms();
+                if (!currentRoomId && rooms.length > 0) {
+                    currentRoomId = rooms[0].roomId;
+                }
+                if (profileIcon) {
+                    profileIcon.textContent = 'A';
+                }
+                if (pushToggleBtn) {
+                    pushToggleBtn.textContent = 'Preview';
+                    pushToggleBtn.disabled = true;
+                }
+                setPushHint('미리보기 모드에서는 실시간 연결과 브라우저 알림이 비활성화됩니다.');
+                renderRooms();
+                syncUnreadBadge();
+                if (currentRoomId) {
+                    await selectRoom(currentRoomId, false);
+                } else {
+                    renderEmptyRoom();
+                }
+                return;
+            }
             await fetchCurrentUser();
             await fetchWebPushStatus();
             await fetchRooms({ preserveSelection: false });

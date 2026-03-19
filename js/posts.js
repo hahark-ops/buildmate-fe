@@ -31,13 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const DOMAIN_RULES = [
-        { label: 'AI Tools', shortLabel: 'AI', keywords: ['ai', 'agent', 'llm', 'automation', 'cursor', 'gpt', '모델', '에이전트', '자동화'] },
-        { label: 'Fintech', shortLabel: 'FN', keywords: ['finance', 'fintech', 'treasury', 'dao', 'crypto', '결제', '금융'] },
-        { label: 'Healthcare', shortLabel: 'HC', keywords: ['health', 'care', 'medical', 'patient', '의료', '헬스', '건강'] },
-        { label: 'Climate', shortLabel: 'CL', keywords: ['climate', 'eco', 'carbon', 'sustain', '환경', '탄소', '지속가능'] },
-        { label: 'Commerce', shortLabel: 'CM', keywords: ['commerce', 'shopping', 'store', 'market', '이커머스', '커머스', '마켓'] },
-        { label: 'Education', shortLabel: 'ED', keywords: ['edtech', 'learning', 'school', 'education', '교육', '학습'] },
-        { label: 'Creator', shortLabel: 'CR', keywords: ['creator', 'content', 'media', 'design', '크리에이터', '콘텐츠'] },
+        { label: 'AI Tools', shortLabel: 'AI', icon: 'smart_toy', keywords: ['ai', 'agent', 'llm', 'automation', 'cursor', 'gpt', '모델', '에이전트', '자동화'] },
+        { label: 'Fintech', shortLabel: 'FN', icon: 'account_balance_wallet', keywords: ['finance', 'fintech', 'treasury', 'dao', 'crypto', '결제', '금융'] },
+        { label: 'Healthcare', shortLabel: 'HC', icon: 'monitoring', keywords: ['health', 'care', 'medical', 'patient', '의료', '헬스', '건강'] },
+        { label: 'Climate', shortLabel: 'CL', icon: 'eco', keywords: ['climate', 'eco', 'carbon', 'sustain', '환경', '탄소', '지속가능'] },
+        { label: 'Commerce', shortLabel: 'CM', icon: 'shopping_bag', keywords: ['commerce', 'shopping', 'store', 'market', '이커머스', '커머스', '마켓'] },
+        { label: 'Education', shortLabel: 'ED', icon: 'school', keywords: ['edtech', 'learning', 'school', 'education', '교육', '학습'] },
+        { label: 'Creator', shortLabel: 'CR', icon: 'palette', keywords: ['creator', 'content', 'media', 'design', '크리에이터', '콘텐츠'] },
     ];
 
     function loadUserFromStorage() {
@@ -171,9 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return matchedRule || { label: 'General', shortLabel: 'BM' };
     }
 
-    function getProjectMark(post, projectSignals, projectDomain) {
-        const source = (projectDomain.shortLabel || projectSignals.stage || post.title || 'BM').trim();
-        return source.slice(0, 2).toUpperCase();
+    function getProjectIcon(projectDomain) {
+        return projectDomain.icon || 'bolt';
     }
 
     async function fetchPosts() {
@@ -342,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const markEl = document.createElement('div');
         markEl.className = 'post-card-mark';
-        markEl.textContent = getProjectMark(post, projectSignals, projectDomain);
+        markEl.innerHTML = `<span class="material-symbols-outlined">${getProjectIcon(projectDomain)}</span>`;
 
         const headingEl = document.createElement('div');
         headingEl.className = 'post-card-heading';

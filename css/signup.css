@@ -1,96 +1,489 @@
-.auth-shell-signup .auth-hero-panel {
-    min-height: 980px;
+body.stitch-signup-page {
+    background: #f6f7f8;
+    color: #0f172a;
 }
 
-.auth-shell-signup .auth-card-panel {
-    min-height: 980px;
+body.stitch-signup-page::before,
+body.stitch-signup-page::after {
+    display: none;
 }
 
-.auth-shell-signup .auth-hero-surface {
-    max-width: 560px;
+.stitch-signup-page main.stitch-signup-main {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
 }
 
-.auth-shell-signup .auth-card-support {
-    margin-top: -6px;
+.stitch-signup-layout {
+    min-height: 100vh;
+    display: flex;
 }
 
-.profile-upload-group {
+.stitch-signup-brand-panel,
+.stitch-signup-form-panel {
+    font-family: 'Inter', 'Pretendard', sans-serif;
+}
+
+.stitch-signup-brand-panel {
+    width: 50%;
+    min-width: 0;
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 48px;
+    background: #ffffff;
+    border-right: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.stitch-brand-lockup {
+    display: inline-flex;
+    align-items: center;
     gap: 10px;
-    padding: 22px;
-    border-radius: 24px;
-    background: rgba(248, 250, 252, 0.88);
-    border: 1px solid rgba(148, 163, 184, 0.18);
+    text-decoration: none;
+    color: #0f172a;
 }
 
-.profile-upload-group label {
-    font-size: 14px;
-    font-weight: 800;
-    color: #111827;
+.stitch-brand-lockup-mobile {
+    display: none;
+    margin-bottom: 12px;
 }
 
-.profile-image-wrapper {
-    display: flex;
+.stitch-brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    padding-top: 6px;
+    background: #2a8cef;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(42, 140, 239, 0.22);
 }
 
-.profile-image-preview {
-    width: 128px;
-    height: 128px;
-    border-radius: 36px;
-    background:
-        radial-gradient(circle at top left, rgba(43, 140, 238, 0.16), transparent 40%),
-        linear-gradient(180deg, #FFFFFF 0%, #E8EFF5 100%);
-    border: 1px solid rgba(255, 255, 255, 0.86);
-    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.10);
-    cursor: pointer;
+.stitch-brand-mark .material-symbols-outlined {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.stitch-brand-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.stitch-signup-brand-copy {
+    max-width: 540px;
+}
+
+.stitch-signup-brand-copy h1 {
+    margin: 0 0 28px;
+    font-size: clamp(42px, 4vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.06em;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.stitch-signup-brand-copy>p {
+    margin: 0 0 38px;
+    font-size: 19px;
+    line-height: 1.7;
+    color: #64748b;
+}
+
+.stitch-feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stitch-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.stitch-feature-icon {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(42, 140, 239, 0.1);
+    color: #2a8cef;
+}
+
+.stitch-feature-icon .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.stitch-feature-list strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.stitch-feature-list p {
+    color: #64748b;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.stitch-signup-image-frame {
+    position: relative;
     overflow: hidden;
+    border-radius: 22px;
+    aspect-ratio: 16 / 9;
+    background: #e2e8f0;
+}
+
+.stitch-signup-image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    opacity: 0.82;
+}
+
+.stitch-signup-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.78) 100%);
+}
+
+.stitch-signup-form-panel {
+    width: 50%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px;
+}
+
+.stitch-signup-card {
+    width: 100%;
+    max-width: 480px;
+    padding: 40px;
+    margin: 0 auto;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 24px 60px rgba(148, 163, 184, 0.2);
+}
+
+.stitch-signup-card-head {
+    margin-bottom: 28px;
+}
+
+.stitch-signup-card-head h2 {
+    margin: 0 0 8px;
+    padding: 0;
+    border: none;
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: -0.05em;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.stitch-signup-card-head p {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.stitch-signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stitch-profile-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.stitch-profile-trigger {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border-radius: 999px;
+    border: 2px dashed #cbd5e1;
+    background: #f8fafc;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+    overflow: hidden;
 }
 
-.profile-image-preview img {
+.stitch-profile-trigger:hover,
+.stitch-profile-trigger:focus-visible {
+    border-color: #2a8cef;
+    background: #ffffff;
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.stitch-profile-trigger img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: none;
 }
 
-.profile-image-preview.has-image img {
+.stitch-profile-trigger.has-image img {
     display: block;
 }
 
-.profile-image-preview.has-image .upload-placeholder {
+.stitch-profile-trigger.has-image .upload-placeholder {
     display: none;
 }
 
-.upload-placeholder {
-    font-size: 44px;
-    font-weight: 200;
-    color: #94A3B8;
-    pointer-events: none;
+.stitch-profile-trigger .upload-placeholder {
+    font-size: 34px;
+    color: #94a3b8;
 }
 
-@media (max-width: 980px) {
-    .auth-shell-signup .auth-hero-panel,
-    .auth-shell-signup .auth-card-panel {
-        min-height: auto;
+.stitch-profile-add-badge {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a8cef;
+    border: 3px solid #ffffff;
+    color: #ffffff;
+    box-shadow: 0 14px 28px rgba(42, 140, 239, 0.24);
+}
+
+.stitch-profile-add-badge .material-symbols-outlined {
+    font-size: 16px;
+}
+
+.stitch-profile-caption {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.stitch-profile-helper {
+    min-height: 18px;
+    text-align: center;
+}
+
+.stitch-profile-helper[data-tone="muted"] {
+    color: #94a3b8;
+}
+
+.stitch-profile-helper[data-tone="error"] {
+    color: #ef4444;
+}
+
+.stitch-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stitch-field label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.stitch-field input {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: transparent;
+    color: #0f172a;
+    font: inherit;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+}
+
+.stitch-field input::placeholder {
+    color: #cbd5e1;
+}
+
+.stitch-field input:focus {
+    border-color: rgba(42, 140, 239, 0.42);
+    box-shadow: 0 0 0 4px rgba(42, 140, 239, 0.12);
+}
+
+.stitch-password-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.helper-text {
+    min-height: 18px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #ef4444;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.helper-text.show {
+    opacity: 1;
+}
+
+.stitch-profile-helper[data-tone="muted"] {
+    color: #94a3b8;
+}
+
+.stitch-profile-helper[data-tone="error"] {
+    color: #ef4444;
+}
+
+.stitch-signup-actions {
+    padding-top: 6px;
+}
+
+.stitch-primary-button {
+    width: 100%;
+    min-height: 58px;
+    border: none;
+    border-radius: 14px;
+    background: #c7ddfb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    cursor: not-allowed;
+    box-shadow: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.stitch-primary-button.active {
+    background: #2a8cef;
+    cursor: pointer;
+    box-shadow: 0 18px 34px rgba(42, 140, 239, 0.22);
+}
+
+.stitch-primary-button.active:hover {
+    transform: translateY(-1px);
+    background: #177ee7;
+}
+
+.stitch-signup-login-copy {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.stitch-signup-login-copy a,
+.stitch-signup-legal-copy a {
+    color: #2a8cef;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.stitch-signup-login-copy a:hover,
+.stitch-signup-legal-copy a:hover {
+    text-decoration: underline;
+}
+
+.stitch-signup-footnote {
+    width: 100%;
+    max-width: 480px;
+    margin: 18px auto 0;
+}
+
+.stitch-signup-security-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.stitch-signup-security-note .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.stitch-signup-legal-copy {
+    font-size: 11px;
+    line-height: 1.7;
+    text-align: center;
+    color: #94a3b8;
+}
+
+@media (max-width: 1200px) {
+    .stitch-signup-brand-panel,
+    .stitch-signup-form-panel {
+        padding: 40px;
     }
 }
 
-@media (max-width: 520px) {
-    .profile-upload-group {
-        padding: 18px;
-        border-radius: 20px;
+@media (max-width: 1080px) {
+    .stitch-signup-brand-panel {
+        display: none;
     }
 
-    .profile-image-preview {
-        width: 112px;
-        height: 112px;
-        border-radius: 30px;
+    .stitch-signup-form-panel {
+        width: 100%;
+        min-height: 100vh;
+        justify-content: flex-start;
+        padding: 32px 24px 48px;
+    }
+
+    .stitch-brand-lockup-mobile {
+        display: inline-flex;
+    }
+
+    .stitch-signup-card,
+    .stitch-signup-footnote {
+        max-width: 560px;
+    }
+}
+
+@media (max-width: 640px) {
+    .stitch-signup-form-panel {
+        padding: 24px 18px 40px;
+    }
+
+    .stitch-signup-card {
+        padding: 28px 20px 22px;
+        border-radius: 22px;
+    }
+
+    .stitch-signup-card-head h2 {
+        font-size: 28px;
+    }
+
+    .stitch-password-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stitch-primary-button {
+        min-height: 54px;
     }
 }

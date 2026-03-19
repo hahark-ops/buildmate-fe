@@ -4,131 +4,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 - 빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
-    <link rel="stylesheet" href="css/login.css?v=20260319-mobile2">
+    <title>Buildmate | Log In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="css/common.css?v=20260319-stitch-exact2">
+    <link rel="stylesheet" href="css/login.css?v=20260319-stitch-exact2">
 </head>
 
-<body class="auth-page">
-    <header class="auth-header">
-        <a href="login.html" class="logo">빌드메이트</a>
-        <a href="signup.html" class="auth-header-link">계정 만들기</a>
-    </header>
+<body class="auth-page stitch-login-page">
+    <main class="stitch-login-main">
+        <section class="stitch-login-layout">
+            <aside class="stitch-login-brand-panel">
+                <a href="index.html" class="stitch-login-brand-lockup" aria-label="Buildmate home">
+                    <span class="stitch-login-brand-mark">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </span>
+                    <span class="stitch-login-brand-name">Buildmate</span>
+                </a>
 
-    <main class="login-container auth-main">
-        <section class="auth-shell auth-shell-login">
-            <aside class="auth-hero-panel">
-                <span class="auth-hero-kicker">Build Together</span>
-                <h1 class="auth-hero-title">팀을 구하는 흐름을 한 화면에서 더 선명하게.</h1>
-                <p class="auth-hero-copy">Buildmate는 프로젝트 맥락, 공개 질문, 협업 제안을 연결해서 메이커들이 빠르게 합류 결정을 내리게 돕는 팀 빌딩 보드입니다.</p>
+                <div class="stitch-login-brand-copy">
+                    <h1>Welcome back to the elite network of builders.</h1>
 
-                <section class="auth-hero-surface">
-                    <div class="auth-hero-surface-head">
-                        <span class="auth-hero-surface-label">Board Preview</span>
-                        <span class="auth-hero-surface-pill">Live</span>
-                    </div>
-                    <div class="auth-preview-card-stack">
-                        <article class="auth-preview-card auth-preview-card-primary">
-                            <strong>Buildmate Home Refresh</strong>
-                            <p>Needed Roles · Product Designer / Frontend Engineer</p>
-                        </article>
-                        <article class="auth-preview-card">
-                            <strong>Public Questions First</strong>
-                            <p>궁금한 점은 공개 질문으로 먼저 정리하고, 실제 결정은 협업 채팅에서 이어집니다.</p>
-                        </article>
-                    </div>
-                </section>
-
-                <div class="auth-hero-list">
-                    <article class="auth-hero-list-item">
-                        <strong>모집 보드 중심</strong>
-                        <span>현재 단계, 필요한 역할, 사용 도구를 카드 한 장에서 빠르게 파악할 수 있습니다.</span>
-                    </article>
-                    <article class="auth-hero-list-item">
-                        <strong>공개 질문과 협업 제안 분리</strong>
-                        <span>궁금한 점은 댓글로, 실제 대화 시작은 협업 채팅으로 자연스럽게 이어집니다.</span>
-                    </article>
-                    <article class="auth-hero-list-item">
-                        <strong>메이커 프로필 연결</strong>
-                        <span>프로필과 계정 흐름이 연결돼 있어 누가 어떤 방식으로 협업할지 더 쉽게 판단할 수 있습니다.</span>
-                    </article>
+                    <ul class="stitch-login-feature-list">
+                        <li>
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <div>
+                                <strong>Access your global network</strong>
+                                <p>Connect with top-tier professionals and subcontractors.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <div>
+                                <strong>Manage active projects</strong>
+                                <p>Track milestones and budgets in one centralized hub.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <div>
+                                <strong>Real-time collaboration</strong>
+                                <p>Instant updates and documentation sharing for your team.</p>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
 
-                <div class="auth-hero-metrics">
-                    <article class="auth-hero-metric">
-                        <span>Board</span>
-                        <strong>구조화된 모집글</strong>
-                        <p>프로젝트 맥락이 흐리지 않도록 카드와 상세 화면을 같은 언어로 보여줍니다.</p>
-                    </article>
-                    <article class="auth-hero-metric">
-                        <span>Signal</span>
-                        <strong>공개 질문 우선</strong>
-                        <p>바로 DM으로 튀지 않고, 공개 질문으로 컨텍스트를 먼저 쌓습니다.</p>
-                    </article>
-                    <article class="auth-hero-metric">
-                        <span>Flow</span>
-                        <strong>채팅까지 한 흐름</strong>
-                        <p>관심 표시와 협업 제안 이후 필요한 대화는 채팅 화면으로 이어집니다.</p>
-                    </article>
+                <div class="stitch-login-image-frame">
+                    <div class="stitch-login-image-blur" aria-hidden="true"></div>
+                    <div class="stitch-login-image-overlay"></div>
+                    <div class="stitch-login-image-card">
+                        <div class="stitch-login-image-badge">
+                            <span class="material-symbols-outlined">analytics</span>
+                        </div>
+                        <div>
+                            <div class="stitch-login-image-line stitch-login-image-line-long"></div>
+                            <div class="stitch-login-image-line stitch-login-image-line-short"></div>
+                        </div>
+                    </div>
                 </div>
             </aside>
 
-            <section class="auth-card-panel">
-                <div class="auth-card-header">
-                    <span class="auth-card-kicker">Welcome Back</span>
-                    <h1 class="login-title auth-card-title">함께 만들 메이트를 다시 찾아보세요</h1>
-                    <p class="login-description auth-card-copy">프로젝트를 이어서 확인하고, 공개 질문과 협업 채팅 흐름을 계속 진행하세요.</p>
-                </div>
+            <section class="stitch-login-form-panel">
+                <a href="index.html" class="stitch-login-brand-lockup stitch-login-brand-lockup-mobile" aria-label="Buildmate home">
+                    <span class="stitch-login-brand-mark">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </span>
+                    <span class="stitch-login-brand-name">Buildmate</span>
+                </a>
 
-                <form id="loginForm" class="login-form">
-                    <div class="input-group">
-                        <label for="email">이메일</label>
-                        <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" autocomplete="username">
-                        <div id="emailError" class="helper-text"></div>
+                <div class="stitch-login-card">
+                    <div class="stitch-login-card-head">
+                        <h2>Log in to your account</h2>
+                        <p>Enter your details to continue building.</p>
                     </div>
 
-                    <div class="input-group">
-                        <label for="password">비밀번호</label>
-                        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
-                        <div id="passwordError" class="helper-text"></div>
+                    <form id="loginForm" class="stitch-login-form" novalidate>
+                        <div class="stitch-login-field">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="name@company.com" autocomplete="username">
+                            <div id="emailError" class="helper-text"></div>
+                        </div>
+
+                        <div class="stitch-login-field">
+                            <div class="stitch-login-field-row">
+                                <label for="password">Password</label>
+                                <a href="#" class="stitch-login-inline-link">Forgot password?</a>
+                            </div>
+                            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password">
+                            <div id="passwordError" class="helper-text"></div>
+                        </div>
+
+                        <label class="stitch-login-remember">
+                            <input type="checkbox" id="remember" name="remember">
+                            <span>Remember me for 30 days</span>
+                        </label>
+
+                        <button type="submit" id="loginBtn" class="stitch-login-button" disabled>Log In</button>
+                    </form>
+
+                    <div class="stitch-login-card-footer">
+                        <p>Don't have an account?
+                            <a href="signup.html">Sign up</a>
+                        </p>
                     </div>
+                </div>
 
-                    <button type="submit" id="loginBtn" class="login-btn" disabled>로그인</button>
-                </form>
-
-                <div class="auth-card-footer">
-                    <p class="auth-card-footer-copy">처음이신가요? 지금 바로 계정을 만들고 팀 빌딩 보드를 시작해보세요.</p>
-                    <div class="signup-link">
-                        <a href="signup.html">빌드메이트 시작하기</a>
+                <footer class="stitch-login-footer">
+                    <p class="stitch-login-security-note">
+                        <span class="material-symbols-outlined">shield</span>
+                        Secure login via industry-standard encryption
+                    </p>
+                    <div class="stitch-login-legal-links">
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Cookies</a>
                     </div>
-                </div>
-
-                <div class="auth-card-support">
-                    <article class="auth-card-support-item">
-                        <span>Board</span>
-                        <strong>프로젝트 문맥 유지</strong>
-                        <p>로그인 후 홈 보드와 상세 화면이 같은 정보 밀도로 이어집니다.</p>
-                    </article>
-                    <article class="auth-card-support-item">
-                        <span>Flow</span>
-                        <strong>질문에서 제안까지</strong>
-                        <p>공개 질문을 남기고, 이어서 협업 제안과 채팅까지 바로 전환할 수 있습니다.</p>
-                    </article>
-                </div>
-
-                <div class="auth-trust-strip">
-                    <span class="auth-trust-pill">팀원 모집</span>
-                    <span class="auth-trust-pill">공개 질문</span>
-                    <span class="auth-trust-pill">협업 채팅</span>
-                </div>
+                </footer>
             </section>
         </section>
     </main>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js?v=20260319-preview"></script>
-    <script src="js/modal.js"></script>
-    <script src="js/login.js"></script>
+    <script src="js/common.js?v=20260319-stitch-exact2"></script>
+    <script src="js/modal.js?v=20260319-stitch-exact2"></script>
+    <script src="js/login.js?v=20260319-stitch-exact2"></script>
 </body>
 
 </html>

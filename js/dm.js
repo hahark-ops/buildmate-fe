@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const contextTitleEl = document.getElementById('dmContextTitle');
     const contextSubtitleEl = document.getElementById('dmContextSubtitle');
     const contextPillsEl = document.getElementById('dmContextPills');
+    const sideAvatarEl = document.getElementById('dmSideAvatar');
     const sidePeerNameEl = document.getElementById('dmSidePeerName');
     const sideStatusEl = document.getElementById('dmSideStatus');
     const sideHighlightsEl = document.getElementById('dmSideHighlights');
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             roomId: 2001,
             partner: { nickname: 'Mina', profileImage: '' },
-            lastMessage: '오늘 밤까지 홈 보드 카드 밀도만 한 번 더 맞춰볼게요.',
+            lastMessage: 'I will tighten the home board card density one more time tonight.',
             lastMessageAt: '2026-03-19T13:12:00.000Z',
             unreadCount: 2,
             projectTitle: 'Buildmate Home Refresh',
@@ -72,15 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
             targetRole: 'Product Designer',
             joinType: 'Core contributor',
             highlights: [
-                '카드 정보 밀도는 줄이고 역할 가독성은 높이기',
-                'Stitch 톤을 유지하되 기존 기능 훅은 그대로 보존하기',
-                '모바일에서 필터 바 우선순위가 무너지지 않게 확인하기',
+                'Reduce information density while keeping role clarity high.',
+                'Preserve existing runtime hooks while matching the Stitch tone.',
+                'Make sure filter priority still works well on mobile.',
             ],
         },
         {
             roomId: 2002,
             partner: { nickname: 'Jun', profileImage: '' },
-            lastMessage: '상세 화면의 공개 질문 CTA는 right rail보다 hero에서 먼저 보여주는 쪽이 좋아요.',
+            lastMessage: 'The public question CTA should show in the hero before the right rail.',
             lastMessageAt: '2026-03-18T21:40:00.000Z',
             unreadCount: 0,
             projectTitle: 'Project Detail Direction',
@@ -89,9 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
             targetRole: 'Frontend Engineer',
             joinType: 'Part-time core',
             highlights: [
-                '합류 전 확인 포인트를 hero 안에서 먼저 보여주기',
-                '댓글 섹션은 질문 의도와 다음 액션이 함께 읽히게 구성하기',
-                '프로젝트 리드 카드와 지표 카드의 우선순위를 다시 정렬하기',
+                'Show collaboration checkpoints inside the hero first.',
+                'Make the question section read like intent plus next action.',
+                'Rebalance priority between the lead card and the quick stats rail.',
             ],
         },
     ];
@@ -156,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyLoaderEl = document.createElement('div');
     historyLoaderEl.className = 'dm-history-loader';
     historyLoaderEl.style.display = 'none';
-    historyLoaderEl.textContent = '이전 협업 메시지를 불러오는 중...';
+    historyLoaderEl.textContent = 'Loading earlier collaboration messages...';
 
     function ensureHistoryLoader() {
         if (!historyLoaderEl.parentElement) {
@@ -197,9 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 role: 'Role fit',
                 joinType: 'Flexible',
                 highlights: [
-                    '역할 기대치와 일정 가능 시간을 먼저 맞춰보세요.',
-                    '공개 질문에서 다룬 내용은 요약해서 다시 확인하세요.',
-                    '합류 조건이 정리되면 실제 작업 시작 시점을 명확히 남기세요.',
+                    'Confirm role expectations and weekly availability first.',
+                    'Summarize what was already resolved in public questions.',
+                    'Agree on an exact start point before moving into execution.',
                 ],
             };
         }
@@ -213,9 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
             highlights: Array.isArray(room.highlights) && room.highlights.length
                 ? room.highlights
                 : [
-                    '역할 기대치와 일정 가능 시간을 먼저 맞춰보세요.',
-                    '공개 질문에서 다룬 내용은 요약해서 다시 확인하세요.',
-                    '합류 조건이 정리되면 실제 작업 시작 시점을 명확히 남기세요.',
+                    'Confirm role expectations and weekly availability first.',
+                    'Summarize what was already resolved in public questions.',
+                    'Agree on an exact start point before moving into execution.',
                 ],
         };
     }
@@ -257,25 +258,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function syncConversationChrome(room = null) {
         const partnerName = room && room.partner && room.partner.nickname
             ? room.partner.nickname
-            : '협업할 메이트를 선택해주세요.';
+            : 'Select a collaborator to continue.';
         const meta = getRoomMeta(room);
         const statusText = room && room.lastMessageAt
-            ? `${formatDate(room.lastMessageAt)} 기준 최근 활동`
-            : '프로젝트 관련 최근 활동과 대화 흐름을 이곳에서 이어갈 수 있습니다.';
+            ? `Latest activity · ${formatDate(room.lastMessageAt)}`
+            : 'Project context and conversation history will appear here.';
 
         if (contextTitleEl) {
             contextTitleEl.textContent = room ? meta.projectTitle : partnerName;
         }
         if (contextSubtitleEl) {
             contextSubtitleEl.textContent = room
-                ? `${partnerName}와 역할 기대치, 일정, 협업 방식까지 빠르게 맞춰보세요.`
-                : '프로젝트 관련 최근 활동과 대화 흐름을 이곳에서 이어갈 수 있습니다.';
+                ? `Align role fit, availability, and collaboration mode with ${partnerName}.`
+                : 'Project context and conversation history will appear here.';
+        }
+        if (sideAvatarEl) {
+            sideAvatarEl.style.backgroundImage = room && room.partner && room.partner.profileImage
+                ? `url(${room.partner.profileImage})`
+                : '';
         }
         if (sidePeerNameEl) {
             sidePeerNameEl.textContent = room ? meta.projectTitle : partnerName;
         }
         if (sideStatusEl) {
-            sideStatusEl.textContent = room ? `${partnerName}와 대화 중 · ${statusText}` : statusText;
+            sideStatusEl.textContent = room ? `Talking with ${partnerName} · ${statusText}` : statusText;
         }
         renderContextPills(room);
         renderSideHighlights(room);
@@ -287,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function ensurePushRegistration() {
         if (!isWebPushSupported()) {
-            throw new Error('이 브라우저는 웹푸시를 지원하지 않습니다.');
+            throw new Error('This browser does not support web push.');
         }
         if (pushRegistration) {
             return pushRegistration;
@@ -310,16 +316,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!isWebPushSupported()) {
-            pushToggleBtn.textContent = '알림 미지원';
+            pushToggleBtn.textContent = 'Unsupported';
             pushToggleBtn.disabled = true;
-            setPushHint('이 브라우저는 웹푸시를 지원하지 않습니다.');
+            setPushHint('This browser does not support web push.');
             return;
         }
 
         if (!webPushStatus.enabled) {
-            pushToggleBtn.textContent = '알림 비활성';
+            pushToggleBtn.textContent = 'Alerts Off';
             pushToggleBtn.disabled = true;
-            setPushHint('서버에서 브라우저 알림이 비활성화되어 있습니다.');
+            setPushHint('Browser alerts are disabled on the server.');
             return;
         }
 
@@ -329,34 +335,34 @@ document.addEventListener('DOMContentLoaded', () => {
             subscription = await getBrowserPushSubscription();
         } catch (error) {
             console.error('push registration init failed', error);
-            pushToggleBtn.textContent = '알림 사용 불가';
+            pushToggleBtn.textContent = 'Unavailable';
             pushToggleBtn.disabled = true;
-            setPushHint('브라우저 알림 초기화에 실패했습니다. 새로고침 후 다시 시도해주세요.');
+            setPushHint('We could not initialize browser alerts. Refresh and try again.');
             return;
         }
         const permission = Notification.permission;
 
         if (permission === 'denied') {
-            pushToggleBtn.textContent = '알림 차단됨';
-            setPushHint('브라우저 설정에서 알림을 허용해야 프로젝트 관련 새 메시지를 받을 수 있습니다.');
+            pushToggleBtn.textContent = 'Blocked';
+            setPushHint('Allow browser alerts to receive new collaboration updates.');
             return;
         }
 
         if (subscription && webPushStatus.subscribed) {
-            pushToggleBtn.textContent = '알림 끄기';
-            setPushHint('프로젝트 관련 새 메시지를 브라우저 알림으로 받을 수 있습니다.');
+            pushToggleBtn.textContent = 'Turn off alerts';
+            setPushHint('You will receive browser alerts for new collaboration updates.');
             return;
         }
 
-        pushToggleBtn.textContent = '알림 켜기';
-        setPushHint('프로젝트 관련 새 메시지를 브라우저 알림으로 받을 수 있습니다.');
+        pushToggleBtn.textContent = 'Turn on alerts';
+        setPushHint('Enable browser alerts for new collaboration updates.');
     }
 
     async function fetchWebPushStatus() {
         const response = await fetch(`${API_BASE_URL}/v1/notifications/webpush/status`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '웹푸시 상태를 불러오지 못했습니다.');
+            throw new Error(result.message || 'Failed to load browser alert status.');
         }
         webPushStatus = result.data || webPushStatus;
         await syncPushToggleState();
@@ -365,13 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function subscribeToWebPush() {
         if (!webPushStatus.enabled) {
-            showCustomModal('서버에서 브라우저 알림이 비활성화되어 있습니다.');
+            showCustomModal('Browser alerts are disabled on the server.');
             return;
         }
 
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
-            showCustomModal('브라우저 설정에서 알림을 허용해야 프로젝트 관련 새 메시지를 받을 수 있습니다.');
+            showCustomModal('Allow browser alerts to receive new collaboration updates.');
             await syncPushToggleState();
             return;
         }
@@ -390,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '웹푸시 구독 등록에 실패했습니다.');
+            throw new Error(result.message || 'Failed to subscribe to browser alerts.');
         }
         await fetchWebPushStatus();
     }
@@ -411,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '웹푸시 구독 해제에 실패했습니다.');
+            throw new Error(result.message || 'Failed to unsubscribe from browser alerts.');
         }
 
         await subscription.unsubscribe().catch(() => undefined);
@@ -420,12 +426,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function toggleWebPush() {
         if (!isWebPushSupported()) {
-            showCustomModal('이 브라우저는 웹푸시를 지원하지 않습니다.');
+            showCustomModal('This browser does not support web push.');
             return;
         }
 
         if (Notification.permission === 'denied') {
-            showCustomModal('브라우저 설정에서 알림을 허용해야 프로젝트 관련 새 메시지를 받을 수 있습니다.');
+            showCustomModal('Allow browser alerts to receive new collaboration updates.');
             return;
         }
 
@@ -440,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('push toggle failed', error);
-            showCustomModal(error.message || '브라우저 알림 설정에 실패했습니다.');
+            showCustomModal(error.message || 'Failed to update browser alerts.');
             await syncPushToggleState();
         } finally {
             pushToggleBtn.disabled = false;
@@ -534,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${API_BASE_URL}/v1/auth/me`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            showCustomModal('로그인이 필요합니다.', () => {
+            showCustomModal('You need to sign in first.', () => {
                 window.location.href = 'login.html';
             });
             throw new Error(result.message || 'login required');
@@ -555,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${API_BASE_URL}/v1/dm/rooms`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '협업 채팅방 목록을 불러오지 못했습니다.');
+            throw new Error(result.message || 'Failed to load collaboration rooms.');
         }
         const data = result.data || {};
         rooms = Array.isArray(data.rooms) ? data.rooms : [];
@@ -575,9 +581,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentRoomId) {
             const activeRoom = rooms.find((room) => Number(room.roomId) === Number(currentRoomId));
             if (activeRoom) {
-                peerNameEl.textContent = activeRoom.partner && activeRoom.partner.nickname ? activeRoom.partner.nickname : '알 수 없는 사용자';
+                peerNameEl.textContent = activeRoom.partner && activeRoom.partner.nickname ? activeRoom.partner.nickname : 'Unknown collaborator';
                 peerAvatarEl.style.backgroundImage = activeRoom.partner && activeRoom.partner.profileImage ? `url(${activeRoom.partner.profileImage})` : '';
-                statusMessageEl.textContent = activeRoom.lastMessageAt ? `${formatDate(activeRoom.lastMessageAt)} 기준 최근 활동` : '아직 협업 메시지가 없습니다.';
+                statusMessageEl.textContent = activeRoom.lastMessageAt ? `Latest activity · ${formatDate(activeRoom.lastMessageAt)}` : 'No collaboration messages yet.';
                 syncConversationChrome(activeRoom);
                 renderRooms();
             } else {
@@ -593,7 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!rooms.length) {
             const empty = document.createElement('div');
             empty.className = 'dm-room-last';
-            empty.textContent = '아직 참여 중인 협업 채팅방이 없습니다.';
+            empty.textContent = 'There are no active collaboration rooms yet.';
             roomListEl.appendChild(empty);
             return;
         }
@@ -627,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
             eyebrow.textContent = room.projectTitle || room.contextTitle || 'Current collaboration';
             const name = document.createElement('div');
             name.className = 'dm-room-name';
-            name.textContent = room.partner && room.partner.nickname ? room.partner.nickname : '알 수 없는 사용자';
+            name.textContent = room.partner && room.partner.nickname ? room.partner.nickname : 'Unknown collaborator';
             const time = document.createElement('div');
             time.className = 'dm-room-time';
             time.textContent = formatDate(room.lastMessageAt || '');
@@ -646,7 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const last = document.createElement('div');
             last.className = 'dm-room-last';
-            last.textContent = room.lastMessage || '아직 협업 메시지가 없습니다.';
+            last.textContent = room.lastMessage || 'No collaboration messages yet.';
 
             item.append(top, last);
             item.addEventListener('click', async () => {
@@ -659,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderEmptyRoom() {
         closeSocket();
         emptyStateEl.style.display = 'block';
-        emptyStateEl.textContent = rooms.length ? '협업할 메이트를 선택해주세요.' : '아직 참여 중인 협업 채팅방이 없습니다.';
+        emptyStateEl.textContent = rooms.length ? 'Select a collaborator to continue.' : 'There are no active collaboration rooms yet.';
         messageState = new Map();
         hasMoreMessages = false;
         oldestMessageId = null;
@@ -667,8 +673,8 @@ document.addEventListener('DOMContentLoaded', () => {
         messageListEl.innerHTML = '';
         ensureHistoryLoader();
         peerAvatarEl.style.backgroundImage = '';
-        peerNameEl.textContent = '협업할 메이트를 선택해주세요.';
-        statusMessageEl.textContent = '프로젝트 논의를 위한 실시간 협업 채팅을 지원합니다.';
+        peerNameEl.textContent = 'Select a collaborator to continue.';
+        statusMessageEl.textContent = 'Real-time collaboration updates appear here.';
         syncConversationChrome(null);
         sendBtn.disabled = true;
     }
@@ -698,7 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const name = document.createElement('div');
         name.className = 'dm-bubble-name';
-        name.textContent = message.isMine ? '나' : (message.senderNickname || '익명');
+        name.textContent = message.isMine ? 'You' : (message.senderNickname || 'Anonymous');
 
         const bubble = document.createElement('div');
         bubble.className = 'dm-bubble';
@@ -716,9 +722,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const read = document.createElement('span');
             read.className = 'dm-bubble-read';
             if (options.pending) {
-                read.textContent = '전송 중';
+                read.textContent = 'Sending';
             } else {
-                read.textContent = message.readByOther ? '읽음' : '';
+                read.textContent = message.readByOther ? 'Read' : '';
             }
             meta.append(read);
         }
@@ -746,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pendingMessage = {
             clientMessageId,
             roomId: currentRoomId,
-            senderNickname: currentUser && currentUser.nickname ? currentUser.nickname : '나',
+            senderNickname: currentUser && currentUser.nickname ? currentUser.nickname : 'You',
             senderProfileImage: currentUser && currentUser.profileImage ? currentUser.profileImage : '',
             content,
             createdAt: new Date().toISOString(),
@@ -824,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderMessages(messages) {
         clearMessages();
         messageState = new Map();
-        emptyStateEl.textContent = '아직 협업 메시지가 없습니다.';
+        emptyStateEl.textContent = 'There are no collaboration messages yet.';
         emptyStateEl.style.display = messages.length ? 'none' : 'block';
         messages.forEach((message) => appendMessage(message));
         reconcilePendingMessagesForCurrentRoom(messages);
@@ -876,7 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
             message.readByOther = true;
             const receipt = messageListEl.querySelector(`.dm-message-row[data-message-id="${messageId}"] .dm-bubble-read`);
             if (receipt) {
-                receipt.textContent = '읽음';
+                receipt.textContent = 'Read';
             }
         });
     }
@@ -927,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(`${API_BASE_URL}/v1/dm/rooms/${roomId}/messages?${query.toString()}`, { credentials: 'include' });
         const result = await window.parseApiResponseSafe(response);
         if (!response.ok) {
-            throw new Error(result.message || '협업 메시지를 불러오지 못했습니다.');
+            throw new Error(result.message || 'Failed to load collaboration messages.');
         }
         const data = result.data || {};
         const messages = Array.isArray(data.messages) ? data.messages : [];
@@ -992,8 +998,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.history.replaceState({}, '', nextUrl.toString());
         }
 
-        peerNameEl.textContent = room.partner && room.partner.nickname ? room.partner.nickname : '알 수 없는 사용자';
-        updateStatusMessage(room.lastMessageAt ? `${formatDate(room.lastMessageAt)} 기준 최근 활동` : '아직 협업 메시지가 없습니다.');
+        peerNameEl.textContent = room.partner && room.partner.nickname ? room.partner.nickname : 'Unknown collaborator';
+        updateStatusMessage(room.lastMessageAt ? `Latest activity · ${formatDate(room.lastMessageAt)}` : 'No collaboration messages yet.');
         peerAvatarEl.style.backgroundImage = room.partner && room.partner.profileImage ? `url(${room.partner.profileImage})` : '';
         syncConversationChrome(room);
         sendBtn.disabled = false;
@@ -1034,14 +1040,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const apiUrl = API_BASE_URL ? new URL(API_BASE_URL, window.location.origin) : new URL(window.location.origin);
         const wsProtocol = apiUrl.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${wsProtocol}//${apiUrl.host}/ws/dm/${roomIdAtConnect}`;
-        updateStatusMessage('실시간 연결 중...');
+        updateStatusMessage('Connecting in real time...');
         const nextSocket = new WebSocket(wsUrl);
         socket = nextSocket;
 
         nextSocket.addEventListener('open', () => {
             if (socket !== nextSocket) return;
             reconnectAttempts = 0;
-            updateStatusMessage('실시간 협업 채팅이 연결되었습니다.');
+            updateStatusMessage('Real-time collaboration is connected.');
             startHeartbeat();
             resendPendingMessagesForCurrentRoom();
             maybeMarkCurrentRoomAsRead();
@@ -1075,7 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (payload.type === 'messages_read' && payload.data) {
                     applyReadReceipt(payload.data.lastReadMessageId, payload.data.readerUserId);
                 } else if (payload.type === 'error') {
-                    showCustomModal(payload.message || '협업 채팅 연결에 실패했습니다.');
+                    showCustomModal(payload.message || 'Failed to connect the collaboration chat.');
                 }
             } catch (error) {
                 console.error('ws message parse error', error);
@@ -1094,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (reconnectAttempts < 2 && currentRoomId) {
                 reconnectAttempts += 1;
-                updateStatusMessage('실시간 연결을 다시 시도하고 있습니다.');
+                updateStatusMessage('Retrying the real-time connection...');
                 reconnectTimer = window.setTimeout(() => {
                     reconnectTimer = null;
                     if (!socket && currentRoomId === roomIdAtConnect) {
@@ -1103,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 1000 * reconnectAttempts);
                 return;
             }
-            updateStatusMessage('실시간 연결이 끊어졌습니다.');
+            updateStatusMessage('The real-time connection was lost.');
         });
     }
 
@@ -1122,7 +1128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const previewMessage = {
                 messageId: Date.now(),
                 roomId: currentRoomId,
-                senderNickname: currentUser && currentUser.nickname ? currentUser.nickname : '나',
+                senderNickname: currentUser && currentUser.nickname ? currentUser.nickname : 'You',
                 senderProfileImage: currentUser && currentUser.profileImage ? currentUser.profileImage : '',
                 content: rawContent,
                 createdAt: new Date().toISOString(),
@@ -1150,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        updateStatusMessage('실시간 연결 중... 메시지 전송을 대기하고 있습니다.');
+        updateStatusMessage('Connecting in real time... waiting to send your message.');
         if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
             connectSocket();
         }
@@ -1278,7 +1284,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     pushToggleBtn.textContent = 'Preview';
                     pushToggleBtn.disabled = true;
                 }
-                setPushHint('미리보기 모드에서는 실시간 연결과 브라우저 알림이 비활성화됩니다.');
+                setPushHint('Real-time updates and browser alerts are disabled in preview mode.');
                 renderRooms();
                 syncUnreadBadge();
                 if (currentRoomId) {

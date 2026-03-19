@@ -1,4 +1,5 @@
 body.home-page {
+    font-family: 'Inter', 'Pretendard', sans-serif;
     background:
         radial-gradient(circle at top left, rgba(42, 140, 239, 0.12), transparent 26%),
         linear-gradient(180deg, #F6F7F8 0%, #F1F4F7 100%);
@@ -29,8 +30,33 @@ body.home-page header.home-header {
     left: auto;
     transform: none;
     flex-shrink: 0;
-    font-size: 30px;
-    letter-spacing: -0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0;
+    letter-spacing: normal;
+}
+
+.home-logo-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2B8CEE;
+    color: #FFFFFF;
+}
+
+.home-logo-mark .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.home-logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #0F172A;
 }
 
 .home-nav {
@@ -167,7 +193,7 @@ main.post-list-container {
 }
 
 .hero-title {
-    font-size: clamp(48px, 6vw, 82px);
+    font-size: clamp(50px, 6vw, 82px);
     font-weight: 900;
     line-height: 1.04;
     letter-spacing: -0.06em;
@@ -236,25 +262,17 @@ main.post-list-container {
     background: #FFFFFF;
 }
 
-.hero-note {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #94A3B8;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.hero-note::before {
-    content: "";
-    width: 48px;
-    height: 1px;
-    background: rgba(15, 23, 42, 0.12);
-}
-
 .hero-media {
     position: relative;
     min-height: 620px;
+}
+
+.hero-media-glow {
+    position: absolute;
+    inset: -20px;
+    background: linear-gradient(120deg, rgba(42, 140, 239, 0.18), transparent 58%);
+    filter: blur(56px);
+    opacity: 0.85;
 }
 
 .hero-media-frame {
@@ -262,133 +280,21 @@ main.post-list-container {
     min-height: 620px;
     border-radius: 34px;
     overflow: hidden;
-    background:
-        linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0.42) 100%),
-        url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxGN0Lc6lyCKwge9VoDdzPdz_SiDbv_1VlrZlkHjqZyeOH0bs3PsEgMJOogXLR2HS0vrAEd7KjMIYR21Alyb1Lp1fbr-qbmVKkNwG4cqzLZ-nwqwLp-y6LxVym1XjoFQ66-Egl7NNsgpFLMcb_RxNO0XPn-SFiAbML1tr3EpztnXmS9Rdv3CEi_93p-B-g_XbMGXHOAwEomKzTfufSPoNuOidEF-5wgnn5NxqZr7w7xZyCBSnItkvwdpqyTlvCx8Sbh6fDGUYYuU5x") center / cover;
+    background: #d9e2ec;
     box-shadow: 0 30px 72px rgba(15, 23, 42, 0.16);
 }
 
-.hero-media-frame::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(140deg, rgba(255, 255, 255, 0.16) 0%, transparent 36%),
-        radial-gradient(circle at bottom left, rgba(42, 140, 239, 0.28), transparent 30%);
+.hero-media-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.12);
+    transition: filter 0.3s ease, transform 0.3s ease;
 }
 
-.hero-media-label {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    min-height: 34px;
-    padding: 0 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(16px);
-    color: #FFFFFF;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-.hero-media-panel {
-    position: absolute;
-    z-index: 1;
-    background: rgba(255, 255, 255, 0.84);
-    backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.36);
-    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
-}
-
-.hero-media-panel-top {
-    top: 28px;
-    right: 28px;
-    width: 220px;
-    border-radius: 28px;
-    padding: 18px;
-}
-
-.hero-media-panel-top p,
-.hero-media-panel-bottom p {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #94A3B8;
-}
-
-.hero-media-panel-top strong {
-    display: block;
-    margin-top: 10px;
-    font-size: 24px;
-    line-height: 1.18;
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    color: #0F172A;
-}
-
-.hero-media-panel-top span {
-    display: block;
-    margin-top: 8px;
-    color: #475467;
-    font-size: 13px;
-    line-height: 1.5;
-}
-
-.hero-media-panel-bottom {
-    left: 32px;
-    right: 32px;
-    bottom: 28px;
-    border-radius: 30px;
-    padding: 20px 22px;
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    align-items: flex-end;
-}
-
-.hero-media-panel-bottom strong {
-    display: block;
-    margin-top: 6px;
-    font-size: 28px;
-    line-height: 1.1;
-    font-weight: 900;
-    letter-spacing: -0.05em;
-    color: #0F172A;
-}
-
-.hero-media-panel-bottom span {
-    display: block;
-    margin-top: 6px;
-    max-width: 340px;
-    color: #475467;
-    font-size: 13px;
-    line-height: 1.55;
-}
-
-.hero-media-tools {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 10px;
-    max-width: 240px;
-}
-
-.hero-media-tool {
-    display: inline-flex;
-    align-items: center;
-    height: 32px;
-    padding: 0 14px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.08);
-    color: #0F172A;
-    font-size: 12px;
-    font-weight: 800;
+.hero-media:hover .hero-media-frame img {
+    filter: grayscale(0);
+    transform: scale(1.02);
 }
 
 .board-section {
@@ -484,7 +390,13 @@ main.post-list-container {
 }
 
 .board-filter-cta span {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(255, 255, 255, 0.86);
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.board-filter-cta .material-symbols-outlined {
+    font-size: 18px;
 }
 
 .post-list {
@@ -535,6 +447,10 @@ main.post-list-container {
     font-size: 14px;
     font-weight: 900;
     letter-spacing: -0.04em;
+}
+
+.post-card-mark .material-symbols-outlined {
+    font-size: 28px;
 }
 
 .post-card-heading {
@@ -594,7 +510,7 @@ main.post-list-container {
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.02em;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 .post-card-bottom {
@@ -634,6 +550,15 @@ main.post-list-container {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     text-align: right;
+}
+
+.post-card-join-type::before {
+    content: "Type";
+    display: block;
+    margin-bottom: 6px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: #CBD5E1;
 }
 
 .posts-empty-state {

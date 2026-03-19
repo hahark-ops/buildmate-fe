@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('loginBtn');
     const emailError = document.getElementById('emailError');
     const passwordError = document.getElementById('passwordError');
+    const defaultLoginLabel = loginBtn.textContent.trim();
 
     // 정규식 패턴
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // 로딩 상태 표시
-            loginBtn.textContent = '로그인 중...';
+            loginBtn.textContent = `${defaultLoginLabel}...`;
             loginBtn.disabled = true;
 
             // Fetch API 호출
@@ -130,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 로그인 실패 (서버에서 보낸 에러 메시지 표시)
                 const message = result.message || `요청 처리에 실패했습니다. (HTTP ${response.status})`;
                 showCustomModal(`로그인 실패\n${message}`);
-                loginBtn.textContent = '로그인';
+                loginBtn.textContent = defaultLoginLabel;
                 loginBtn.disabled = false;
                 loginBtn.classList.add('active');
             }
@@ -138,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 네트워크 에러 등
             console.error('Login error:', error);
             showCustomModal('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
-            loginBtn.textContent = '로그인';
+            loginBtn.textContent = defaultLoginLabel;
             loginBtn.disabled = false;
             loginBtn.classList.add('active');
         }

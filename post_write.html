@@ -4,84 +4,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로젝트 모집하기 - 빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/post_write.css">
+    <title>Create Project | Buildmate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="css/common.css?v=20260319-stitch-exact1">
+    <link rel="stylesheet" href="css/post_write.css?v=20260319-stitch-exact1">
 </head>
 
-<body>
-    <header>
-        <a href="javascript:history.back()" class="back-button">&lt;</a>
-        <span class="logo">빌드메이트</span>
-        <div class="header-content">
-            <div class="header-actions">
-                <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">협업 채팅</a>
-                <div class="profile-icon" id="profileIcon"></div>
+<body class="composer-page composer-create-page">
+    <header class="composer-header">
+        <div class="composer-header-inner">
+            <div class="composer-header-left">
+                <a href="index.html" class="composer-logo-lockup" aria-label="Buildmate home">
+                    <span class="composer-logo-mark">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </span>
+                    <span class="composer-logo-text">Buildmate</span>
+                </a>
+
+                <nav class="composer-nav" aria-label="Primary">
+                    <a href="index.html">Explore</a>
+                    <a href="index.html" class="is-active">Projects</a>
+                    <a href="index.html">Community</a>
+                    <a href="index.html">Resources</a>
+                </nav>
             </div>
-            <!-- 드롭다운 메뉴 -->
-            <div class="profile-dropdown" id="profileDropdown">
-                <a href="profile.html" class="dropdown-item">메이커 프로필</a>
-                <a href="password.html" class="dropdown-item">계정 보안</a>
-                <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+
+            <div class="composer-header-right">
+                <label class="composer-search" aria-label="Search projects">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="text" placeholder="Search projects...">
+                </label>
+
+                <div class="composer-account">
+                    <button type="button" class="composer-profile-trigger" id="composerProfileTrigger" aria-label="Open profile menu">
+                        <span class="composer-avatar profile-icon" id="profileIcon" aria-hidden="true"></span>
+                        <span class="composer-profile-label" id="composerProfileLabel">My Workspace</span>
+                    </button>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="profile.html" class="dropdown-item">메이커 프로필</a>
+                        <a href="password.html" class="dropdown-item">계정 보안</a>
+                        <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="post-write-container">
-        <h1 class="page-title">프로젝트 모집하기</h1>
+    <main class="composer-main">
+        <section class="composer-intro">
+            <h1>Create a New Project</h1>
+            <p>Tell the community about your vision. High-fidelity posts attract the best collaborators and builders.</p>
+        </section>
 
-        <form id="postWriteForm" class="post-write-form">
-            <!-- 제목 -->
-            <div class="input-group">
-                <label for="title">제목*</label>
-                <input type="text" id="title" name="title" placeholder="예: AI 가계부 앱 같이 만들 메이트를 찾고 있습니다" maxlength="26">
-            </div>
-
-            <!-- 내용 -->
-            <div class="input-group">
-                <label for="content">프로젝트 소개*</label>
-                <p class="content-helper">프로젝트 소개, 현재 진행 상태, 필요한 역할, 원하는 협업 방식을 적어주세요.</p>
-                <textarea id="content" name="content" placeholder="프로젝트 소개:
-현재 단계:
-필요 역할:
-사용 도구:
-협업 방식:
-합류 형태:"></textarea>
-                <div class="content-guide">
-                    <strong>이 정보는 꼭 적어주세요</strong>
-                    <ul>
-                        <li>프로젝트 소개:</li>
-                        <li>현재 단계:</li>
-                        <li>필요 역할:</li>
-                        <li>사용 도구:</li>
-                        <li>협업 방식:</li>
-                        <li>합류 형태:</li>
-                    </ul>
+        <form id="postWriteForm" class="composer-shell" novalidate>
+            <section class="composer-card composer-core-card">
+                <div class="composer-field-block">
+                    <label for="title" class="composer-eyebrow">Project Name</label>
+                    <input type="text" id="title" name="title" placeholder="The next big thing starts here..." maxlength="26">
                 </div>
-            </div>
 
-            <!-- 헬퍼 텍스트 -->
-            <div id="helperText" class="helper-text"></div>
+                <div class="composer-field-block composer-editor-block">
+                    <label for="content" class="composer-eyebrow">Project Summary &amp; Details</label>
 
-            <!-- 이미지 업로드 -->
-            <div class="image-upload-group">
-                <label>이미지</label>
-                <div class="file-input-wrapper">
-                    <button type="button" class="file-select-btn" id="fileSelectBtn">파일 선택</button>
-                    <span class="file-name" id="fileName">파일을 선택해주세요.</span>
-                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    <div class="composer-toolbar" aria-hidden="true">
+                        <button type="button" tabindex="-1"><span class="material-symbols-outlined">format_bold</span></button>
+                        <button type="button" tabindex="-1"><span class="material-symbols-outlined">format_italic</span></button>
+                        <button type="button" tabindex="-1"><span class="material-symbols-outlined">link</span></button>
+                        <span class="composer-toolbar-divider"></span>
+                        <button type="button" tabindex="-1"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+                        <button type="button" tabindex="-1"><span class="material-symbols-outlined">format_quote</span></button>
+                        <button type="button" tabindex="-1"><span class="material-symbols-outlined">image</span></button>
+                    </div>
+
+                    <textarea id="content" name="content" rows="8" placeholder="Start writing your project vision, goals, and why people should join..."></textarea>
                 </div>
-            </div>
+            </section>
 
-            <!-- 완료 버튼 -->
-            <button type="button" id="submitBtn" class="submit-btn" disabled>모집글 등록하기</button>
+            <section class="composer-metadata-grid">
+                <article class="composer-card composer-meta-card">
+                    <div class="composer-meta-head">
+                        <span class="material-symbols-outlined">rocket_launch</span>
+                        <h2>Current Stage</h2>
+                    </div>
+                    <select id="projectStage" name="projectStage">
+                        <option value="">Select stage</option>
+                        <option>아이데이션 / 컨셉 검증</option>
+                        <option>MVP 개발</option>
+                        <option>초기 베타 운영</option>
+                        <option>스케일링 준비</option>
+                    </select>
+                </article>
+
+                <article class="composer-card composer-meta-card">
+                    <div class="composer-meta-head">
+                        <span class="material-symbols-outlined">groups</span>
+                        <h2>Needed Roles</h2>
+                    </div>
+                    <div class="composer-role-stack">
+                        <div class="composer-role-preview" id="rolesPreview"></div>
+                        <div class="composer-role-entry">
+                            <input type="text" id="rolesInput" name="rolesInput" placeholder="Add role and press Enter">
+                            <button type="button" id="roleAddBtn" class="composer-chip-add-btn">
+                                <span class="material-symbols-outlined">add</span>
+                                <span>Add Role</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="composer-card composer-meta-card">
+                    <div class="composer-meta-head">
+                        <span class="material-symbols-outlined">construction</span>
+                        <h2>Tools &amp; Tech Stack</h2>
+                    </div>
+                    <input type="text" id="toolsInput" name="toolsInput" placeholder="Figma, GitHub, Slack, Tailwind...">
+                </article>
+
+                <article class="composer-card composer-meta-card">
+                    <div class="composer-meta-head">
+                        <span class="material-symbols-outlined">payments</span>
+                        <h2>Join Type</h2>
+                    </div>
+                    <input type="hidden" id="joinType" name="joinType" value="지분 기반">
+                    <div class="composer-choice-grid">
+                        <button type="button" class="composer-choice-btn is-active" data-join-type="지분 기반">Equity Based</button>
+                        <button type="button" class="composer-choice-btn" data-join-type="유급 포지션">Paid Position</button>
+                    </div>
+                </article>
+            </section>
+
+            <section class="composer-card composer-upload-card" id="uploadDropzone" role="button" tabindex="0" aria-label="Upload project cover">
+                <div class="composer-upload-icon">
+                    <span class="material-symbols-outlined">add_photo_alternate</span>
+                </div>
+                <h2>Upload Project Cover</h2>
+                <p>Drag and drop or click to browse. Recommended size 1200x630.</p>
+                <div class="composer-upload-actions">
+                    <button type="button" id="fileSelectBtn" class="composer-chip-outline">Browse files</button>
+                    <span class="composer-file-name" id="fileName">No file selected</span>
+                </div>
+                <input type="file" id="imageInput" accept="image/*" hidden>
+            </section>
+
+            <section class="composer-card composer-collaboration-card">
+                <div class="composer-collaboration-head">
+                    <div>
+                        <h2>Collaboration Mode</h2>
+                        <p>How do you prefer to work with your team?</p>
+                    </div>
+                    <div class="composer-segmented-control">
+                        <input type="hidden" id="collaborationMode" name="collaborationMode" value="비동기 중심">
+                        <button type="button" class="composer-mode-btn is-active" data-collaboration-mode="비동기 중심">Async</button>
+                        <button type="button" class="composer-mode-btn" data-collaboration-mode="고밀도 협업">High-touch</button>
+                    </div>
+                </div>
+
+                <div class="composer-stat-grid">
+                    <label class="composer-stat-card">
+                        <span class="material-symbols-outlined">public</span>
+                        <span class="composer-stat-eyebrow">Timezone</span>
+                        <input type="text" id="timeZoneInput" name="timeZoneInput" value="Anywhere">
+                    </label>
+                    <label class="composer-stat-card">
+                        <span class="material-symbols-outlined">schedule</span>
+                        <span class="composer-stat-eyebrow">Commitment</span>
+                        <input type="text" id="commitmentInput" name="commitmentInput" value="10-15 hrs / week">
+                    </label>
+                    <label class="composer-stat-card">
+                        <span class="material-symbols-outlined">chat</span>
+                        <span class="composer-stat-eyebrow">Primary Tool</span>
+                        <input type="text" id="communicationToolInput" name="communicationToolInput" value="Discord / Slack">
+                    </label>
+                </div>
+            </section>
+
+            <div id="helperText" class="helper-text composer-helper-text"></div>
+
+            <section class="composer-action-row">
+                <div class="composer-secondary-actions">
+                    <button type="button" id="discardDraftBtn" class="composer-text-button">Discard Draft</button>
+                    <button type="button" id="saveDraftBtn" class="composer-text-button composer-text-button-primary">Save as Draft</button>
+                </div>
+
+                <button type="button" id="submitBtn" class="composer-submit-button" disabled>
+                    <span>Publish Project</span>
+                    <span class="material-symbols-outlined">send</span>
+                </button>
+            </section>
         </form>
+
+        <footer class="composer-footer-note">
+            <p>By publishing, you agree to the Buildmate Project Creator Guidelines.</p>
+        </footer>
     </main>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/modal.js"></script>
-    <script src="js/post_write.js"></script>
+    <script src="js/common.js?v=20260319-stitch-exact1"></script>
+    <script src="js/modal.js?v=20260319-stitch-exact1"></script>
+    <script src="js/post_write.js?v=20260319-stitch-exact1"></script>
 </body>
 
 </html>

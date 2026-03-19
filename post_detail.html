@@ -4,25 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프로젝트 상세 - 빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
-    <link rel="stylesheet" href="css/post_detail.css?v=20260319-mobile2">
+    <title>Buildmate | Project Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="css/common.css?v=20260319-stitch-detail">
+    <link rel="stylesheet" href="css/post_detail.css?v=20260319-stitch-detail">
 </head>
 
-<body>
-    <header>
-        <a href="index.html" class="back-button">&lt;</a>
-        <span class="logo">빌드메이트</span>
-        <div class="header-content">
-            <div class="header-actions">
-                <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">협업 채팅</a>
-                <div class="profile-icon" id="profileIcon"></div>
+<body class="detail-page">
+    <header class="product-header detail-header">
+        <div class="product-header-shell">
+            <div class="product-header-left">
+                <a href="index.html" class="logo product-logo">
+                    <span class="product-logo-mark">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </span>
+                    <span class="product-logo-text">Buildmate</span>
+                </a>
+                <nav class="product-nav" aria-label="메인 탐색">
+                    <a href="index.html">Explore</a>
+                    <a href="index.html" class="active">Projects</a>
+                    <a href="index.html">Community</a>
+                    <a href="index.html">Resources</a>
+                </nav>
             </div>
-            <!-- 드롭다운 메뉴 -->
-            <div class="profile-dropdown" id="profileDropdown">
-                <a href="profile.html" class="dropdown-item">메이커 프로필</a>
-                <a href="password.html" class="dropdown-item">계정 보안</a>
-                <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+
+            <div class="header-content product-header-content">
+                <label class="product-header-search" aria-label="프로젝트 검색">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="search" placeholder="Search projects..." />
+                </label>
+                <a href="dm.html" class="header-icon-btn dm-icon-btn" aria-label="협업 채팅">Messages</a>
+                <div class="profile-icon" id="profileIcon"></div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="profile.html" class="dropdown-item">메이커 프로필</a>
+                    <a href="password.html" class="dropdown-item">계정 보안</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+                </div>
             </div>
         </div>
     </header>
@@ -31,31 +51,39 @@
         <section class="post-hero-shell">
             <article class="post-article">
                 <div class="post-hero-copy">
-                    <p class="post-hero-kicker">Buildmate Project</p>
+                    <div class="post-meta-row">
+                        <span class="post-meta-badge">Active Project</span>
+                        <span class="post-date hero-post-date" id="postDate"></span>
+                    </div>
                     <h1 class="post-title" id="postTitle"></h1>
                     <p class="post-summary" id="postSummary"></p>
-
-                    <div class="post-meta-row">
-                        <div class="post-meta-copy">
-                            <span class="post-meta-badge">공개 모집 중</span>
-                            <span class="post-meta-text">핵심 정보는 위에서 빠르게 보고, 세부 내용은 아래에서 확인하세요.</span>
-                        </div>
-                    </div>
                 </div>
 
-                <aside class="post-hero-brief">
-                    <p class="post-hero-brief-label">Decision Snapshot</p>
-                    <h2 class="post-hero-brief-title" id="postHeroBriefTitle">합류 전에 먼저 맞춰볼 것</h2>
-                    <p class="post-hero-brief-copy" id="postHeroBriefCopy">핵심 역할, 협업 방식, 합류 형태를 빠르게 확인하고 공개 질문으로 이어가세요.</p>
-                    <div class="post-hero-brief-pills" id="postHeroBriefPills"></div>
-
+                <aside class="post-hero-rail">
                     <div class="post-hero-actions">
-                        <button class="hero-cta-btn" id="askQuestionBtn" type="button">공개 질문 남기기</button>
+                        <button class="hero-cta-btn" id="askQuestionBtn" type="button">
+                            <span class="material-symbols-outlined">forum</span>
+                            <span>Apply to Collaborate</span>
+                        </button>
+                        <button class="hero-save-btn like-btn" id="likeBtn" type="button" disabled>
+                            <span class="material-symbols-outlined">bookmark</span>
+                            <span class="hero-save-copy">
+                                <strong>Save Project</strong>
+                                <span class="hero-save-count" id="likeCount">0</span>
+                            </span>
+                        </button>
                         <div class="post-actions" id="postActions" style="display: none;">
-                            <button class="action-btn edit-btn" id="editPostBtn">수정</button>
-                            <button class="action-btn delete-btn" id="deletePostBtn">삭제</button>
+                            <button class="action-btn edit-btn" id="editPostBtn">Edit</button>
+                            <button class="action-btn delete-btn" id="deletePostBtn">Delete</button>
                         </div>
                     </div>
+
+                    <section class="post-hero-brief">
+                        <p class="post-hero-brief-label">Decision Snapshot</p>
+                        <h2 class="post-hero-brief-title" id="postHeroBriefTitle">What to align before joining</h2>
+                        <p class="post-hero-brief-copy" id="postHeroBriefCopy">Review the role, collaboration mode, and join type before moving into a direct conversation.</p>
+                        <div class="post-hero-brief-pills" id="postHeroBriefPills"></div>
+                    </section>
                 </aside>
             </article>
 
@@ -64,14 +92,13 @@
 
         <div class="post-content-layout">
             <section class="post-main-column">
-                <div class="post-image-container" id="postImageContainer" style="display: none;">
-                    <img id="postImage" src="" alt="게시글 이미지">
-                </div>
-
                 <article class="post-section-card">
                     <div class="post-section-heading">
                         <p class="post-section-kicker">Project Details</p>
-                        <h2>프로젝트 소개</h2>
+                        <h2>Project Details</h2>
+                    </div>
+                    <div class="post-image-container" id="postImageContainer" style="display: none;">
+                        <img id="postImage" src="" alt="Project cover image">
                     </div>
                     <div class="post-content" id="postContent"></div>
                 </article>
@@ -79,7 +106,7 @@
                 <section class="post-section-card looking-for-section" id="lookingForSection" hidden>
                     <div class="post-section-heading">
                         <p class="post-section-kicker">What We're Looking For</p>
-                        <h2>합류 전에 맞춰볼 포인트</h2>
+                        <h2>What we're looking for</h2>
                     </div>
                     <div class="looking-for-grid" id="lookingForGrid"></div>
                 </section>
@@ -88,14 +115,14 @@
                     <div class="comments-heading">
                         <div>
                             <p class="post-section-kicker">Public Questions</p>
-                            <h2>공개 질문</h2>
+                            <h2>Public Questions</h2>
                         </div>
-                        <p class="comments-caption">합류 전에 공개로 정리할수록 협업 채팅에서의 의사결정이 빨라집니다.</p>
+                        <button class="comments-link-btn" type="button" id="askQuestionBtnSecondary">Ask a question</button>
                     </div>
 
                     <div class="comment-input-area">
-                        <textarea id="commentInput" placeholder="프로젝트에 대해 공개로 확인하고 싶은 점을 남겨보세요."></textarea>
-                        <button type="button" id="commentSubmitBtn" class="comment-submit-btn" disabled>질문 남기기</button>
+                        <textarea id="commentInput" placeholder="Ask a public question before moving into a 1:1 collaboration thread."></textarea>
+                        <button type="button" id="commentSubmitBtn" class="comment-submit-btn" disabled>Ask Question</button>
                     </div>
 
                     <div class="comment-list" id="commentList"></div>
@@ -103,33 +130,32 @@
             </section>
 
             <aside class="post-side-column">
-                <section class="post-side-card">
-                    <p class="post-side-label">Project Lead</p>
+                <section class="post-side-card post-lead-card">
                     <div class="author-info">
                         <div class="author-avatar" id="authorAvatar"></div>
                         <div class="author-copy">
                             <span class="author-name" id="authorName"></span>
-                            <span class="post-date" id="postDate"></span>
+                            <span class="author-role-copy">Project Lead</span>
                         </div>
                     </div>
-                    <p class="post-side-copy">프로젝트 리드를 확인하고, 공개 질문 이후 바로 협업 제안으로 이어갈 수 있습니다.</p>
+                    <p class="post-side-copy">Connect with the lead after your public questions are aligned. This keeps collaboration intent and working style transparent from the start.</p>
                     <div class="author-card-slot" id="authorCardSlot"></div>
                 </section>
 
                 <section class="post-side-card">
-                    <p class="post-side-label">Project Pulse</p>
+                    <p class="post-side-label">Quick Stats</p>
                     <div class="stats-box">
-                        <button class="stat-item like-btn" id="likeBtn" disabled>
-                            <span class="stat-count" id="likeCount">0</span>
-                            <span class="stat-label">관심 수</span>
-                        </button>
-                        <div class="stat-item">
-                            <span class="stat-count" id="viewCount">0</span>
-                            <span class="stat-label">조회</span>
+                        <div class="stat-row">
+                            <span class="stat-label">Views</span>
+                            <strong class="stat-count" id="viewCount">0</strong>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-count" id="commentCount">0</span>
-                            <span class="stat-label">질문</span>
+                        <div class="stat-row">
+                            <span class="stat-label">Questions</span>
+                            <strong class="stat-count" id="commentCount">0</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">Status</span>
+                            <strong class="stat-count stat-inline-copy">Open</strong>
                         </div>
                     </div>
                 </section>
@@ -139,17 +165,17 @@
 
     <div class="modal-overlay" id="deleteModal" style="display: none;">
         <div class="modal-box">
-            <p class="modal-title" id="modalTitle">모집글을 삭제하시겠습니까?</p>
-            <p class="modal-subtitle" id="modalSubtitle">삭제한 모집 내용은 복구할 수 없습니다.</p>
+            <p class="modal-title" id="modalTitle">Delete this project?</p>
+            <p class="modal-subtitle" id="modalSubtitle">This action can't be undone.</p>
             <div class="modal-buttons">
-                <button class="modal-btn cancel-btn" id="modalCancelBtn">취소</button>
-                <button class="modal-btn confirm-btn" id="modalConfirmBtn">확인</button>
+                <button class="modal-btn cancel-btn" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn confirm-btn" id="modalConfirmBtn">Confirm</button>
             </div>
         </div>
     </div>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js?v=20260319-preview"></script>
+    <script src="js/common.js?v=20260319-stitch-detail"></script>
     <script src="js/modal.js"></script>
     <script src="js/post_detail.js"></script>
 </body>

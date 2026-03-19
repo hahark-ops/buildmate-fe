@@ -44,6 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         element.classList.remove('show');
     }
 
+    function setProfileMessage(message, tone = 'muted') {
+        profileError.dataset.tone = tone;
+        showHelper(profileError, message);
+    }
+
+    function clearProfileMessage() {
+        profileError.dataset.tone = 'muted';
+        hideHelper(profileError);
+    }
+
     function checkFormValidity() {
         if (
             isEmailValid &&
@@ -169,6 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
         profileImageInput.click();
     });
 
+    profilePreview.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+        }
+        event.preventDefault();
+        profileImageInput.click();
+    });
+
     profileImageInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -176,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileImageInput.value = '';
                 profileImgElement.src = '';
                 profilePreview.classList.remove('has-image');
-                showHelper(profileError, '* 프로필 이미지는 15MB 이하 파일만 선택할 수 있습니다.');
+                setProfileMessage('* 프로필 이미지는 15MB 이하 파일만 선택할 수 있습니다.', 'error');
                 checkFormValidity();
                 return;
             }
@@ -185,14 +203,14 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onload = (evt) => {
                 profileImgElement.src = evt.target.result;
                 profilePreview.classList.add('has-image');
-                hideHelper(profileError);
+                clearProfileMessage();
                 checkFormValidity();
             };
             reader.readAsDataURL(file);
         } else {
             profileImgElement.src = '';
             profilePreview.classList.remove('has-image');
-            showHelper(profileError, '* 프로필 사진은 가입 후 메이커 프로필에서 설정할 수 있습니다.');
+            setProfileMessage('* 프로필 사진은 가입 후 메이커 프로필에서 설정할 수 있습니다.', 'muted');
             checkFormValidity();
         }
     });
@@ -503,6 +521,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 초기화
-    showHelper(profileError, '* 프로필 사진은 가입 후 메이커 프로필에서 설정할 수 있습니다.');
+    setProfileMessage('* 프로필 사진은 가입 후 메이커 프로필에서 설정할 수 있습니다.', 'muted');
     checkFormValidity();
 });

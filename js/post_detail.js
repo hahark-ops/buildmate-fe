@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const postId = urlParams.get('id') || (isPreviewMode ? 'preview' : null);
 
     if (!postId) {
-        showCustomModal('잘못된 접근입니다.', () => {
+        showCustomModal('Invalid access.', () => {
             window.location.href = 'index.html';
         });
         return;
@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentSubmitBtn = document.getElementById('commentSubmitBtn');
     const commentList = document.getElementById('commentList');
     const askQuestionBtn = document.getElementById('askQuestionBtn');
+    const askQuestionBtnSecondary = document.getElementById('askQuestionBtnSecondary');
     const commentsSection = document.getElementById('commentsSection');
 
     // 모달 요소
@@ -154,6 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         '합류 형태',
     ];
 
+    const KEY_FACT_META = {
+        '현재 단계': { label: 'Current Stage', icon: 'trending_up' },
+        '필요 역할': { label: 'Needed Roles', icon: 'person_search' },
+        '사용 도구': { label: 'Tools', icon: 'construction' },
+        '협업 방식': { label: 'Collaboration', icon: 'schedule' },
+        '합류 형태': { label: 'Join Type', icon: 'payments' },
+    };
+
     // formatDate는 common.js에서 제공
 
     function parseStructuredContent(rawContent) {
@@ -214,15 +223,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = document.createElement('div');
             item.className = 'post-key-fact';
 
+            const header = document.createElement('div');
+            header.className = 'post-key-fact-header';
+
+            const iconWrap = document.createElement('span');
+            iconWrap.className = 'post-key-fact-icon';
+
+            const icon = document.createElement('span');
+            icon.className = 'material-symbols-outlined';
+            icon.textContent = KEY_FACT_META[fact.label]?.icon || 'info';
+            iconWrap.appendChild(icon);
+
             const label = document.createElement('span');
             label.className = 'post-key-fact-label';
-            label.textContent = fact.label;
+            label.textContent = KEY_FACT_META[fact.label]?.label || fact.label;
 
             const value = document.createElement('strong');
             value.className = 'post-key-fact-value';
             value.textContent = fact.value;
 
-            item.append(label, value);
+            header.append(iconWrap, label);
+            item.append(header, value);
             postKeyFacts.appendChild(item);
         });
 
@@ -306,10 +327,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (facts.length) {
-            return facts.map((fact) => `${fact.label} ${fact.value}`).join(' · ');
+            return facts
+                .map((fact) => `${KEY_FACT_META[fact.label]?.label || fact.label}: ${fact.value}`)
+                .join(' · ');
         }
 
-        return '현재 단계와 필요한 역할을 확인한 뒤, 공개 질문과 협업 제안으로 실제 작업 흐름을 이어갈 수 있습니다.';
+        return 'Review the role, collaboration style, and join type before moving into a direct conversation.';
     }
 
     function renderHeroBrief(facts, bodyText) {
@@ -320,17 +343,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const factMap = new Map(facts.map((fact) => [fact.label, fact.value]));
         const roles = splitFactValue(factMap.get('필요 역할'));
         const tools = splitFactValue(factMap.get('사용 도구'));
-        const stage = factMap.get('현재 단계') || '초기 논의 단계';
-        const collaboration = factMap.get('협업 방식') || '협업 방식 조율 필요';
-        const joinType = factMap.get('합류 형태') || '합류 형태 협의';
+        const stage = factMap.get('현재 단계') || 'Open discussion';
+        const collaboration = factMap.get('협업 방식') || 'Async-first';
+        const joinType = factMap.get('합류 형태') || 'Flexible';
         const summarySource = (bodyText || '').replace(/\s+/g, ' ').trim();
 
         postHeroBriefTitle.textContent = roles.length
-            ? `${roles[0]} 중심으로 팀을 확장합니다.`
-            : '합류 전에 역할 적합도를 먼저 맞춰보세요.';
+            ? `${roles[0]} is the first priority for this team.`
+            : 'Align role fit before moving into direct chat.';
         postHeroBriefCopy.textContent = summarySource
             ? (summarySource.length > 120 ? `${summarySource.slice(0, 117)}...` : summarySource)
-            : '핵심 역할, 협업 방식, 합류 형태를 빠르게 확인하고 공개 질문으로 이어가세요.';
+            : 'Review the role, collaboration mode, and join type before opening a private collaboration thread.';
 
         const pills = [
             `Stage · ${stage}`,
@@ -349,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function showModal(title, onConfirm, subtitle = '삭제한 모집 내용은 복구할 수 없습니다.') {
+    function showModal(title, onConfirm, subtitle = 'This action cannot be undone.') {
         modalTitle.textContent = title;
         if (modalSubtitle) {
             modalSubtitle.textContent = subtitle;
@@ -460,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                showCustomModal('게시글을 찾을 수 없습니다.', () => {
+                showCustomModal('We could not find this project.', () => {
                     window.location.href = 'index.html';
                 });
                 return;
@@ -471,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPost();
         } catch (error) {
             console.error('Failed to fetch post:', error);
-            showCustomModal('게시글을 불러오는데 실패했습니다.');
+            showCustomModal('Failed to load the project.');
         }
     }
 
@@ -494,10 +517,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasExpectedComments = Number(currentPost?.commentCount || 0) > 0;
             renderCommentStatus(
                 hasRenderedComments
-                    ? '최신 질문을 다시 불러오지 못했습니다. 잠시 후 새로고침 해주세요.'
+                    ? 'We could not refresh the latest questions. Please try again shortly.'
                     : (hasExpectedComments
-                        ? '질문 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
-                        : '아직 공개 질문이나 문의가 없습니다.'),
+                        ? 'We could not load the question list. Please try again shortly.'
+                        : 'There are no public questions yet.'),
                 (hasRenderedComments || hasExpectedComments) ? 'error' : 'empty',
                 hasRenderedComments
             );
@@ -508,10 +531,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasExpectedComments = Number(currentPost?.commentCount || 0) > 0;
             renderCommentStatus(
                 hasRenderedComments
-                    ? '최신 질문을 다시 불러오지 못했습니다. 잠시 후 새로고침 해주세요.'
+                    ? 'We could not refresh the latest questions. Please try again shortly.'
                     : (hasExpectedComments
-                        ? '질문 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
-                        : '아직 공개 질문이나 문의가 없습니다.'),
+                        ? 'We could not load the question list. Please try again shortly.'
+                        : 'There are no public questions yet.'),
                 (hasRenderedComments || hasExpectedComments) ? 'error' : 'empty',
                 hasRenderedComments
             );
@@ -539,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!currentUser) {
-            showCustomModal('로그인이 필요합니다.', () => {
+            showCustomModal('You need to sign in first.', () => {
                 window.location.href = 'login.html';
             });
             return;
@@ -597,11 +620,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (response.ok) {
-                showCustomModal('모집글이 삭제되었습니다.', () => {
+                showCustomModal('The project was deleted.', () => {
                     window.location.href = 'index.html';
                 });
             } else {
-                showCustomModal('삭제에 실패했습니다.');
+                showCustomModal('Failed to delete the project.');
             }
         } catch (error) {
             console.error('Failed to delete post:', error);
@@ -613,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!content) return;
 
         if (!currentUser) {
-            showCustomModal('로그인이 필요합니다.', () => {
+            showCustomModal('You need to sign in first.', () => {
                 window.location.href = 'login.html';
             });
             return;
@@ -644,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pendingCommentId = editingCommentId;
 
                 commentInput.value = '';
-                commentSubmitBtn.textContent = '질문 남기기';
+                commentSubmitBtn.textContent = 'Ask Question';
                 commentSubmitBtn.disabled = true;
                 commentSubmitBtn.classList.remove('active');
                 editingCommentId = null;
@@ -666,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else {
-                showCustomModal('질문 등록에 실패했습니다.');
+                showCustomModal('Failed to save your question.');
             }
         } catch (error) {
             console.error('Error submitting comment:', error);
@@ -694,12 +717,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (!commentList.querySelector('.comment-item')) {
-                    renderCommentStatus('아직 공개 질문이나 문의가 없습니다.');
+                    renderCommentStatus('There are no public questions yet.');
                 }
 
                 await fetchComments();
             } else {
-                showCustomModal('질문 삭제에 실패했습니다.');
+                showCustomModal('Failed to delete the question.');
             }
         } catch (error) {
             console.error('Failed to delete comment:', error);
@@ -845,12 +868,12 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn = document.createElement('button');
             editBtn.className = 'comment-action-btn edit-comment-btn';
             editBtn.type = 'button';
-            editBtn.textContent = '질문 수정';
+            editBtn.textContent = 'Edit';
 
             deleteBtn = document.createElement('button');
             deleteBtn.className = 'comment-action-btn delete-comment-btn';
             deleteBtn.type = 'button';
-            deleteBtn.textContent = '질문 삭제';
+            deleteBtn.textContent = 'Delete';
 
             actionsEl.append(editBtn, deleteBtn);
             headerEl.appendChild(actionsEl);
@@ -867,16 +890,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 editingCommentId = comment.commentId;
                 commentInput.value = comment.content;
                 commentInput.focus();
-                commentSubmitBtn.textContent = '질문 수정';
+                commentSubmitBtn.textContent = 'Update Question';
                 commentSubmitBtn.disabled = false;
                 commentSubmitBtn.classList.add('active');
                 commentInput.scrollIntoView({ behavior: 'smooth' });
             });
 
             deleteBtn.addEventListener('click', () => {
-                showModal('질문을 삭제하시겠습니까?', () => {
+                showModal('Delete this question?', () => {
                     deleteComment(comment.commentId);
-                }, '삭제한 질문은 복구할 수 없습니다.');
+                }, 'This action cannot be undone.');
             });
         }
 
@@ -906,7 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderComments(comments) {
         commentList.innerHTML = '';
         if (!comments.length) {
-            renderCommentStatus('아직 공개 질문이나 문의가 없습니다.');
+            renderCommentStatus('There are no public questions yet.');
             return;
         }
         comments.forEach((comment) => {
@@ -927,6 +950,13 @@ document.addEventListener('DOMContentLoaded', () => {
         commentList.appendChild(stateEl);
     }
 
+    function focusQuestionComposer() {
+        if (commentsSection) {
+            commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        commentInput.focus();
+    }
+
     // ==========================================
     // 이벤트 리스너
     // ==========================================
@@ -935,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `post_edit.html?id=${postId}`;
     });
     deletePostBtn.addEventListener('click', () => {
-        showModal('모집글을 삭제하시겠습니까?', deletePost);
+        showModal('Delete this project?', deletePost, 'This action cannot be undone.');
     });
     modalCancelBtn.addEventListener('click', hideModal);
     deleteModal.addEventListener('click', (e) => {
@@ -948,12 +978,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     commentSubmitBtn.addEventListener('click', submitComment);
     if (askQuestionBtn) {
-        askQuestionBtn.addEventListener('click', () => {
-            if (commentsSection) {
-                commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-            commentInput.focus();
-        });
+        askQuestionBtn.addEventListener('click', focusQuestionComposer);
+    }
+    if (askQuestionBtnSecondary) {
+        askQuestionBtnSecondary.addEventListener('click', focusQuestionComposer);
     }
 
     // 프로필 드롭다운 이벤트

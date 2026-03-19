@@ -4,24 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>협업 채팅 - 빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
-    <link rel="stylesheet" href="css/dm.css?v=20260319-mobile2">
+    <title>Buildmate | Messages</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="css/common.css?v=20260319-stitch-chat">
+    <link rel="stylesheet" href="css/dm.css?v=20260319-stitch-chat">
 </head>
 
-<body>
-    <header>
-        <a href="index.html" class="back-button">&lt;</a>
-        <span class="logo">빌드메이트</span>
-        <div class="header-content">
-            <div class="header-actions">
-                <a href="dm.html" class="header-icon-btn dm-icon-btn active" aria-label="협업 채팅">협업 채팅</a>
-                <div class="profile-icon" id="profileIcon"></div>
+<body class="dm-page">
+    <header class="product-header dm-header">
+        <div class="product-header-shell">
+            <div class="product-header-left">
+                <a href="index.html" class="logo product-logo">
+                    <span class="product-logo-mark">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </span>
+                    <span class="product-logo-text">Buildmate</span>
+                </a>
+                <nav class="product-nav" aria-label="메인 탐색">
+                    <a href="index.html">Projects</a>
+                    <a href="index.html">Collaborators</a>
+                    <a href="dm.html" class="active">Messages</a>
+                    <a href="index.html">Network</a>
+                </nav>
             </div>
-            <div class="profile-dropdown" id="profileDropdown">
-                <a href="profile.html" class="dropdown-item">메이커 프로필</a>
-                <a href="password.html" class="dropdown-item">계정 보안</a>
-                <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+
+            <div class="header-content product-header-content">
+                <label class="product-header-search" aria-label="대화 검색">
+                    <span class="material-symbols-outlined">search</span>
+                    <input type="search" placeholder="Search conversations..." />
+                </label>
+                <button type="button" class="product-header-icon-btn" aria-label="알림">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button type="button" class="product-header-icon-btn" aria-label="설정">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <a href="dm.html" class="header-icon-btn dm-icon-btn active" aria-label="협업 채팅">Messages</a>
+                <div class="profile-icon" id="profileIcon"></div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <a href="profile.html" class="dropdown-item">메이커 프로필</a>
+                    <a href="password.html" class="dropdown-item">계정 보안</a>
+                    <a href="#" class="dropdown-item" id="logoutBtn">로그아웃</a>
+                </div>
             </div>
         </div>
     </header>
@@ -30,16 +57,18 @@
         <section class="dm-room-panel">
             <div class="dm-panel-head">
                 <div>
-                    <p class="dm-panel-kicker">Buildmate Messages</p>
-                    <div class="dm-panel-title">협업 채팅</div>
-                    <p class="dm-panel-caption">프로젝트 논의와 역할 조율이 이미 시작된 대화 목록입니다.</p>
+                    <p class="dm-panel-kicker">Buildmate Inbox</p>
+                    <div class="dm-panel-title">Conversations</div>
+                    <p class="dm-panel-caption">Active collaboration threads with builders you already matched with.</p>
                 </div>
-                <span class="dm-panel-live-pill">Live</span>
+                <button type="button" class="dm-panel-add-btn" aria-label="새 협업 시작">
+                    <span class="material-symbols-outlined">add_comment</span>
+                </button>
             </div>
             <div class="dm-panel-tabs" aria-label="채팅함 분류 미리보기">
-                <button type="button" class="dm-panel-tab active">전체</button>
-                <button type="button" class="dm-panel-tab" disabled>읽지 않음</button>
-                <button type="button" class="dm-panel-tab" disabled>보관됨</button>
+                <button type="button" class="dm-panel-tab active">All</button>
+                <button type="button" class="dm-panel-tab" disabled>Unread</button>
+                <button type="button" class="dm-panel-tab" disabled>Archived</button>
             </div>
             <div id="dmRoomList" class="dm-room-list"></div>
         </section>
@@ -47,16 +76,21 @@
         <section class="dm-chat-shell">
             <div class="dm-chat-context">
                 <div class="dm-chat-context-main">
-                    <div class="dm-chat-context-mark">BM</div>
+                    <div class="dm-chat-context-mark">
+                        <span class="material-symbols-outlined">rocket_launch</span>
+                    </div>
                     <div>
                         <p class="dm-chat-context-label">Current Collaboration</p>
-                        <h1 class="dm-chat-context-title" id="dmContextTitle">협업할 메이트를 선택해주세요.</h1>
-                        <p class="dm-chat-context-copy" id="dmContextSubtitle">프로젝트 관련 최근 활동과 대화 흐름을 이곳에서 이어갈 수 있습니다.</p>
+                        <h1 class="dm-chat-context-title" id="dmContextTitle">Select a collaborator to continue.</h1>
+                        <p class="dm-chat-context-copy" id="dmContextSubtitle">Review the project context, align the role fit, and move the discussion forward.</p>
                         <div class="dm-chat-context-pills" id="dmContextPills"></div>
                     </div>
                 </div>
                 <div class="dm-chat-context-actions">
-                    <a href="index.html" class="dm-context-link">모집글 둘러보기</a>
+                    <a href="index.html" class="dm-context-link">View Details</a>
+                    <button type="button" class="dm-context-icon-btn" aria-label="더보기">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
                 </div>
             </div>
 
@@ -65,52 +99,110 @@
                     <div class="dm-chat-header-main">
                         <div class="dm-peer-avatar" id="dmPeerAvatar"></div>
                         <div class="dm-peer-meta">
-                            <strong id="dmPeerName">협업할 메이트를 선택해주세요.</strong>
-                            <span id="dmStatusMessage">프로젝트 논의를 위한 실시간 협업 채팅을 지원합니다.</span>
+                            <strong id="dmPeerName">Select a collaborator to continue.</strong>
+                            <span id="dmStatusMessage">Real-time collaboration updates appear here.</span>
                         </div>
                     </div>
                     <div class="dm-chat-header-actions">
-                        <button type="button" id="dmPushToggleBtn" class="dm-push-toggle-btn">알림 켜기</button>
-                        <span id="dmPushHint" class="dm-push-hint">프로젝트 관련 새 메시지를 브라우저 알림으로 받을 수 있습니다.</span>
+                        <button type="button" id="dmPushToggleBtn" class="dm-push-toggle-btn">Turn on alerts</button>
+                        <span id="dmPushHint" class="dm-push-hint">Enable browser alerts for new collaboration updates.</span>
                     </div>
                 </div>
-                <div id="dmEmptyState" class="dm-empty-state">아직 시작한 협업 대화가 없습니다.</div>
+                <div id="dmEmptyState" class="dm-empty-state">There are no collaboration messages yet.</div>
                 <div id="dmMessageList" class="dm-message-list"></div>
                 <form id="dmComposer" class="dm-composer">
-                    <textarea id="dmInput" placeholder="협업 메시지를 입력하세요." maxlength="500"></textarea>
-                    <button type="submit" id="dmSendBtn">전송</button>
+                    <button type="button" class="dm-composer-icon-btn" aria-label="첨부">
+                        <span class="material-symbols-outlined">add_circle</span>
+                    </button>
+                    <textarea id="dmInput" placeholder="Type your message..." maxlength="500"></textarea>
+                    <div class="dm-composer-actions">
+                        <button type="button" class="dm-composer-icon-btn" aria-label="이모지">
+                            <span class="material-symbols-outlined">sentiment_satisfied</span>
+                        </button>
+                        <button type="submit" id="dmSendBtn">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
                 </form>
             </section>
         </section>
 
         <aside class="dm-side-panel">
-            <section class="dm-side-card">
-                <p class="dm-side-label">Conversation Snapshot</p>
-                <h2 id="dmSidePeerName">협업할 메이트를 선택해주세요.</h2>
-                <p class="dm-side-copy" id="dmSideStatus">대화를 선택하면 최근 활동과 현재 상태를 여기에서도 확인할 수 있습니다.</p>
+            <section class="dm-side-card dm-side-profile-card">
+                <div class="dm-side-profile-avatar" id="dmSideAvatar"></div>
+                <p class="dm-side-label">Collaboration Summary</p>
+                <h2 id="dmSidePeerName">Select a collaborator to continue.</h2>
+                <p class="dm-side-copy" id="dmSideStatus">Choose a thread to see current fit, progress, and next-step guidance.</p>
+                <div class="dm-side-profile-actions">
+                    <a href="index.html" class="dm-side-chip-btn">View Portfolio</a>
+                    <button type="button" class="dm-side-chip-btn icon" aria-label="메일">
+                        <span class="material-symbols-outlined">mail</span>
+                    </button>
+                </div>
             </section>
 
             <section class="dm-side-card">
-                <p class="dm-side-label">Good Collaboration Signals</p>
+                <div class="dm-side-fit-head">
+                    <p class="dm-side-label">Role Fit Match</p>
+                    <strong class="dm-side-fit-score">94%</strong>
+                </div>
+                <div class="dm-side-metric-list">
+                    <div class="dm-side-metric">
+                        <div class="dm-side-metric-row">
+                            <span>Role alignment</span>
+                            <span>Expert</span>
+                        </div>
+                        <div class="dm-side-meter"><span style="width: 94%;"></span></div>
+                    </div>
+                    <div class="dm-side-metric">
+                        <div class="dm-side-metric-row">
+                            <span>Availability</span>
+                            <span>Advanced</span>
+                        </div>
+                        <div class="dm-side-meter"><span style="width: 86%;"></span></div>
+                    </div>
+                    <div class="dm-side-metric">
+                        <div class="dm-side-metric-row">
+                            <span>Communication</span>
+                            <span>Strong</span>
+                        </div>
+                        <div class="dm-side-meter"><span style="width: 78%;"></span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dm-side-card">
+                <p class="dm-side-label">Next Steps</p>
                 <ul class="dm-side-list" id="dmSideHighlights">
-                    <li>역할 기대치와 일정 가능 시간을 먼저 맞춰보세요.</li>
-                    <li>공개 질문에서 다룬 내용은 요약해서 다시 확인하세요.</li>
-                    <li>합류 조건이 정리되면 실제 작업 시작 시점을 명확히 남기세요.</li>
+                    <li>Confirm role expectations and availability first.</li>
+                    <li>Summarize what was already resolved in public questions.</li>
+                    <li>Agree on the exact start point before moving into execution.</li>
                 </ul>
             </section>
 
             <section class="dm-side-card">
-                <p class="dm-side-label">Next Actions</p>
+                <p class="dm-side-label">Quick Actions</p>
                 <div class="dm-side-actions">
-                    <a href="index.html" class="dm-side-btn primary">다른 프로젝트 보기</a>
-                    <a href="post_write.html" class="dm-side-btn">새 모집글 작성</a>
+                    <a href="index.html" class="dm-side-btn primary">Schedule interview</a>
+                    <a href="post_write.html" class="dm-side-btn">Request references</a>
+                </div>
+            </section>
+
+            <section class="dm-side-card dm-side-file-card">
+                <p class="dm-side-label">Shared Files</p>
+                <div class="dm-shared-file">
+                    <span class="material-symbols-outlined">description</span>
+                    <div>
+                        <strong>project_brief.pdf</strong>
+                        <span>2.4 MB · 2 days ago</span>
+                    </div>
                 </div>
             </section>
         </aside>
     </main>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js?v=20260319-preview"></script>
+    <script src="js/common.js?v=20260319-stitch-chat"></script>
     <script src="js/modal.js"></script>
     <script src="js/dm.js"></script>
 </body>

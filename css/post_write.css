@@ -1,224 +1,763 @@
-/* 
-  Post Write Page Styles - 게시글 작성 페이지 전용 스타일
-*/
+body.composer-page {
+    background: #f6f7f8;
+    color: #0f172a;
+}
 
-/* --- Container --- */
-.post-write-container {
+body.composer-page header.composer-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 0;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+}
+
+.composer-header-inner {
+    width: 100%;
+    max-width: 1280px;
+    min-height: 64px;
+    margin: 0 auto;
+    padding: 0 24px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    margin-top: 40px;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.composer-header-left,
+.composer-header-right {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.composer-logo-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #0f172a;
+    font-family: 'Inter', 'Pretendard', sans-serif;
+}
+
+.composer-logo-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a8cef;
+    color: #ffffff;
+}
+
+.composer-logo-mark .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.composer-logo-text {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.composer-nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.composer-nav a {
+    text-decoration: none;
+    font-family: 'Inter', 'Pretendard', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    transition: color 0.2s ease;
+}
+
+.composer-nav a:hover,
+.composer-nav a.is-active {
+    color: #2a8cef;
+}
+
+.composer-search {
+    position: relative;
+    width: 264px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.composer-search .material-symbols-outlined {
+    position: absolute;
+    left: 14px;
+    font-size: 18px;
+    color: #94a3b8;
+}
+
+.composer-search input {
     width: 100%;
-    padding: 0 20px;
-    box-sizing: border-box;
+    min-height: 42px;
+    padding: 0 16px 0 42px;
+    border: none;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #0f172a;
+    font: 500 14px 'Inter', 'Pretendard', sans-serif;
+    outline: none;
 }
 
-.page-title {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: #000000;
-    text-align: center;
-    margin-bottom: 30px;
+.composer-search input::placeholder {
+    color: #94a3b8;
 }
 
-/* --- Form Styles --- */
-.post-write-form {
+.composer-account {
+    position: relative;
+}
+
+.composer-profile-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px 4px 4px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.composer-avatar.profile-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background-color: #dbeafe;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background-size: cover;
+    background-position: center;
+}
+
+.composer-profile-label {
+    font: 600 14px 'Inter', 'Pretendard', sans-serif;
+    color: #0f172a;
+}
+
+.composer-account .profile-dropdown {
+    top: calc(100% + 10px);
+    right: 0;
+}
+
+main.composer-main {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+
+.composer-intro {
+    margin-bottom: 44px;
+    font-family: 'Inter', 'Pretendard', sans-serif;
+}
+
+.composer-intro h1 {
+    margin: 0 0 14px;
+    font-size: clamp(36px, 4vw, 52px);
+    line-height: 1.02;
+    letter-spacing: -0.06em;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.composer-intro p {
+    max-width: 760px;
+    font-size: 18px;
+    line-height: 1.7;
+    color: #64748b;
+}
+
+.composer-shell {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    max-width: 550px;
-    gap: 16px;
+    gap: 24px;
 }
 
-.content-helper {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #4B5563;
+.composer-card {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 8px 28px rgba(148, 163, 184, 0.12);
+    font-family: 'Inter', 'Pretendard', sans-serif;
 }
 
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.composer-core-card {
+    padding: 34px 32px;
 }
 
-.input-group label {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    color: #000000;
+.composer-field-block+.composer-field-block {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid #f1f5f9;
 }
 
-/* Title Input */
-.input-group input[type="text"] {
-    width: 100%;
-    height: 40px;
-    padding: 0 12px;
-    border: none;
-    border-bottom: 1px solid #000000;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    color: #000000;
-    outline: none;
-    box-sizing: border-box;
-    background: transparent;
-}
-
-.input-group input[type="text"]::placeholder {
-    color: #9E9E9E;
-}
-
-.input-group input[type="text"]:focus {
-    border-bottom-color: var(--active-btn-color);
-}
-
-/* Content Textarea */
-.input-group textarea {
-    width: 100%;
-    min-height: 220px;
-    padding: 12px;
-    border: none;
-    border-bottom: 1px solid #000000;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    color: #000000;
-    outline: none;
-    box-sizing: border-box;
-    resize: vertical;
-    background: transparent;
-}
-
-.content-guide {
-    margin-top: 8px;
-    padding: 16px 18px;
-    border-radius: 14px;
-    background: #F8F7FF;
-    border: 1px solid #DDD6FE;
-}
-
-.content-guide strong {
+.composer-eyebrow {
     display: block;
-    margin-bottom: 10px;
-    font-size: 14px;
-    color: #4C1D95;
+    margin-bottom: 12px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #94a3b8;
 }
 
-.content-guide ul {
-    list-style: none;
+.composer-core-card input[type="text"],
+.composer-core-card textarea,
+.composer-meta-card input,
+.composer-meta-card select,
+.composer-stat-card input {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.composer-core-card input[type="text"] {
+    min-height: 64px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    font-size: clamp(34px, 4vw, 46px);
+    line-height: 1.1;
+    letter-spacing: -0.06em;
+    font-weight: 800;
+}
+
+.composer-core-card input[type="text"]::placeholder,
+.composer-core-card textarea::placeholder {
+    color: #cbd5e1;
+}
+
+.composer-toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    color: #5B6473;
-    font-size: 13px;
-    line-height: 1.5;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    background: #f8fafc;
 }
 
-.input-group textarea::placeholder {
-    color: #9E9E9E;
+.composer-toolbar button {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #64748b;
+    pointer-events: none;
 }
 
-.input-group textarea:focus {
-    border-bottom-color: var(--active-btn-color);
+.composer-toolbar-divider {
+    width: 1px;
+    height: 22px;
+    margin: 0 2px;
+    background: #e2e8f0;
 }
 
-
-/* --- Helper Text --- */
-.helper-text {
-    min-height: 15px;
-    visibility: hidden;
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    color: #FF0000;
+.composer-editor-block textarea {
+    min-height: 250px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    resize: vertical;
+    font-size: 18px;
+    line-height: 1.8;
 }
 
-.helper-text.show {
-    visibility: visible;
+.composer-metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
 }
 
-/* --- Image Upload --- */
-.image-upload-group {
+.composer-meta-card {
+    padding: 26px;
+}
+
+.composer-meta-head {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
 }
 
-.image-upload-group label {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 15px;
+.composer-meta-head .material-symbols-outlined {
+    font-size: 22px;
+    color: #2a8cef;
+}
+
+.composer-meta-head h2,
+.composer-upload-card h2,
+.composer-collaboration-head h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 20px;
     font-weight: 700;
-    color: #000000;
+    color: #0f172a;
 }
 
-.file-input-wrapper {
+.composer-meta-card input,
+.composer-meta-card select {
+    min-height: 50px;
+    padding: 0 14px;
+    border-radius: 14px;
+    font-size: 14px;
+}
+
+.composer-meta-card input:focus,
+.composer-meta-card select:focus,
+.composer-stat-card input:focus {
+    border-color: rgba(42, 140, 239, 0.42);
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(42, 140, 239, 0.12);
+}
+
+.composer-role-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.composer-role-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 40px;
+}
+
+.composer-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(42, 140, 239, 0.2);
+    background: rgba(42, 140, 239, 0.1);
+    color: #2a8cef;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.composer-role-pill button {
+    width: 16px;
+    height: 16px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.composer-role-pill .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.composer-role-entry {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.file-select-btn {
-    padding: 6px 12px;
-    border: 1px solid #000000;
-    border-radius: 4px;
-    background: #FFFFFF;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    color: #000000;
-    cursor: pointer;
-    transition: background-color 0.2s;
+.composer-role-entry input {
+    flex: 1;
 }
 
-.file-select-btn:hover {
-    background: #F5F5F5;
+.composer-chip-add-btn,
+.composer-choice-btn,
+.composer-mode-btn,
+.composer-chip-outline,
+.composer-text-button,
+.composer-submit-button {
+    font-family: inherit;
 }
 
-.file-name {
-    font-family: 'Pretendard', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    color: #9E9E9E;
-}
-
-.file-name.selected {
-    color: #000000;
-}
-
-/* --- Submit Button --- */
-.submit-btn {
-    width: 100%;
-    height: 42px;
-    margin-top: 20px;
+.composer-chip-add-btn {
+    min-height: 50px;
     padding: 0 16px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 999px;
+    background: transparent;
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.composer-chip-add-btn:hover {
+    border-color: #2a8cef;
+    color: #2a8cef;
+}
+
+.composer-choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.composer-choice-btn {
+    min-height: 48px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.composer-choice-btn.is-active {
+    border-color: #2a8cef;
+    background: rgba(42, 140, 239, 0.06);
+    color: #2a8cef;
+}
+
+.composer-upload-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 48px 24px;
+    border-style: dashed;
+    border-width: 2px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.composer-upload-card:hover,
+.composer-upload-card:focus-visible {
+    border-color: #2a8cef;
+    background: #fcfdff;
+    outline: none;
+}
+
+.composer-upload-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    color: #94a3b8;
+}
+
+.composer-upload-icon .material-symbols-outlined {
+    font-size: 28px;
+}
+
+.composer-upload-card p {
+    color: #64748b;
+    text-align: center;
+}
+
+.composer-upload-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.composer-chip-outline {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid #dbe3ee;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.composer-file-name {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.composer-file-name.selected {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.composer-collaboration-card {
+    padding: 30px;
+}
+
+.composer-collaboration-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.composer-collaboration-head p {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.composer-segmented-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 14px;
+    background: #f1f5f9;
+}
+
+.composer-mode-btn {
+    min-height: 38px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.composer-mode-btn.is-active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 8px 18px rgba(148, 163, 184, 0.18);
+}
+
+.composer-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.composer-stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px;
+    border: 1px solid #f1f5f9;
+    border-radius: 18px;
+}
+
+.composer-stat-card .material-symbols-outlined {
+    color: #2a8cef;
+    font-size: 22px;
+}
+
+.composer-stat-eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #94a3b8;
+}
+
+.composer-stat-card input {
+    min-height: 28px;
     padding: 0;
     border: none;
-    border-radius: 8px;
-    background-color: #ACA0EB;
-    font-family: 'Pretendard', sans-serif;
-    font-size: 16px;
+    background: transparent;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.composer-helper-text {
+    min-height: 18px;
+    padding-left: 4px;
+    font-size: 13px;
+    color: #ef4444;
+    opacity: 0;
+}
+
+.composer-helper-text.show {
+    opacity: 1;
+}
+
+.composer-action-row {
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.composer-secondary-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.composer-text-button {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 15px;
     font-weight: 700;
-    color: #FFFFFF;
+    cursor: pointer;
+}
+
+.composer-text-button-primary {
+    color: #2a8cef;
+}
+
+.composer-submit-button {
+    min-height: 56px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 18px;
+    background: #c7ddfb;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     cursor: not-allowed;
-    transition: background-color 0.3s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.submit-btn.active {
-    background-color: #7F6AEE;
+.composer-submit-button.active {
     cursor: pointer;
+    background: #2a8cef;
+    box-shadow: 0 18px 34px rgba(42, 140, 239, 0.22);
 }
 
-/* --- Header Back Button --- */
-.back-button {
-    position: absolute;
-    left: 30px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    font-weight: 400;
-    text-decoration: none;
-    color: #000000;
-    cursor: pointer;
+.composer-submit-button.active:hover {
+    transform: translateY(-1px);
+    background: #177ee7;
+}
+
+.composer-footer-note {
+    margin-top: 64px;
+    padding: 32px 0 12px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    text-align: center;
+    color: #94a3b8;
+    font-family: 'Inter', 'Pretendard', sans-serif;
+    font-size: 14px;
+}
+
+@media (max-width: 1080px) {
+    .composer-header-inner {
+        padding: 0 18px;
+    }
+
+    .composer-nav,
+    .composer-search {
+        display: none;
+    }
+
+    main.composer-main {
+        padding: 36px 18px 64px;
+    }
+}
+
+@media (max-width: 820px) {
+    .composer-metadata-grid,
+    .composer-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .composer-collaboration-head,
+    .composer-action-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .composer-secondary-actions {
+        justify-content: space-between;
+    }
+
+    .composer-submit-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .composer-header-inner {
+        min-height: 60px;
+    }
+
+    .composer-profile-label {
+        display: none;
+    }
+
+    main.composer-main {
+        padding: 28px 14px 56px;
+    }
+
+    .composer-intro h1 {
+        font-size: 34px;
+    }
+
+    .composer-intro p {
+        font-size: 16px;
+    }
+
+    .composer-card {
+        border-radius: 22px;
+    }
+
+    .composer-core-card,
+    .composer-meta-card,
+    .composer-collaboration-card {
+        padding: 24px 18px;
+    }
+
+    .composer-core-card input[type="text"] {
+        font-size: 30px;
+    }
+
+    .composer-editor-block textarea {
+        min-height: 210px;
+        font-size: 16px;
+    }
+
+    .composer-role-entry,
+    .composer-choice-grid {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .composer-chip-add-btn,
+    .composer-choice-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .composer-secondary-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
 }

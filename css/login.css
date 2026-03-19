@@ -1,30 +1,430 @@
-.auth-shell-login .auth-hero-panel {
-    min-height: 760px;
+body.stitch-login-page {
+    background: #f6f7f8;
+    color: #0f172a;
 }
 
-.auth-shell-login .auth-card-panel {
-    min-height: 760px;
+body.stitch-login-page::before,
+body.stitch-login-page::after {
+    display: none;
 }
 
-.auth-shell-login .auth-card-copy {
-    max-width: 520px;
+.stitch-login-page main.stitch-login-main {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
 }
 
-.auth-shell-login .auth-hero-surface {
-    max-width: 560px;
+.stitch-login-layout {
+    min-height: 100vh;
+    display: flex;
 }
 
-.auth-shell-login .auth-card-support {
-    margin-top: -6px;
+.stitch-login-brand-panel,
+.stitch-login-form-panel {
+    font-family: 'Inter', 'Pretendard', sans-serif;
 }
 
-.auth-shell-login .login-form {
-    margin-top: 4px;
+.stitch-login-brand-panel {
+    width: 50%;
+    min-width: 0;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 48px;
+    background: #ffffff;
+    border-right: 1px solid rgba(15, 23, 42, 0.08);
 }
 
-@media (max-width: 980px) {
-    .auth-shell-login .auth-hero-panel,
-    .auth-shell-login .auth-card-panel {
-        min-height: auto;
+.stitch-login-brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #0f172a;
+}
+
+.stitch-login-brand-lockup-mobile {
+    display: none;
+    margin-bottom: 14px;
+}
+
+.stitch-login-brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #2a8cef;
+    color: #ffffff;
+    box-shadow: 0 12px 24px rgba(42, 140, 239, 0.22);
+}
+
+.stitch-login-brand-mark .material-symbols-outlined {
+    font-size: 22px;
+}
+
+.stitch-login-brand-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+}
+
+.stitch-login-brand-copy {
+    max-width: 540px;
+}
+
+.stitch-login-brand-copy h1 {
+    margin: 0 0 34px;
+    font-size: clamp(40px, 4vw, 56px);
+    line-height: 1.08;
+    letter-spacing: -0.05em;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.stitch-login-feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.stitch-login-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.stitch-login-feature-list .material-symbols-outlined {
+    margin-top: 2px;
+    color: #2a8cef;
+    font-size: 22px;
+}
+
+.stitch-login-feature-list strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.stitch-login-feature-list p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.stitch-login-image-frame {
+    position: relative;
+    width: 100%;
+    height: 256px;
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    background: #d7dee8;
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+}
+
+.stitch-login-image-blur {
+    position: absolute;
+    inset: 0;
+    background: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB6SI6bp69kCD5GhNrsakjzehI8xD76I3LaSq0xbTqntsLy0bHfx-nW4RyDC1rknxcb7xdiPDw_zNnE2lP5IhotuqXffJzwCtjcWHyKhaM3tN5f17uqAEAIfZe8E65ssRBqk4zX3PRWJZM2kUgkzBO9WUGueD8bEHdLQHnpOuYhjbm04RgfDLeXRxYvWFXe7wk-NTVVQMqHoJ_aFWmyqrhtl2zsetCcGp2H8kiqnYF4nHE6KR5Nmbf6Y9uyxmrrOOIO3yIF8byczbOZ") center / cover;
+    filter: blur(8px);
+    transform: scale(1.04);
+    opacity: 0.62;
+}
+
+.stitch-login-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 16%, rgba(255, 255, 255, 0.42) 100%);
+}
+
+.stitch-login-image-card {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.84);
+    backdrop-filter: blur(14px);
+}
+
+.stitch-login-image-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(42, 140, 239, 0.12);
+    color: #2a8cef;
+}
+
+.stitch-login-image-line {
+    height: 8px;
+    border-radius: 999px;
+    background: #cbd5e1;
+}
+
+.stitch-login-image-line-long {
+    width: 110px;
+    margin-bottom: 10px;
+}
+
+.stitch-login-image-line-short {
+    width: 68px;
+    background: #e2e8f0;
+}
+
+.stitch-login-form-panel {
+    width: 50%;
+    min-width: 0;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stitch-login-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 20px 48px rgba(148, 163, 184, 0.18);
+}
+
+.stitch-login-card-head {
+    margin-bottom: 28px;
+}
+
+.stitch-login-card-head h2 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: -0.05em;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.stitch-login-card-head p {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #64748b;
+}
+
+.stitch-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.stitch-login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stitch-login-field label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.stitch-login-field-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.stitch-login-inline-link,
+.stitch-login-card-footer a,
+.stitch-login-legal-links a {
+    color: #2a8cef;
+    text-decoration: none;
+}
+
+.stitch-login-inline-link {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stitch-login-inline-link:hover,
+.stitch-login-card-footer a:hover,
+.stitch-login-legal-links a:hover {
+    text-decoration: underline;
+}
+
+.stitch-login-field input[type="email"],
+.stitch-login-field input[type="password"] {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stitch-login-field input::placeholder {
+    color: #94a3b8;
+}
+
+.stitch-login-field input:focus {
+    border-color: rgba(42, 140, 239, 0.42);
+    box-shadow: 0 0 0 4px rgba(42, 140, 239, 0.12);
+}
+
+.stitch-login-remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.stitch-login-remember input {
+    width: 16px;
+    height: 16px;
+    accent-color: #2a8cef;
+}
+
+.stitch-login-button {
+    width: 100%;
+    min-height: 50px;
+    border: none;
+    border-radius: 14px;
+    background: #c7ddfb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    cursor: not-allowed;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stitch-login-button.active {
+    background: #2a8cef;
+    cursor: pointer;
+    box-shadow: 0 16px 32px rgba(42, 140, 239, 0.2);
+}
+
+.stitch-login-button.active:hover {
+    transform: translateY(-1px);
+    background: #177ee7;
+}
+
+.stitch-login-card-footer {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.stitch-login-card-footer a {
+    font-weight: 800;
+}
+
+.stitch-login-footer {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.stitch-login-security-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.stitch-login-security-note .material-symbols-outlined {
+    font-size: 14px;
+}
+
+.stitch-login-legal-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.helper-text {
+    min-height: 18px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #ef4444;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.helper-text.show {
+    opacity: 1;
+}
+
+@media (max-width: 1080px) {
+    .stitch-login-brand-panel {
+        display: none;
+    }
+
+    .stitch-login-form-panel {
+        width: 100%;
+        min-height: 100vh;
+        padding: 32px 24px 40px;
+        justify-content: flex-start;
+    }
+
+    .stitch-login-brand-lockup-mobile {
+        display: inline-flex;
+    }
+}
+
+@media (max-width: 640px) {
+    .stitch-login-form-panel {
+        padding: 24px 18px 40px;
+    }
+
+    .stitch-login-card {
+        padding: 28px 20px 24px;
+        border-radius: 22px;
+    }
+
+    .stitch-login-card-head h2 {
+        font-size: 28px;
+    }
+
+    .stitch-login-legal-links {
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }

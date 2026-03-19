@@ -4,21 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>빌드메이트</title>
-    <link rel="stylesheet" href="css/common.css?v=20260319-mobile2">
-    <link rel="stylesheet" href="css/posts.css?v=20260319-mobile2">
+    <title>Buildmate | Build Something That Matters</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300;400;500;600&display=swap">
+    <link rel="stylesheet" href="css/common.css?v=20260319-stitch-exact2">
+    <link rel="stylesheet" href="css/posts.css?v=20260319-stitch-exact2">
 </head>
 
 <body class="home-page">
     <header class="home-header">
         <div class="home-header-shell">
             <div class="home-header-left">
-                <a href="index.html" class="logo home-logo">빌드메이트</a>
+                <a href="index.html" class="logo home-logo">
+                    <span class="home-logo-mark">
+                        <span class="material-symbols-outlined">bolt</span>
+                    </span>
+                    <span class="home-logo-text">Buildmate</span>
+                </a>
                 <nav class="home-nav" aria-label="메인 탐색">
                     <a href="#opportunityBoard">Discover</a>
                     <a href="#opportunityBoard">Projects</a>
-                    <a href="#readyToBuild">How It Works</a>
-                    <a href="post_write.html">Start a Project</a>
+                    <a href="#opportunityBoard">Collaborators</a>
+                    <a href="#readyToBuild">Resources</a>
                 </nav>
             </div>
 
@@ -50,37 +59,19 @@
     <main class="post-list-container">
         <section class="hero-section">
             <div class="hero-copy">
-                <p class="hero-kicker">Find Your Next Build</p>
-                <h1 class="hero-title">Build something that matters.</h1>
-                <p class="hero-description">좋은 프로젝트는 결국 좋은 메이트를 만나는 속도에서 갈립니다. Buildmate는 공개 모집, 질문, 협업 채팅을 하나의 흐름으로 묶어 팀 빌딩을 더 빠르게 만듭니다.</p>
+                <p class="hero-kicker">Buildmate Network</p>
+                <h1 class="hero-title">Build something that matters</h1>
+                <p class="hero-description">Connect with visionaries and skilled builders to bring impactful projects to life. Discover, collaborate, and scale your vision.</p>
                 <div class="hero-actions">
-                    <button class="write-btn hero-primary-btn" onclick="location.href='post_write.html'">프로젝트 모집하기</button>
-                    <a href="#opportunityBoard" class="hero-secondary-btn">열린 프로젝트 둘러보기</a>
+                    <button class="write-btn hero-primary-btn" onclick="location.href='post_write.html'">Get Started</button>
+                    <a href="#opportunityBoard" class="hero-secondary-btn">Explore Projects</a>
                 </div>
-                <p class="hero-note">Find the right team faster.</p>
             </div>
 
             <div class="hero-media" aria-hidden="true">
+                <div class="hero-media-glow"></div>
                 <div class="hero-media-frame">
-                    <span class="hero-media-label">Featured Project</span>
-                    <div class="hero-media-panel hero-media-panel-top">
-                        <p>현재 단계</p>
-                        <strong>MVP 고도화</strong>
-                        <span>Frontend, Product Design, PM</span>
-                    </div>
-                    <div class="hero-media-panel hero-media-panel-bottom">
-                        <div>
-                            <p>From question to collaboration</p>
-                            <strong>질문으로 맞춰보고, 채팅으로 결정합니다.</strong>
-                            <span>공개 질문에서 역할 기대치를 맞춘 뒤, 바로 협업 채팅으로 이어집니다.</span>
-                        </div>
-                        <div class="hero-media-tools">
-                            <span class="hero-media-tool">React</span>
-                            <span class="hero-media-tool">Figma</span>
-                            <span class="hero-media-tool">Cursor</span>
-                            <span class="hero-media-tool">Paid + Equity</span>
-                        </div>
-                    </div>
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxGN0Lc6lyCKwge9VoDdzPdz_SiDbv_1VlrZlkHjqZyeOH0bs3PsEgMJOogXLR2HS0vrAEd7KjMIYR21Alyb1Lp1fbr-qbmVKkNwG4cqzLZ-nwqwLp-y6LxVym1XjoFQ66-Egl7NNsgpFLMcb_RxNO0XPn-SFiAbML1tr3EpztnXmS9Rdv3CEi_93p-B-g_XbMGXHOAwEomKzTfufSPoNuOidEF-5wgnn5NxqZr7w7xZyCBSnItkvwdpqyTlvCx8Sbh6fDGUYYuU5x" alt="Collaborative workspace">
                 </div>
             </div>
         </section>
@@ -89,23 +80,23 @@
             <div class="board-header">
                 <div class="board-header-copy">
                     <p class="board-kicker">Open Opportunities</p>
-                    <h2>지금 합류 가능한 프로젝트</h2>
-                    <p class="board-description">현재 단계, 필요한 역할, 사용 도구를 빠르게 살펴보고 지금 합류할 만한 프로젝트를 골라보세요.</p>
+                    <h2>Open Opportunities</h2>
+                    <p class="board-description">Discover projects looking for contributors and find the right team to build with.</p>
                     <span class="board-count" id="opportunityCount">프로젝트를 불러오는 중입니다.</span>
                 </div>
                 <div class="board-filters" aria-label="프로젝트 필터">
                     <button type="button" class="board-filter-control">
-                        <span>Role</span>
+                        <span>Role:</span>
                         <strong class="board-filter-value">All Roles</strong>
                         <em class="board-filter-chevron" aria-hidden="true">⌄</em>
                     </button>
                     <button type="button" class="board-filter-control">
-                        <span>Stage</span>
-                        <strong class="board-filter-value">Open Stages</strong>
+                        <span>Stage:</span>
+                        <strong class="board-filter-value">Scaling</strong>
                         <em class="board-filter-chevron" aria-hidden="true">⌄</em>
                     </button>
                     <button type="button" class="board-filter-cta">
-                        <span>View</span>
+                        <span class="material-symbols-outlined">tune</span>
                         <strong>More Filters</strong>
                     </button>
                 </div>
@@ -122,7 +113,7 @@
                 <div class="board-cta-content">
                     <p class="board-kicker">Ready To Build</p>
                     <h2>Ready to find your next team?</h2>
-                    <p class="board-cta-description">현재 단계와 필요한 역할을 분명하게 적어두면, 더 맞는 사람과 더 빠르게 연결됩니다. 모집글을 올리고 바로 첫 대화를 시작하세요.</p>
+                    <p class="board-cta-description">Join builders already collaborating on Buildmate. Start a project or jump into the right opportunity.</p>
                     <div class="board-cta-actions">
                         <button class="write-btn" onclick="location.href='post_write.html'">Create a Project</button>
                         <a href="dm.html" class="hero-secondary-btn">Join as Collaborator</a>
@@ -135,9 +126,9 @@
     </main>
 
     <script src="js/config.js"></script>
-    <script src="js/common.js?v=20260319-preview"></script>
-    <script src="js/modal.js"></script>
-    <script src="js/posts.js"></script>
+    <script src="js/common.js?v=20260319-stitch-exact2"></script>
+    <script src="js/modal.js?v=20260319-stitch-exact2"></script>
+    <script src="js/posts.js?v=20260319-stitch-exact2"></script>
 </body>
 
 </html>
